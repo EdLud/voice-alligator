@@ -117,6 +117,11 @@ attribute<bool>                     debug{this, "debug", false, description{"Deb
 attribute<bool, threadsafe::yes>    hold{this, "hold", false, description{"Hold on / off"}};
 attribute<double, threadsafe::yes>  basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
 attribute<bool, threadsafe::yes>    steal{this, "steal", true, description{"Steal on / off"}}; //not implemented
+
+// attribute<bool>    voicesHelpSwitch{this, "voicesHelpSwitch", false, description{"Steal on / off"}}; //not implemented
+
+
+
 attribute<bool, threadsafe::yes>    steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; //not implemented
 attribute<bool, threadsafe::yes>    sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; //not implemented
 attribute<bool, threadsafe::yes>    scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale_def message with MTOF"}};
@@ -137,44 +142,40 @@ legato_mode -> für noten, die noch gespielt werden, also nicht released sind!
 bool voicesWasInitialized = false;
 int lastVoiceValue = 0;
 
+int voicenr = 0;
+int blockOutlet = false;
+
 attribute<int, threadsafe::yes> voices
 {
-this, "voices", 4,
-description{"Number of voices, default: 4"},
-setter
+    this, "voices", 4,
+    description{"Number of voices, default: 4"},
+    setter
     {
         MIN_FUNCTION
         {
-            int nrofvoices = args[0];
-                if(voicesWasInitialized && lastVoiceValue != nrofvoices)
+            cout << "voices attribute setter" << endl;
+                blockOutlet = true;
+            int firstarg = (int)args[0];
+            // if (voicenr != firstarg) // filter out repetitions
+            // {
+                // lock lock{m_mutex}; // -> crashes on initialization of the attribute
+
+                // if (voicesHelpSwitch) { lock lock{m_mutex}; }
+
+                // voicenr = (int)args[0];
+                inactive_voices = {};
+                active_voices.clear();
+                for (int i = 1; i <= firstarg; ++i)
                 {
-                    lock lock{m_mutex};
-                    cout << "lock case" << endl;
-                    if (nrofvoices)
-                    {
-                        inactive_voices = {};
-                        active_voices.clear();
-                        for (int i = 1; i <= nrofvoices; ++i)
-                        {
-                            inactive_voices.push(i);
-                        }
-                    }
-                    lock.unlock();
+                    inactive_voices.push(i);
                 }
-                else if(lastVoiceValue != nrofvoices)
-                {
-                    cout << "non-lock case" << endl;
-                    inactive_voices = {};
-                    active_voices.clear();
-                    for (int i = 1; i <= nrofvoices; ++i)
-                    {
-                        inactive_voices.push(i);
-                    }
-                    voicesWasInitialized = true;
-                }
-            lastVoiceValue = nrofvoices;
-            out1.send("voices", nrofvoices);
-            return {nrofvoices};
+                out1.send("voices", firstarg);
+                // lock.unlock(); // 
+
+                //out1.send("voices", voicenr);
+            // }
+
+            return {voicenr};
         }
     }
 };
@@ -336,6 +337,8 @@ void printScalearray()
 
 Note* findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate)
 {
+            // cout << "findfirstnotewithpredicate" << endl;
+
     for (auto &noteIt : active_voices)
     {
         if (predicate(noteIt))
@@ -348,6 +351,8 @@ Note* findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate)
 
 Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
 {
+            // cout << "findlastnotewithpredicate" << endl;
+
     // Reverse iterate through the container
     for (auto it = active_voices.rbegin(); it != active_voices.rend(); ++it) {
         if (predicate(*it)) {
@@ -358,7 +363,8 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
 }
 
 Note newNote(int mpitch, int vel, int channel)  //could add an optional frequency and mono and steal argument here for notes from the sequencer
-{
+{ 
+            cout << "newNote" << endl;
    
     Note newnote; // new?
     newnote.channel = channel;
@@ -379,6 +385,8 @@ Note newNote(int mpitch, int vel, int channel)  //could add an optional frequenc
 
 void outputNote(Note note, bool noteon, bool steal, lock &lock)
 {
+            if(blockOutlet){return;}
+
     if (noteon)
     { // -> spiele neue note  für die stimme im poly mit: target, (midipitch?), vel, freq, mono flag, hold flag, steal flag
         lock.unlock();
@@ -436,6 +444,7 @@ void outputNote(Note note, bool noteon, bool steal, lock &lock)
         }
         else
         {
+            if(blockOutlet){return;}
             out1.send("target", note.target);
             out1.send(note.mpitch.back(), 0, note.monoflag, note.holdflag, steal);
             if(debug)
@@ -491,6 +500,8 @@ Note *findNoteToSteal(Note &incomingNote)
 
 void handleNoteOn(Note &note, lock &lock)
 {
+            // cout << "handleNoteOn" << endl;
+
     int freeVoice = 0;
 
     if (!mono) // CASE: POLYPHONY
@@ -601,6 +612,7 @@ void handleNoteOn(Note &note, lock &lock)
 
 void handleNoteOff(Note &incomingNote, lock &lock)
 {
+            // cout << "handleNoteOff" << endl;
     if (hold)
     {
         if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
@@ -677,11 +689,17 @@ void handleNoteOff(Note &incomingNote, lock &lock)
     }
 }
 
-function noteInlet = MIN_FUNCTION
+function listInlets = MIN_FUNCTION
 {
+            // cout << "function listInlets" << endl;
 
+    // if(active_voices.empty() && inactive_voices.empty()){
+        // cout << "no inactive voices or active voices, return" << endl;
+        // return {};}
     if (inlet == 0)
     {
+            // cout << "listInlets 0" << endl;
+
         lock lock{m_mutex};
         int mpitch = args[0];
         int vel = args[1];
@@ -706,6 +724,8 @@ function noteInlet = MIN_FUNCTION
     }
     else
     {
+            cout << "listInlets 1" << endl;
+
         lock lock{m_mutex};
         fromPoly(args[0], args[1]);
     }
@@ -828,10 +848,18 @@ void fromPoly(int target, int muteflag)
 {
     if(debug){cout << endl
          << "  Inlet 2: " << target << " " << muteflag << endl;}
-    if (!muteflag)
+    if (muteflag && blockOutlet)
+    {
+        cout << "unblock" << endl;
+        blockOutlet = false;
+        return;
+    }
+
+        if (!muteflag)
     {
         return;
     }
+
     if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
                                          { return n.target == target; }))
     {
@@ -848,21 +876,21 @@ void fromPoly(int target, int muteflag)
 message<> print{this, "print", "Print info to the max console",
         MIN_FUNCTION
         {
-        printActive();
-        printInactive();
-        return {};
+            printActive();
+            printInactive();
+            return {};
         }
-    };
+};
+
 message<> printscale{this, "printscale", "Print scalearray to the max console",
         MIN_FUNCTION
         {
-        printScalearray();
-        return {};
+            printScalearray();
+            return {};
         }
-    };
+};
 
-
-message<threadsafe::yes> list{this, "list", "midipitch, velocity, channel", noteInlet};
+message<threadsafe::yes> list{this, "list", "midipitch, velocity, channel", listInlets};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
 message<threadsafe::yes> endhold{this, "endhold", "End hold notes 0 = all, 1 = last, 2 = first", endHold};
 message<threadsafe::yes> endall{this, "endall", "send message to release all voices", endallFunction};

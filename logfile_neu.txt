@@ -1,0 +1,1 @@
+/Applications/Max.app/Contents/MacOS/Max > max_consoley_log.txt 2>&1
