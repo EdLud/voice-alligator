@@ -31,6 +31,16 @@
 
 	<methodlist>
 
+		<method name='endall'>
+			<digest>send message to release all voices </digest>
+			<description>send message to release all voices </description>
+		</method>
+
+		<method name='endhold'>
+			<digest>End hold notes 0 = all, 1 = last, 2 = first </digest>
+			<description>End hold notes 0 = all, 1 = last, 2 = first </description>
+		</method>
+
 		<method name='scale_def'>
 			<digest>scale_def [index, value] </digest>
 			<description>scale_def [index, value] </description>
@@ -46,11 +56,6 @@
 			<description>Print scalearray to the max console </description>
 		</method>
 
-		<method name='endhold'>
-			<digest>endhold 0 = all, 1 = last, 2 = first </digest>
-			<description>endhold 0 = all, 1 = last, 2 = first </description>
-		</method>
-
 		<method name='print'>
 			<digest>Print info to the max console </digest>
 			<description>Print info to the max console </description>
@@ -64,8 +69,8 @@
 	<attributelist>
 
 		<attribute name='basefreq' get='1' set='1' type='float64' size='1' >
-			<digest>Basefreq (440 based) </digest>
-			<description>Basefreq (440 based) </description>
+			<digest>Standard A, Default: 440 hz </digest>
+			<description>Standard A, Default: 440 hz </description>
 		</attribute>
 
 		<attribute name='debug' get='1' set='1' type='long' size='1' >
@@ -104,8 +109,8 @@
 		</attribute>
 
 		<attribute name='scale_fill' get='1' set='1' type='long' size='1' >
-			<digest>Fill notes that are non-defined in scale message with MTOF </digest>
-			<description>Fill notes that are non-defined in scale message with MTOF </description>
+			<digest>Fill notes that are non-defined in scale_def message with MTOF </digest>
+			<description>Fill notes that are non-defined in scale_def message with MTOF </description>
 		</attribute>
 
 		<attribute name='scalearray_maxsize' get='1' set='1' type='long' size='1' >

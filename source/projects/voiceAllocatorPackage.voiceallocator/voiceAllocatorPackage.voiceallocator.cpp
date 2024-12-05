@@ -112,19 +112,32 @@ endhold             ->  method (int mode) // (either 0, 1 or 2)
                         2 releases last hold note
 */
 
-attribute<bool> debug{this, "debug", true, description{"Debug on / off"}};
+attribute<bool>                     debug{this, "debug", false, description{"Debug on / off"}};
 
 attribute<bool, threadsafe::yes>    hold{this, "hold", false, description{"Hold on / off"}};
-// attribute<bool>                     scale{this, "scale", true, description{"Scale on / off"}};
-attribute<double, threadsafe::yes>  basefreq{this, "basefreq", 440.000, description{"Basefreq (440 based)"}};
-attribute<bool, threadsafe::yes>    steal{this, "steal", true, description{"Steal on / off"}};
-attribute<bool, threadsafe::yes>    steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}};
-attribute<bool, threadsafe::yes>    sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}};
-attribute<bool, threadsafe::yes>    scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale message with MTOF"}};
+attribute<double, threadsafe::yes>  basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
+attribute<bool, threadsafe::yes>    steal{this, "steal", true, description{"Steal on / off"}}; //not implemented
+attribute<bool, threadsafe::yes>    steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; //not implemented
+attribute<bool, threadsafe::yes>    sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; //not implemented
+attribute<bool, threadsafe::yes>    scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale_def message with MTOF"}};
 attribute<int, threadsafe::yes>     legato_mode{this, "legato_mode", false, description{"retrigger / don't retrigger / ??"}};
+/*
+legato_mode -> für noten, die noch gespielt werden, also nicht released sind!
+                wenn release, dann neue note/voice bzw. note/voice steal
+                d.h. alles folgende gilt für attack decay sustain phase
+        legato_mode = legato -> adsr wird bei mono noten nicht geretriggert, adsr der ersten note läuft über alle noten
+        legato_mode = retrigger -> adsr wird bei mono noten geretriggert, aber nicht von 0, sondern von letztem wert aus (zb sustain)
+                                    im fall note in sustain auf 0.5 -> neue adsr geht von 0.5 in attack auf 1 etc.
+                                    im fall note in sustain auf 0.0 -> wie komplettes neu triggern
+       
+        NEU:
+        legato_mode = glide -> adsr wird bei mono noten nicht geretriggert, pitch UND velocity fahren in glidezeit auf neuen wert
+*/    
 
+bool voicesWasInitialized = false;
+int lastVoiceValue = 0;
 
-attribute<int> voices
+attribute<int, threadsafe::yes> voices
 {
 this, "voices", 4,
 description{"Number of voices, default: 4"},
@@ -133,15 +146,33 @@ setter
         MIN_FUNCTION
         {
             int nrofvoices = args[0];
-            if (nrofvoices)
-            {
-                inactive_voices = {};
-                active_voices.clear();
-                for (int i = 1; i <= nrofvoices; ++i)
+                if(voicesWasInitialized && lastVoiceValue != nrofvoices)
                 {
-                    inactive_voices.push(i);
+                    lock lock{m_mutex};
+                    cout << "lock case" << endl;
+                    if (nrofvoices)
+                    {
+                        inactive_voices = {};
+                        active_voices.clear();
+                        for (int i = 1; i <= nrofvoices; ++i)
+                        {
+                            inactive_voices.push(i);
+                        }
+                    }
+                    lock.unlock();
                 }
-            }
+                else if(lastVoiceValue != nrofvoices)
+                {
+                    cout << "non-lock case" << endl;
+                    inactive_voices = {};
+                    active_voices.clear();
+                    for (int i = 1; i <= nrofvoices; ++i)
+                    {
+                        inactive_voices.push(i);
+                    }
+                    voicesWasInitialized = true;
+                }
+            lastVoiceValue = nrofvoices;
             out1.send("voices", nrofvoices);
             return {nrofvoices};
         }
@@ -231,7 +262,6 @@ enum_map output_mode_range = {"Midi Pitch", "Frequency"};
 attribute<output_mode> output_mode{this, "output_mode", output_mode::freq, output_mode_range,
                                description{"Output Midi Notes or Frequencies"}};
 
-
 enum noteOnOff
 {
     NOTEOFF,
@@ -240,12 +270,12 @@ enum noteOnOff
 
 void printActive()
 {
-    if(!active_voices.size()){cout << "      No notes in active_voices{" << endl;}
+    if(!active_voices.size()){cout << "      No notes in active_voices" << endl;}
     else
     {
-        cout << active_voices.size() << " notes in active_voices: " << endl;
+        cout << active_voices.size() << " notes in active_voices{" << endl;
 
-        for (Note i : active_voices)
+        for (auto &i : active_voices)
         {
             cout << "            ";
             cout << "mpitch [";
@@ -304,7 +334,7 @@ void printScalearray()
         }
 }
 
-Note *findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate)
+Note* findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate)
 {
     for (auto &noteIt : active_voices)
     {
@@ -327,11 +357,12 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
     return nullptr;
 }
 
-Note newNote(int mpitch, int vel, int channel)
+Note newNote(int mpitch, int vel, int channel)  //could add an optional frequency and mono and steal argument here for notes from the sequencer
 {
+   
     Note newnote; // new?
     newnote.channel = channel;
-    newnote.mpitch.push_back(mpitch);
+    newnote.mpitch.push_back(mpitch); //always add mpitch since we need it to match note on/offs
     if((output_mode == output_mode::freq))
     {
         auto value = scalearray.get_value(mpitch);
@@ -340,7 +371,7 @@ Note newNote(int mpitch, int vel, int channel)
 
     else
     {
-        newnote.freq.push_back(mpitch);
+        newnote.freq.push_back(mpitch); //always add frequency so the vector contains something that can be printed, although this is not a frequency
     }
     newnote.vel = vel;
     return newnote;
@@ -779,6 +810,20 @@ function scaleDefineFunction = MIN_FUNCTION
     return {};
 };
 
+function endallFunction = MIN_FUNCTION
+{
+    if (inlet == 0)
+    {
+    for (auto &itNote : active_voices)
+    {
+        lock lock{m_mutex};
+            outputNote(itNote, NOTEOFF, 0, lock);
+    }
+    }
+    return {};
+};
+
+
 void fromPoly(int target, int muteflag)
 {
     if(debug){cout << endl
@@ -808,20 +853,19 @@ message<> print{this, "print", "Print info to the max console",
         return {};
         }
     };
-
-    message<> printscale{this, "printscale", "Print scalearray to the max console",
+message<> printscale{this, "printscale", "Print scalearray to the max console",
         MIN_FUNCTION
         {
         printScalearray();
         return {};
         }
     };
-//scale_def 60 440
 
 
 message<threadsafe::yes> list{this, "list", "midipitch, velocity, channel", noteInlet};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
-message<threadsafe::yes> endhold{this, "endhold", "endhold 0 = all, 1 = last, 2 = first", endHold};
+message<threadsafe::yes> endhold{this, "endhold", "End hold notes 0 = all, 1 = last, 2 = first", endHold};
+message<threadsafe::yes> endall{this, "endall", "send message to release all voices", endallFunction};
 
 private:
 mutex m_mutex;
