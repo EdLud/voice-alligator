@@ -1,0 +1,21 @@
+0 tovoice attack 7
+0 tovoice decay 150
+0 tovoice sustain 0.7
+0 tovoice release 2250
+250 note 60 60
+0 note 64 60
+0 note 67 60
+500 mono 1
+300 note 70 60
+150 note 74 60
+150 note 74 0
+150 note 74 60
+150 note 60 0
+0 note 64 0
+0 note 67 0
+150 note 74 0
+150 note 74 60
+150 note 70 0
+150 note 74 0
+500 mono 0
+0 end

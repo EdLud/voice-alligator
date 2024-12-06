@@ -38,6 +38,7 @@ public:
     bool releaseflag = false; // ist note in release phase?
 };
 
+
 class Scalearray 
 {
 public:
@@ -588,7 +589,6 @@ void handleNoteOn(Note &note, lock &lock)
 
 void handleNoteOff(Note &incomingNote, lock &lock)
 {
-            // cout << "handleNoteOff" << endl;
     if (hold)
     {
         if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
@@ -667,14 +667,9 @@ void handleNoteOff(Note &incomingNote, lock &lock)
 
 function listInlets = MIN_FUNCTION
 {
-            // cout << "function listInlets" << endl;
 
-    // if(active_voices.empty() && inactive_voices.empty()){
-        // cout << "no inactive voices or active voices, return" << endl;
-        // return {};}
     if (inlet == 0)
     {
-            // cout << "listInlets 0" << endl;
 
         lock lock{m_mutex};
         int mpitch = args[0];
@@ -700,8 +695,6 @@ function listInlets = MIN_FUNCTION
     }
     else
     {
-            cout << "listInlets 1" << endl;
-
         lock lock{m_mutex};
         fromPoly(args[0], args[1]);
     }
@@ -826,7 +819,6 @@ void fromPoly(int target, int muteflag)
          << "  Inlet 2: " << target << " " << muteflag << endl;}
     if (muteflag && blockOutlet)
     {
-        cout << "unblock" << endl;
         blockOutlet = false;
         return;
     }
