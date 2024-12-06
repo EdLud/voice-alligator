@@ -16,73 +16,73 @@ using namespace c74::min::lib;
 class voice_allocator : public object<voice_allocator>
 {
 public:
-    MIN_DESCRIPTION{"voice allocator for poly~ object"};
-    MIN_TAGS{"velocities, pitches, etc."};
-    MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
-    MIN_RELATED{"poly~"};
+MIN_DESCRIPTION{"voice allocator for poly~ object"};
+MIN_TAGS{"velocities, pitches, etc."};
+MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
+MIN_RELATED{"poly~"};
 
-    inlet<> in1{this, "(list) midipitch, velocity, (channel)"};
-    inlet<> in2{this, "(list) voice number, muteflag"};
-    outlet<> out1{this, "messages to poly~ object"};
+inlet<> in1{this, "(list) midipitch, velocity, (channel)"};
+inlet<> in2{this, "(list) voice number, muteflag"};
+outlet<> out1{this, "messages to poly~ object"};
 
-    struct Note
+struct Note
+{
+public:
+    std::vector<int> mpitch;
+    int vel;
+    std::vector<double> freq;
+    int channel = 1; // hold notes = channel 0, player notes = channel 1, sequencer notes = channel 2
+    int target;      // voice instanz von poly~
+    bool monoflag = false;
+    bool holdflag = false;
+    bool releaseflag = false; // ist note in release phase?
+};
+
+class Scalearray 
+{
+public:
+
+    void setMaxsize(int size) {
+        maxsize = size;
+    }
+
+    void fillContainer(int size) {
+        data.resize(size); 
+        for (int i = 0; i < size; ++i) {
+            data[i] = static_cast<double>(440 * exp(0.057762265 * (i - 69))); // Fill with MTOF
+        }
+    }
+
+    // Method to set a specific value at an index
+    void set_value(int index, double value) {
+        if (index >= 0 && index < maxsize) {
+            data[index] = value; 
+        } 
+    }
+
+    int length()
     {
-    public:
-        std::vector<int> mpitch;
-        int vel;
-        std::vector<double> freq;
-        int channel = 1; // hold notes = channel 0, player notes = channel 1, sequencer notes = channel 2
-        int target;      // voice instanz von poly~
-        bool monoflag = false;
-        bool holdflag = false;
-        bool releaseflag = false; // ist note in release phase?
-    };
+        return static_cast<int>(data.size());
+    }
 
-    class Scalearray 
+    void clear(){
+        data.clear();
+        data.resize(maxsize, std::nullopt);
+    }
+
+    // Method to get a value at a specific index
+    std::optional<double> get_value(int index) //const 
     {
-    public:
-
-        void setMaxsize(int size) {
-            maxsize = size;
+        if (index >= 0 && index < static_cast<int>(data.size())) {
+            return data[index]; // Return the value or "nothing"
         }
+        else {return std::nullopt;} // Index out of bounds
+    }
 
-        void fillContainer(int size) {
-            data.resize(size); 
-            for (int i = 0; i < size; ++i) {
-                data[i] = static_cast<double>(440 * exp(0.057762265 * (i - 69))); // Fill with MTOF
-            }
-        }
-
-        // Method to set a specific value at an index
-        void set_value(int index, double value) {
-            if (index >= 0 && index < maxsize) {
-                data[index] = value; 
-            } 
-        }
-
-        int length()
-        {
-            return static_cast<int>(data.size());
-        }
-
-        void clear(){
-            data.clear();
-            data.resize(maxsize, std::nullopt);
-        }
-
-        // Method to get a value at a specific index
-        std::optional<double> get_value(int index) //const 
-        {
-            if (index >= 0 && index < static_cast<int>(data.size())) {
-                return data[index]; // Return the value or "nothing"
-            }
-            else {return std::nullopt;} // Index out of bounds
-        }
-
-    private:
-        std::vector<std::optional<double>> data; // Sparse storage using optional values
-        int maxsize = 127;
-    };
+private:
+    std::vector<std::optional<double>> data; // Sparse storage using optional values
+    int maxsize = 127;
+};
 
 Scalearray scalearray;
 std::vector<Note> active_voices;
@@ -116,12 +116,7 @@ attribute<bool>                     debug{this, "debug", false, description{"Deb
 
 attribute<bool, threadsafe::yes>    hold{this, "hold", false, description{"Hold on / off"}};
 attribute<double, threadsafe::yes>  basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
-attribute<bool, threadsafe::yes>    steal{this, "steal", true, description{"Steal on / off"}}; //not implemented
-
-// attribute<bool>    voicesHelpSwitch{this, "voicesHelpSwitch", false, description{"Steal on / off"}}; //not implemented
-
-
-
+attribute<bool, threadsafe::yes>    steal{this, "steal", true, description{"Steal on / off"}};
 attribute<bool, threadsafe::yes>    steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; //not implemented
 attribute<bool, threadsafe::yes>    sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; //not implemented
 attribute<bool, threadsafe::yes>    scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale_def message with MTOF"}};
@@ -139,42 +134,30 @@ legato_mode -> für noten, die noch gespielt werden, also nicht released sind!
         legato_mode = glide -> adsr wird bei mono noten nicht geretriggert, pitch UND velocity fahren in glidezeit auf neuen wert
 */    
 
-bool voicesWasInitialized = false;
-int lastVoiceValue = 0;
+int blockOutlet = false; //safety variable, blocks all output out of alligator
 
-int voicenr = 0;
-int blockOutlet = false;
-
-attribute<int, threadsafe::yes> voices
+attribute<int> voices
 {
     this, "voices", 4,
-    description{"Number of voices, default: 4"},
+    description{"Number of voices, default: 4"}, range{1, 1024},
     setter
     {
         MIN_FUNCTION
         {
-            cout << "voices attribute setter" << endl;
-                blockOutlet = true;
-            int firstarg = (int)args[0];
-            // if (voicenr != firstarg) // filter out repetitions
-            // {
-                // lock lock{m_mutex}; // -> crashes on initialization of the attribute
-
-                // if (voicesHelpSwitch) { lock lock{m_mutex}; }
-
-                // voicenr = (int)args[0];
+            int voicenr = (int)args[0];
+            if(voicenr > 1024){return {voicenr};} //range doesn't block for some reason, so we need to make sure we don't have more inactive_voices in alligator than needed
+                blockOutlet = true; 
+                /*^this tries to ensure we don't try to send messages to poly~ while it is reloading voices and notes are playing.
+                this caused some crashes earlier, but now the crashes are more rare. the variable is set to false when the first instance of the newly reloaded
+                poly~ sends a mute 1 message. we should make this clear to the user.
+                */
                 inactive_voices = {};
                 active_voices.clear();
-                for (int i = 1; i <= firstarg; ++i)
+                for (int i = 1; i <= voicenr; ++i)
                 {
                     inactive_voices.push(i);
                 }
-                out1.send("voices", firstarg);
-                // lock.unlock(); // 
-
-                //out1.send("voices", voicenr);
-            // }
-
+                out1.send("voices", voicenr);
             return {voicenr};
         }
     }
@@ -271,14 +254,13 @@ enum noteOnOff
 
 void printActive()
 {
-    if(!active_voices.size()){cout << "      No notes in active_voices" << endl;}
+    if(!active_voices.size()){cout << "No notes in active_voices" << endl;}
     else
     {
         cout << active_voices.size() << " notes in active_voices{" << endl;
 
         for (auto &i : active_voices)
         {
-            cout << "            ";
             cout << "mpitch [";
             for (int j : i.mpitch)
             {
@@ -306,15 +288,15 @@ void printInactive()
 {
     if (inactive_voices.empty())
     {
-        cout << "      There are no inactive voices available" << endl;
+        cout << "There are no inactive voices available" << endl;
     }
     else if (inactive_voices.size() == 1)
     {
-        cout << "      There is " << inactive_voices.size() << " inactive voice available" << endl;
+        cout << "There is " << inactive_voices.size() << " inactive voice available" << endl;
     }
     else
     {
-        cout << "      There are " << inactive_voices.size() << " inactive voices available" << endl;
+        cout << "There are " << inactive_voices.size() << " inactive voices available" << endl;
     }
 }
 
@@ -337,8 +319,6 @@ void printScalearray()
 
 Note* findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate)
 {
-            // cout << "findfirstnotewithpredicate" << endl;
-
     for (auto &noteIt : active_voices)
     {
         if (predicate(noteIt))
@@ -351,8 +331,6 @@ Note* findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate)
 
 Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
 {
-            // cout << "findlastnotewithpredicate" << endl;
-
     // Reverse iterate through the container
     for (auto it = active_voices.rbegin(); it != active_voices.rend(); ++it) {
         if (predicate(*it)) {
@@ -363,10 +341,8 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
 }
 
 Note newNote(int mpitch, int vel, int channel)  //could add an optional frequency and mono and steal argument here for notes from the sequencer
-{ 
-            cout << "newNote" << endl;
-   
-    Note newnote; // new?
+{    
+    Note newnote;
     newnote.channel = channel;
     newnote.mpitch.push_back(mpitch); //always add mpitch since we need it to match note on/offs
     if((output_mode == output_mode::freq))
@@ -385,10 +361,10 @@ Note newNote(int mpitch, int vel, int channel)  //could add an optional frequenc
 
 void outputNote(Note note, bool noteon, bool steal, lock &lock)
 {
-            if(blockOutlet){return;}
+    if(blockOutlet){return;}
 
     if (noteon)
-    { // -> spiele neue note  für die stimme im poly mit: target, (midipitch?), vel, freq, mono flag, hold flag, steal flag
+    {
         lock.unlock();
         if(output_mode == output_mode::freq)
         {
@@ -444,7 +420,6 @@ void outputNote(Note note, bool noteon, bool steal, lock &lock)
         }
         else
         {
-            if(blockOutlet){return;}
             out1.send("target", note.target);
             out1.send(note.mpitch.back(), 0, note.monoflag, note.holdflag, steal);
             if(debug)
@@ -463,6 +438,8 @@ void outputNote(Note note, bool noteon, bool steal, lock &lock)
 Note *findNoteToSteal(Note &incomingNote)
 {
     if(debug){cout << "incoming note " << incomingNote.mpitch.back() << " asked for steal" << endl;} 
+
+    if(!steal){return nullptr;}
 
     if (incomingNote.channel == 1)
     { // PLAYER NOTE
@@ -500,7 +477,6 @@ Note *findNoteToSteal(Note &incomingNote)
 
 void handleNoteOn(Note &note, lock &lock)
 {
-            // cout << "handleNoteOn" << endl;
 
     int freeVoice = 0;
 
