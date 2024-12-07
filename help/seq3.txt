@@ -1,0 +1,36 @@
+0 tovoice attack 30000
+0 tovoice decay 150
+0 tovoice sustain 1
+0 tovoice release 300
+0 tovoice glidetime 30000
+0 tovoice legato_retrigger 0
+250 mono 1
+0 hold 1
+300 note 70 60
+5000 note 69 60
+100 note 69 0
+0 note 70 0
+400 note 70 60
+200 note 62 60
+100 note 62 0
+0 note 70 0
+400 note 70 60
+200 note 71 60
+100 note 71 0
+0 note 70 0
+400 note 70 60
+200 note 60 60
+100 note 60 0
+0 note 70 0
+400 note 70 60
+200 note 79 60
+100 note 79 0
+0 note 70 0
+400 note 70 60
+200 note 78 60
+100 note 78 0
+0 note 70 0
+6000 mono 0
+0 hold 0
+30000 endhold 0
+0 end

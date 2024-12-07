@@ -1978,7 +1978,6 @@
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
 							"parameter_initial" : [ 4 ],
-							"parameter_initial_enable" : 1,
 							"parameter_invisible" : 1,
 							"parameter_longname" : "number[1]",
 							"parameter_modmode" : 0,
@@ -2093,7 +2092,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "voicesHelpSwitch",
+					"attr" : "sequencer_steals",
 					"id" : "obj-21",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -2747,7 +2746,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-6", 1 ],
-					"midpoints" : [ 572.0, 568.0, 791.5, 568.0, 791.5, 478.0, 715.0, 478.0 ],
+					"midpoints" : [ 572.0, 568.0, 809.5, 568.0, 809.5, 478.0, 715.0, 478.0 ],
 					"source" : [ "obj-33", 1 ]
 				}
 

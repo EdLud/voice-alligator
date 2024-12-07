@@ -38,7 +38,6 @@ public:
     bool releaseflag = false; // ist note in release phase?
 };
 
-
 class Scalearray 
 {
 public:
@@ -89,30 +88,6 @@ Scalearray scalearray;
 std::vector<Note> active_voices;
 std::queue<int> inactive_voices;
 
-/* attributes and methods
-voices              ->  int attribute default 4
-hold                ->  bool attribute default 0
-monophony           ->  bool attribute default 0
-scale               ->  bool attribute default 1        //
-scale_def           ->  list of tunings //, format: [scaledef, int mpitch1, float mpitchToScaleTo1 int mpitch2, float mpitchToScaleTo2, etc.]
-scale_fill          ->  bool attribute default = 1 // 
-                        if the list of tunings does not cover the whole note range 
-                        (let's assume 127, although could be more)
-                        what to do?
-                        scale_fill 1 = use mtof for undefined keys,
-                        scale_fill 0 = ignore the notes which try to access scale entries that are not defined.
-                    
-basefreq            ->  float attribute default 440
-steal               ->  bool attribute default 1
-sequencer_steals    ->  bool attribute default 0
-steal_hold          ->  bool attribute default 0
-legato_mode         ->  int attribute 3 modes
-endhold             ->  method (int mode) // (either 0, 1 or 2)
-                        0 releases all hold notes
-                        1 releases first hold note
-                        2 releases last hold note
-*/
-
 attribute<bool>                     debug{this, "debug", false, description{"Debug on / off"}};
 
 attribute<bool, threadsafe::yes>    hold{this, "hold", false, description{"Hold on / off"}};
@@ -146,11 +121,14 @@ attribute<int> voices
         MIN_FUNCTION
         {
             int voicenr = (int)args[0];
-            if(voicenr > 1024){return {voicenr};} //range doesn't block for some reason, so we need to make sure we don't have more inactive_voices in alligator than needed
+            if(voicenr > 1024){return {voicenr};} 
+            //range doesn't block for some reason, so we need to make sure, that we 
+            //don't have more inactive_voices in alligator max voices of [poly~]
                 blockOutlet = true; 
-                /*^this tries to ensure we don't try to send messages to poly~ while it is reloading voices and notes are playing.
-                this caused some crashes earlier, but now the crashes are more rare. the variable is set to false when the first instance of the newly reloaded
-                poly~ sends a mute 1 message. we should make this clear to the user.
+                /*^this tries to ensure we don't try to send messages to [poly~] while it is reloading voices and notes are playing.
+                this caused some crashes earlier, but now the crashes are more rare. 
+                the variable is set to false when the first instance of the newly reloaded
+                [poly~] sends a mute 1 message. we should make this clear to the user.
                 */
                 inactive_voices = {};
                 active_voices.clear();
@@ -218,7 +196,7 @@ enum class mono_mode : int
     enum_count
 };
 
-enum_map mono_mode_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"};
+enum_map mono_mode_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"}; //not implemented 
 
 attribute<mono_mode> mono_mode{this, "mono_mode", mono_mode::LAST_NOTE, mono_mode_range,
                                description{"Choose Mono Mode: Last Note, Low Note, High Note"}};
@@ -440,40 +418,130 @@ Note *findNoteToSteal(Note &incomingNote)
 {
     if(debug){cout << "incoming note " << incomingNote.mpitch.back() << " asked for steal" << endl;} 
 
-    if(!steal){return nullptr;}
+    if(!steal) return nullptr;
 
-    if (incomingNote.channel == 1)
-    { // PLAYER NOTE
-        if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                             { return n.releaseflag && n.channel > 1; }))
-            return note;
-        if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                             { return n.releaseflag && n.channel == 1; }))
-            return note;
-        if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                             { return !n.releaseflag && n.channel > 1; }))
-            return note;
-        if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                             { return !n.releaseflag && n.channel == 1; }))
-            return note;
+    int stealCase = 1; //sequencer never steals non-sequencer notes, hold notes are never stolen
+    if(sequencer_steals && !steal_hold) stealCase = 2; //sequencer can steal non-sequencer notes, hold notes are never stolen
+    if(sequencer_steals && steal_hold)  stealCase = 3; //sequencer can steal non-sequencer notes, hold notes are stolen
+    if(!sequencer_steals && steal_hold) stealCase = 4;//sequencer never steals non-sequencer notes, hold notes are stolen
+
+
+    switch (stealCase)
+    {
+    case 1: //sequencer never steals non-sequencer notes, hold notes are never stolen
+        cout << "case 1" << endl;
+        if (incomingNote.channel == 1)
+        { // PLAYER NOTE
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel > 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel == 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return !n.releaseflag && n.channel > 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return !n.releaseflag && n.channel == 1; }))
+                return note;
+        }
+        else if (incomingNote.channel > 1)
+        { // SEQUENCER NOTE
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel > 1; }))
+                return note;
+
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                { return !n.releaseflag && n.channel > 1; }))
+                return note;
+
+            // if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                //  { return n.releaseflag && n.channel > 0; }))
+                // return note;
+                break;
+        }
+
+    case 2: //sequencer can steal non-sequencer notes, hold notes are never stolen
+        cout << "case 2" << endl;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel > 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel == 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return !n.releaseflag && n.channel > 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return !n.releaseflag && n.channel == 1; }))
+                return note;
+        break;
+
+    case 3: //sequencer can steal non-sequencer notes, hold notes are stolen
+        cout << "case 3" << endl;
+            if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
+                                                 { return n.releaseflag && n.channel > incomingNote.channel; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
+                                                 { return n.releaseflag && n.channel == incomingNote.channel; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
+                                                 { return n.releaseflag && n.channel < incomingNote.channel; }))
+                return note;
+
+            if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
+                                                 { return !n.releaseflag && n.channel > incomingNote.channel; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
+                                                 { return !n.releaseflag && n.channel == incomingNote.channel; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
+                                                 { return !n.releaseflag && n.channel < incomingNote.channel; }))
+                return note;
+        break;
+
+    case 4: //sequencer never steals non-sequencer notes, hold notes are stolen (but not by sequencer)
+        cout << "case 4" << endl;
+        if (incomingNote.channel == 1)
+        { // PLAYER NOTE
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel > 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel == 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel < 1; }))
+                return note;
+                
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return !n.releaseflag && n.channel > 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return !n.releaseflag && n.channel == 1; }))
+                return note;
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return !n.releaseflag && n.channel < 1; }))
+                return note;
+
+        }
+        else if (incomingNote.channel > 1)
+        { // SEQUENCER NOTE
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                 { return n.releaseflag && n.channel > 1; }))
+                return note;
+
+            if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                { return !n.releaseflag && n.channel > 1; }))
+                return note;
+
+            // if (auto *note = findFirstNoteWithPredicate([](const Note &n)
+                                                //  { return n.releaseflag && n.channel > 0; }))
+                // return note;
+        }
+        break;
     }
-    else if (incomingNote.channel > 1)
-    { // SEQUENCER NOTE
-        if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                             { return n.releaseflag && n.channel > 1; }))
-            return note;
-        
-        if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                            { return !n.releaseflag && n.channel > 1; }))
-            return note;
-
-        if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                             { return n.releaseflag && n.channel > 0; }))
-            return note;
-    }
-
-    // If no suitable note is found
-    return nullptr;
+    return nullptr; // no suitable note was found
 }
 
 void handleNoteOn(Note &note, lock &lock)

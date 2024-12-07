@@ -2,17 +2,18 @@
 0 tovoice decay 150
 0 tovoice sustain 0.7
 0 tovoice release 50
+0 tovoice glidetime 50
 250 mono 1
 300 note 60 60
 200 note 64 60
 100 note 67 60
 200 note 62 60
 1000 hold 1
-200 note 62 0
-500 hold 0
 100 note 64 0
 200 note 60 0
 300 note 67 0
+200 note 62 0
+500 hold 0
 200 note 67 60
 100 note 74 60
 200 note 74 0
