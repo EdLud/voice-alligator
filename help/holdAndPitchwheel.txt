@@ -1,10 +1,12 @@
+descr 1 "This example shows how (hold) notes can be treated differently than non-hold notes."
+descr 2 "The holdflag that [voice.alligator] sends to the voice is used as a lock for the position of the pitchwheel on note off".
+descr 3 "(Hold) is on. The player plays D, turns the pitchwheel, and releases D. The pitchbend position is locked. This is repeated a couple of times."
 show pitchwheel
-show mono
 show hold
 tovoice attack 7
 tovoice decay 150
 tovoice sustain 0.7
-tovoice release 50
+tovoice release 500
 tovoice glidetime 50
 tovoice legato_retrigger 1
 mono 0

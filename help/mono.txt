@@ -1,5 +1,5 @@
-descr 1 "In this example we showcase the mono feature of [voice-alligator]"
-descr 2 "The player plays a c-major chord, presses the mono pedal, and plays a short, monophonic legato melody over the chord."
+descr 1 "In this example we showcase the (mono) feature of [voice-alligator]"
+descr 2 "The player plays a C-major chord, activates the (mono) pedal, and plays a short, monophonic legato melody over the chord."
 descr 3 "The Instrument is monophonic and polyphonic at the same time."
 show mono
 tovoice attack 7

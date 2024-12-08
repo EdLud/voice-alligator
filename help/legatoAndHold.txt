@@ -1,3 +1,6 @@
+descr 1 "Here legato_retrigger is set to 0, so short (hold) & (mono) notes run through the whole ADSR."
+descr 2 "The glidetime and attack are both set to 30 seconds so we have a long, swelling notes that glides."
+descr 3 "The player presses A# and presses a second note that will be the end pitch of the glide. Then they first release the second note and then A#. This is repeated a couple of times."
 show mono
 show hold
 0 tovoice attack 30000

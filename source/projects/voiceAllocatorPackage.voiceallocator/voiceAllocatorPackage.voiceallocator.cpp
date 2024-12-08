@@ -860,7 +860,7 @@ function scaleDefineFunction = MIN_FUNCTION
             } 
             else {
             // Handle the case when there is only one argument left
-            cout << "error: tried to define index " << i << " without providing value" << endl;
+            cout << "warning: tried to define note index " << i << " without providing value" << endl;
             }
         }
         if(debug){cout << endl;}

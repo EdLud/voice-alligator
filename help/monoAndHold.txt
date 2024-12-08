@@ -1,5 +1,6 @@
-descr 1 "In the example before we first played a chord and then played a legato melody over it."
-descr 2 "In this example we do the same thing in reverse order: we play a legato melody and use the hold function to build a chord."
+descr 1 "In the previous example, the player first played a chord and then played a legato melody over it."
+descr 2 "The instrument was polyphonic while maintaining a legato functionality."
+descr 3 "In this sequence the same thing is shown, but in reverse order: the player plays a legato melody and uses the (hold) function to build a chord."
 show mono
 show hold
 tovoice attack 7
