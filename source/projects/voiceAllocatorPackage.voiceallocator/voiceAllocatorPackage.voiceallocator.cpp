@@ -91,12 +91,12 @@ std::queue<int> inactive_voices;
 attribute<bool>                     debug{this, "debug", false, description{"Debug on / off"}};
 
 attribute<bool, threadsafe::yes>    hold{this, "hold", false, description{"Hold on / off"}};
-attribute<double, threadsafe::yes>  basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
+attribute<double>                   basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
 attribute<bool, threadsafe::yes>    steal{this, "steal", true, description{"Steal on / off"}};
-attribute<bool, threadsafe::yes>    steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; //not implemented
-attribute<bool, threadsafe::yes>    sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; //not implemented
+attribute<bool, threadsafe::yes>    steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; 
+attribute<bool, threadsafe::yes>    sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; 
 attribute<bool, threadsafe::yes>    scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale_def message with MTOF"}};
-attribute<int, threadsafe::yes>     legato_mode{this, "legato_mode", false, description{"retrigger / don't retrigger / ??"}};
+// attribute<int, threadsafe::yes>     legato_mode{this, "legato_mode", false, description{"retrigger / don't retrigger / ??"}};
 /*
 legato_mode -> für noten, die noch gespielt werden, also nicht released sind!
                 wenn release, dann neue note/voice bzw. note/voice steal
@@ -429,7 +429,6 @@ Note *findNoteToSteal(Note &incomingNote)
     switch (stealCase)
     {
     case 1: //sequencer never steals non-sequencer notes, hold notes are never stolen
-        cout << "case 1" << endl;
         if (incomingNote.channel == 1)
         { // PLAYER NOTE
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
@@ -458,11 +457,10 @@ Note *findNoteToSteal(Note &incomingNote)
             // if (auto *note = findFirstNoteWithPredicate([](const Note &n)
                                                 //  { return n.releaseflag && n.channel > 0; }))
                 // return note;
-                break;
+        break;
         }
 
     case 2: //sequencer can steal non-sequencer notes, hold notes are never stolen
-        cout << "case 2" << endl;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
                                                  { return n.releaseflag && n.channel > 1; }))
                 return note;
@@ -478,7 +476,6 @@ Note *findNoteToSteal(Note &incomingNote)
         break;
 
     case 3: //sequencer can steal non-sequencer notes, hold notes are stolen
-        cout << "case 3" << endl;
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
                                                  { return n.releaseflag && n.channel > incomingNote.channel; }))
                 return note;
@@ -501,7 +498,6 @@ Note *findNoteToSteal(Note &incomingNote)
         break;
 
     case 4: //sequencer never steals non-sequencer notes, hold notes are stolen (but not by sequencer)
-        cout << "case 4" << endl;
         if (incomingNote.channel == 1)
         { // PLAYER NOTE
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
@@ -546,7 +542,6 @@ Note *findNoteToSteal(Note &incomingNote)
 
 void handleNoteOn(Note &note, lock &lock)
 {
-
     int freeVoice = 0;
 
     if (!mono) // CASE: POLYPHONY
@@ -659,6 +654,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
 {
     if (hold)
     {
+        // if you're a note off with hold enabled: find corresponding mpitch that does not have holdflag turned on and is on the same channel
         if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
                                              {return n.mpitch.back() == incomingNote.mpitch.back() 
                                              && !n.holdflag 
@@ -666,16 +662,21 @@ void handleNoteOff(Note &incomingNote, lock &lock)
         {
             note->holdflag = 1;
             note->channel = 0;
+            outputNote(*note, NOTEOFF, 0, lock); 
+            /*^^^actually we need to output the note so that the voice knows that it is a hold_note.
+            the note off is then ignored in the voice itself. maybe this has implications?
+            */
             return;
         }
     }
 
-    if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
+    if (auto *note = findFirstNoteWithPredicate([&](const Note &n) 
                                           {return n.channel == incomingNote.channel 
                                                             && n.mpitch.size() == 1 
                                                             && n.mpitch == incomingNote.mpitch 
                                                             && !n.holdflag 
                                                             && !n.releaseflag; }))
+        //^^^need this for sequencer notes, but do we need it for anything else?
     {
         note->releaseflag = 1;
         outputNote(*note, NOTEOFF, 0, lock);
@@ -874,7 +875,9 @@ function endallFunction = MIN_FUNCTION
     for (auto &itNote : active_voices)
     {
         lock lock{m_mutex};
-            outputNote(itNote, NOTEOFF, 0, lock);
+        itNote.holdflag = 0;
+        itNote.releaseflag = 1;
+        outputNote(itNote, NOTEOFF, 0, lock);
     }
     }
     return {};

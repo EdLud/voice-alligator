@@ -2131,19 +2131,6 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "legato_mode",
-					"id" : "obj-30",
-					"maxclass" : "attrui",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "" ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 681.5, 306.0, 247.0, 22.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"attr" : "steal_hold",
 					"id" : "obj-7",
 					"maxclass" : "attrui",
@@ -2725,14 +2712,6 @@
 				"patchline" : 				{
 					"destination" : [ "obj-59", 0 ],
 					"source" : [ "obj-3", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-6", 0 ],
-					"hidden" : 1,
-					"source" : [ "obj-30", 0 ]
 				}
 
 			}

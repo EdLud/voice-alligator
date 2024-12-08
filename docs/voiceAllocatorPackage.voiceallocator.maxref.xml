@@ -83,11 +83,6 @@
 			<description>Hold on / off </description>
 		</attribute>
 
-		<attribute name='legato_mode' get='1' set='1' type='long' size='1' >
-			<digest>retrigger / don't retrigger / ?? </digest>
-			<description>retrigger / don't retrigger / ?? </description>
-		</attribute>
-
 		<attribute name='mono' get='1' set='1' type='long' size='1' >
 			<digest>Monophony on / off </digest>
 			<description>Monophony on / off </description>

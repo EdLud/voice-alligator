@@ -1,0 +1,30 @@
+descr 1 "In this example we showcase the mono feature of [voice-alligator]"
+descr 2 "The player plays a c-major chord, presses the mono pedal, and plays a short, monophonic legato melody over the chord."
+descr 3 "The Instrument is monophonic and polyphonic at the same time."
+show mono
+tovoice attack 7
+tovoice decay 150
+tovoice sustain 0.7
+tovoice release 150
+tovoice glidetime 50
+tovoice legato_retrigger 1
+pitchwheel 0
+mono 0
+hold 0
+250 note 60 60
+note 64 60
+note 67 60
+500 mono 1
+300 note 70 60
+150 note 74 60
+150 note 74 0
+150 note 74 60
+150 note 60 0
+note 64 0
+note 67 0
+150 note 74 0
+150 note 74 60
+150 note 70 0
+150 note 74 0
+500 mono 0
+end

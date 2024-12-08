@@ -1,9 +1,14 @@
+show mono
+show hold
 0 tovoice attack 30000
 0 tovoice decay 150
 0 tovoice sustain 1
 0 tovoice release 300
 0 tovoice glidetime 30000
 0 tovoice legato_retrigger 0
+0 mono 0
+0 hold 0
+0 pitchwheel 0
 250 mono 1
 0 hold 1
 300 note 70 60

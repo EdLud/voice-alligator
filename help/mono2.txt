@@ -1,0 +1,43 @@
+descr 1 "In the example before we first played a chord and then played a legato melody over it."
+descr 2 "In this example we do the same thing in reverse order: we play a legato melody and use the hold function to build a chord."
+show mono
+show hold
+tovoice attack 7
+tovoice decay 150
+tovoice sustain 0.7
+tovoice release 50
+tovoice glidetime 50
+tovoice legato_retrigger 1
+pitchwheel 0
+mono 0
+hold 0
+250 mono 1
+300 note 60 60
+200 note 64 60
+100 note 67 60
+200 note 62 60
+1000 hold 1
+300 note 64 0
+note 60 0
+note 67 0
+300 note 62 0
+500 hold 0
+200 note 67 60
+100 note 74 60
+200 note 74 0
+300 note 72 60
+hold 1
+200 note 72 0
+200 note 67 0
+200 note 61 60
+200 note 64 60
+200 note 67 60
+200 note 70 60
+200 note 70 0
+200 note 67 0
+200 note 64 0
+200 note 61 0
+100 mono 0
+hold 0
+1000 endhold 0
+end
