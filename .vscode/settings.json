@@ -75,6 +75,7 @@
         "functional": "cpp",
         "chrono": "cpp",
         "format": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "__availability": "cpp"
     }
 }

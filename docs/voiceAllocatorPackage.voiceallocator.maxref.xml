@@ -47,8 +47,8 @@
 		</method>
 
 		<method name='list'>
-			<digest>midipitch, velocity, channel </digest>
-			<description>midipitch, velocity, channel </description>
+			<digest>midipitch, velocity, type </digest>
+			<description>midipitch, velocity, type </description>
 		</method>
 
 		<method name='printscale'>
@@ -109,8 +109,8 @@
 		</attribute>
 
 		<attribute name='scalearray_maxsize' get='1' set='1' type='long' size='1' >
-			<digest>Set maximum number of entries in scale array (default 127) </digest>
-			<description>Set maximum number of entries in scale array (default 127) </description>
+			<digest>Set maximum number of entries in scale array (default 128) </digest>
+			<description>Set maximum number of entries in scale array (default 128) </description>
 		</attribute>
 
 		<attribute name='sequencer_steals' get='1' set='1' type='long' size='1' >
@@ -126,6 +126,11 @@
 		<attribute name='steal_hold' get='1' set='1' type='long' size='1' >
 			<digest>Steal Hold Notes on / off </digest>
 			<description>Steal Hold Notes on / off </description>
+		</attribute>
+
+		<attribute name='sustain' get='1' set='1' type='long' size='1' >
+			<digest>Sustain on / off </digest>
+			<description>Sustain on / off </description>
 		</attribute>
 
 		<attribute name='voices' get='1' set='1' type='long' size='1' >

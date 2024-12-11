@@ -1,0 +1,21 @@
+descr 1 ""
+descr 2 ""
+descr 3 ""
+show scale
+show mono
+tovoice attack 7
+tovoice decay 150
+tovoice sustain 0.7
+tovoice release 450
+tovoice glidetime 15
+tovoice legato_retrigger 1
+200 metro1 1
+500 scale 1
+50 mono 1
+250 mono 0
+500 scale 2
+150 mono 1
+700 metro1 0
+scale 0
+mono 0
+2060 end

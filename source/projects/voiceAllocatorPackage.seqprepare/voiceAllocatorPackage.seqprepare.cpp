@@ -114,18 +114,18 @@ void printInactive()
     }
 }
 
-function listInlets = MIN_FUNCTION
-{
-
-    if (inlet == 0)
-    {
-        lock lock{m_mutex};
-        int mpitch = args[0];
-        int vel = args[1];
-        int channel = 1;
-        return {};
-    }
-};
+// function listInlets = MIN_FUNCTION
+// {
+// 
+    // if (inlet == 0)
+    // {
+        // lock lock{m_mutex};
+        // int mpitch = args[0];
+        // int vel = args[1];
+        // int channel = 1;
+        // return {};
+    // }
+// };
 
 
 message<> print{this, "print", "Print info to the max console",
@@ -137,7 +137,7 @@ message<> print{this, "print", "Print info to the max console",
         }
 };
 
-message<threadsafe::yes> list{this, "list", "midipitch, velocity, channel", listInlets};
+// message<threadsafe::yes> list{this, "list", "midipitch, velocity, channel", listInlets};
 
 private:
 mutex m_mutex;
