@@ -108,6 +108,43 @@ attribute<bool>                     steal{this, "steal", true, description{"Stea
 attribute<bool>                     steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; 
 attribute<bool>                     sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; 
 attribute<bool>                     scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale_def message with MTOF"}};
+
+enum class mono_mode : int
+{
+    last_note,
+    low_note,
+    high_note,
+    enum_count
+};
+
+enum_map mono_mode_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"}; //not implemented 
+
+attribute<mono_mode> mono_mode{this, "mono_mode", mono_mode::last_note, mono_mode_range,
+                               description{"Choose Mono Mode: Last Note, Low Note, High Note"}};
+
+enum class scale_def_mode : int
+{
+    mpitch,
+    freq,
+    enum_count
+};
+
+enum_map scale_def_mode_range = {"Midi Pitch", "Frequency"};
+
+attribute<scale_def_mode> scale_def_mode{this, "scale_def_mode", scale_def_mode::freq, scale_def_mode_range,
+                               description{"Define Scale by Midi Note or by Frequency"}};
+
+enum class output_mode : int
+{
+    mpitch,
+    freq,
+    enum_count
+};
+
+enum_map output_mode_range = {"Midi Pitch", "Frequency"};
+
+attribute<output_mode> output_mode{this, "output_mode", output_mode::freq, output_mode_range,
+                               description{"Output Midi Notes or Frequencies"}};
 // attribute<int, threadsafe::yes>     legato_mode{this, "legato_mode", false, description{"retrigger / don't retrigger / ??"}};
 /*
 legato_mode -> für noten, die noch gespielt werden, also nicht released sind!
@@ -210,42 +247,6 @@ setter
     }
 };
 
-enum class mono_mode : int
-{
-    last_note,
-    low_note,
-    high_note,
-    enum_count
-};
-
-enum_map mono_mode_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"}; //not implemented 
-
-attribute<mono_mode> mono_mode{this, "mono_mode", mono_mode::last_note, mono_mode_range,
-                               description{"Choose Mono Mode: Last Note, Low Note, High Note"}};
-
-enum class scale_def_mode : int
-{
-    mpitch,
-    freq,
-    enum_count
-};
-
-enum_map scale_def_mode_range = {"Midi Pitch", "Frequency"};
-
-attribute<scale_def_mode> scale_def_mode{this, "scale_def_mode", scale_def_mode::freq, scale_def_mode_range,
-                               description{"Define Scale by Midi Note or by Frequency"}};
-
-enum class output_mode : int
-{
-    mpitch,
-    freq,
-    enum_count
-};
-
-enum_map output_mode_range = {"Midi Pitch", "Frequency"};
-
-attribute<output_mode> output_mode{this, "output_mode", output_mode::freq, output_mode_range,
-                               description{"Output Midi Notes or Frequencies"}};
 
 void printActive()
 {
@@ -305,10 +306,6 @@ void printScalearray()
             {
                 cout << "Index " << i << ": " << *scalearray.get_value(i) << endl;
             } 
-            else 
-            {
-                cout << "Index " << i << ": Nothing" << endl;
-            }
         }
 }
 
@@ -339,7 +336,9 @@ Note newNote(int mpitch, int vel)
 {    
     Note newnote;
     newnote.mpitch.push_back(mpitch); //always add mpitch since we need it to match note on/offs
-    if((output_mode == output_mode::freq))
+
+
+    if((output_mode == output_mode::freq) && scalearray.get_value(mpitch))
     {
         auto value = scalearray.get_value(mpitch);
         newnote.freq.push_back(static_cast<double>(*value));
@@ -771,15 +770,15 @@ function listInlets = MIN_FUNCTION
         lock lock{m_mutex};
         int mpitch = args[0];
         int vel = args[1];
-        if((output_mode == output_mode::freq) && !scalearray.get_value(mpitch)){
-            if(debug){cout << "mpitch " << mpitch << " not defined in the scalearray" << endl;}
-            return {};}
 
         if(debug){cout << endl << "  Player Note to Inlet 1: " << mpitch << " " << vel << endl;}
 
         Note currentNote = newNote(mpitch, vel);
         if (vel != 0)
         {
+            if((output_mode == output_mode::freq) && !scalearray.get_value(mpitch)){
+            if(debug){cout << "mpitch " << mpitch << " not defined in the scalearray" << endl;}
+            return {};}
             handleNoteOn(currentNote, lock);
         }
         else
@@ -797,27 +796,27 @@ function listInlets = MIN_FUNCTION
 
 function seqInlet = MIN_FUNCTION
 {
-    if (inlet == 0)
-    {
-        lock lock{m_mutex};
-        int mpitch = args[0]; //in this context mpitch is only an index?
-        int vel = args[1];
-        int rpitch = args[3]; // "real" pitch
-        int monoflag = args[4];
-        int stealflag = args[5];
-
-        if(debug){cout << endl << "  Inlet 1: " << mpitch << " " << vel << endl;}
-
-        Note currentNote = newNote(mpitch, vel);
-        if (vel != 0)
-        {
-            handleNoteOn(currentNote, lock);
-        }
-        else
-        {
-            handleNoteOff(currentNote, lock);
-        }
-    }
+    // if (inlet == 0)
+    // {
+        // lock lock{m_mutex};
+        // int mpitch = args[0]; //in this context mpitch is only an index?
+        // int vel = args[1];
+        // int rpitch = args[3]; // "real" pitch
+        // int monoflag = args[4];
+        // int stealflag = args[5];
+// 
+        // if(debug){cout << endl << "  Inlet 1: " << mpitch << " " << vel << endl;}
+// 
+        // Note currentNote = newNote(mpitch, vel);
+        // if (vel != 0)
+        // {
+            // handleNoteOn(currentNote, lock);
+        // }
+        // else
+        // {
+            // handleNoteOff(currentNote, lock);
+        // }
+    // }
     return {};
 };
 
@@ -879,8 +878,8 @@ function scaleDefineFunction = MIN_FUNCTION
     if (inlet == 0)
     {
         lock lock{m_mutex};
-
-        if(scale_fill)
+        unsigned long size = args.size();
+        if(scale_fill || !size)
         {
             if(debug){cout << "filled the scale array" << endl;}
             scalearray.fillContainer(scalearray_maxsize);
@@ -893,7 +892,6 @@ function scaleDefineFunction = MIN_FUNCTION
 
         if(debug){cout << "scaledef fun got called with args:" << endl;}
 
-        unsigned long size = args.size();
         for (int i = 0; i < size; i += 2) {
             // Check if we have at least two arguments left
             if (i + 1 < size) {
