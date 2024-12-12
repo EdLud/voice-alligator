@@ -93,6 +93,11 @@
 			<description>Choose Mono Mode: Last Note, Low Note, High Note </description>
 		</attribute>
 
+		<attribute name='mono_steals_release' get='1' set='1' type='long' size='1' >
+			<digest>If false, new monophony notes will ignore monophony notes that are in release and will generate new notes </digest>
+			<description>If false, new monophony notes will ignore monophony notes that are in release and will generate new notes </description>
+		</attribute>
+
 		<attribute name='output_mode' get='1' set='1' type='long' size='1' >
 			<digest>Output Midi Notes or Frequencies </digest>
 			<description>Output Midi Notes or Frequencies </description>
@@ -134,8 +139,8 @@
 		</attribute>
 
 		<attribute name='voices' get='1' set='1' type='long' size='1' >
-			<digest>Number of voices, default: 4 </digest>
-			<description>Number of voices, default: 4 </description>
+			<digest>Number of voices, default: 4, max: 1024 </digest>
+			<description>Number of voices, default: 4, max: 1024 </description>
 		</attribute>
 
 	</attributelist>
