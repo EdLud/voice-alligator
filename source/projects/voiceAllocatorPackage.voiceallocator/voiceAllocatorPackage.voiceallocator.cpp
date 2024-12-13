@@ -30,12 +30,6 @@ enum noteOnOff
     NOTEON
 };
 
-enum noteTypes
-{
-    HOLD,
-    PLAYER,
-    SEQUENCER
-};
 
 struct Note
 {
@@ -43,7 +37,7 @@ public:
     std::vector<int> mpitch;
     int vel;
     std::vector<double> freq;
-    int type = PLAYER; // hold notes = type 0, player notes = type 1, sequencer notes = type 2
+    int type = 1; // hold notes = type 0, player notes = type 1, sequencer notes = type 2
     int target;      // voice instanz von poly~
     bool monoflag = false;
     bool sustainflag = false;
@@ -289,53 +283,6 @@ setter
     }
 };
 
-void printActive()
-{
-    if(!active_voices.size()){cout << "No notes in active_voices" << endl;}
-    else
-    {
-        cout << active_voices.size() << " notes in active_voices{" << endl;
-
-        for (auto &i : active_voices)
-        {
-            cout << "mpitch [";
-            for (int j : i.mpitch)
-            {
-                cout << j << " ";
-            }
-            cout << "], vel " << i.vel
-                 << ", type " << i.type
-                 << ", target " << i.target
-                 << ", freq [";
-            for (double k : i.freq)
-            {
-                cout << k << " ";
-            }
-            cout << "], vel " << i.vel
-                 << ", mono " << (i.monoflag)
-                 << ", hold " << (i.holdflag)
-                 << ", release " << (i.releaseflag);
-            cout << endl;
-        }
-        cout << "}" << endl; 
-    }
-}
-
-void printInactive()
-{
-    if (inactive_voices.empty())
-    {
-        cout << "There are no inactive voices available" << endl;
-    }
-    else if (inactive_voices.size() == 1)
-    {
-        cout << "There is " << inactive_voices.size() << " inactive voice available" << endl;
-    }
-    else
-    {
-        cout << "There are " << inactive_voices.size() << " inactive voices available" << endl;
-    }
-}
 
 void printScalearray()
 {
@@ -371,26 +318,6 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
         }
     }
     return nullptr;
-}
-
-Note newNote(int mpitch, int vel)
-{    
-    Note newnote;
-    newnote.mpitch.push_back(mpitch); //always add mpitch since we need it to match note on/offs
-
-
-    if((output_mode == output_mode::freq) && scalearray.get_value(mpitch))
-    {
-        auto value = scalearray.get_value(mpitch);
-        newnote.freq.push_back(static_cast<double>(*value));
-    }
-
-    else
-    {
-        newnote.freq.push_back(mpitch); //always add frequency so the vector contains something that can be printed, although this is not a frequency
-    }
-    newnote.vel = vel;
-    return newnote;
 }
 
 void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagsonly = false)
@@ -613,92 +540,97 @@ void handleNoteOn(Note &note, lock &lock)
 
     else // CASE: MONOPHONY
     {
+        handleNoteOnMono(note, lock);
+    }
+}
+
+void handleNoteOnMono(Note &note, lock &lock)
+{
     // mono_steals_release_attr:
     // If false, new monophony notes will ignore monophony notes that are in release and will generate new notes
-        
-        // Case: We have a pressed monophony note of the same type: generate note on to same target and push_back the new mpitch
-        if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
-                                                       {return n.monoflag == 1
-                                                       && n.type == note.type
-                                                       && !n.releaseflag;}))
+    int freeVoice = 0;
+    // Case: We have a pressed monophony note of the same type: generate note on to same target and push_back the new mpitch
+    if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
+                                                    {return n.monoflag == 1
+                                                    && n.type == note.type
+                                                    && !n.releaseflag;}))
+    {
+        if(debug){cout << "Mono key was pressed, mono voice of type " << monoTargetNote->type<< " found with target " << monoTargetNote->target << endl;}
+            if(monoTargetNote->mpitch.back() != note.mpitch.back())
+            {
+            monoTargetNote->mpitch.push_back(note.mpitch.back());
+            monoTargetNote->freq.push_back(note.freq.back());
+            }
+        monoTargetNote->vel = note.vel;
+        outputFunction(*monoTargetNote, NOTEON, 1, lock); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
+        return;
+    }
+    // Case: We have a released monophony note of the same type and mono_steals_release is 1: 
+    if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
+                                        {return n.monoflag == 1
+                                        && n.type == note.type
+                                        && n.releaseflag;}))
+    {
+        if(mono_steals_release_attr)
         {
-            if(debug){cout << "Mono key was pressed, mono voice of type " << monoTargetNote->type<< " found with target " << monoTargetNote->target << endl;}
-                if(monoTargetNote->mpitch.back() != note.mpitch.back())
-                {
-                monoTargetNote->mpitch.push_back(note.mpitch.back());
-                monoTargetNote->freq.push_back(note.freq.back());
-                }
-            monoTargetNote->vel = note.vel;
-            outputFunction(*monoTargetNote, NOTEON, 1, lock); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
+        //delete mpitch list, push_back new mpitch, generate note on on old target
+        if(debug){cout << "Mono key was pressed, released mono voice of type " << monoTargetNote->type<< " found with target " << monoTargetNote->target << endl;}
+        monoTargetNote->releaseflag = 0;
+        monoTargetNote->mpitch.clear();
+        monoTargetNote->mpitch.push_back(note.mpitch.back());
+        monoTargetNote->freq.clear();
+        monoTargetNote->freq.push_back(note.freq.back());
+        monoTargetNote->vel = note.vel;
+        outputFunction(*monoTargetNote, NOTEON, 1, lock); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
+        return;
+        }
+        }
+        // Case: We have a released monophony note of the same type and mono_steals_release is 0: Generate new Note On.... 
+        // ....so we continue.
+
+        // CASE: NO MONO VOICE PLAYING ON type, FREE VOICE AVAILABLE
+        if (!inactive_voices.empty())
+        {
+            freeVoice = inactive_voices.front();
+            inactive_voices.pop();
+            note.target = freeVoice;
+            note.monoflag = 1;
+            active_voices.push_back(note);
+            if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new note to active_voices" << endl;}
+            outputFunction(note, NOTEON, 0, lock); // -> spiele neue note mit mono flag 1, freiem target und steal 0
+        }
+        // CASE: NO FREE VOICE AVAILABLE, LOOK FOR STEALING CANDIDATES
+        //       ...wenn kein freies target da ist schaue ob in activevoices eine stimme mit mono flag 0 spielt (müsste eigentlich), wenn ja:
+        else
+        {
+            Note *noteToSteal = findNoteToSteal(note);
+            if (noteToSteal)
+            {
+                if(debug){cout << "** found note to steal **\n";}
+                noteToSteal->mpitch = note.mpitch;
+                noteToSteal->freq = note.freq;
+                noteToSteal->vel = note.vel;
+                noteToSteal->type = note.type;
+                noteToSteal->releaseflag = 0;
+                noteToSteal->holdflag = 0;
+                noteToSteal->monoflag = 1;
+
+                // Find the index of the element
+                size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
+
+                // Move the element to the back of the vector
+                rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
+
+                if(debug){cout << "** changed stolen note content to new note content and moved it to back of active_voices **\n";}
+                outputFunction(active_voices.back(), NOTEON, 1, lock);
+                // -> ...spiele neue note mit mono flag 1, diesem target und steal 1
+            }
+            else // nullpointer case
+            {
+                if(debug){cout << "** did not find note to steal **"<<endl;}
+            }
             return;
         }
-    // Case: We have a released monophony note of the same type and mono_steals_release is 1: 
-        if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
-                                            {return n.monoflag == 1
-                                            && n.type == note.type
-                                            && n.releaseflag;}))
-        {
-            if(mono_steals_release_attr)
-            {
-            //delete mpitch list, push_back new mpitch, generate note on on old target
-            if(debug){cout << "Mono key was pressed, released mono voice of type " << monoTargetNote->type<< " found with target " << monoTargetNote->target << endl;}
-            monoTargetNote->releaseflag = 0;
-            monoTargetNote->mpitch.clear();
-            monoTargetNote->mpitch.push_back(note.mpitch.back());
-            monoTargetNote->freq.clear();
-            monoTargetNote->freq.push_back(note.freq.back());
-            monoTargetNote->vel = note.vel;
-            outputFunction(*monoTargetNote, NOTEON, 1, lock); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
-            return;
-            }
-            }
-            // Case: We have a released monophony note of the same type and mono_steals_release is 0: Generate new Note On.... 
-            // ....so we continue.
-
-            // CASE: NO MONO VOICE PLAYING ON type, FREE VOICE AVAILABLE
-            if (!inactive_voices.empty())
-            {
-                freeVoice = inactive_voices.front();
-                inactive_voices.pop();
-                note.target = freeVoice;
-                note.monoflag = 1;
-                active_voices.push_back(note);
-                if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new note to active_voices" << endl;}
-                outputFunction(note, NOTEON, 0, lock); // -> spiele neue note mit mono flag 1, freiem target und steal 0
-            }
-            // CASE: NO FREE VOICE AVAILABLE, LOOK FOR STEALING CANDIDATES
-            //       ...wenn kein freies target da ist schaue ob in activevoices eine stimme mit mono flag 0 spielt (müsste eigentlich), wenn ja:
-            else
-            {
-                Note *noteToSteal = findNoteToSteal(note);
-                if (noteToSteal)
-                {
-                    if(debug){cout << "** found note to steal **\n";}
-                    noteToSteal->mpitch = note.mpitch;
-                    noteToSteal->freq = note.freq;
-                    noteToSteal->vel = note.vel;
-                    noteToSteal->type = note.type;
-                    noteToSteal->releaseflag = 0;
-                    noteToSteal->holdflag = 0;
-                    noteToSteal->monoflag = 1;
-
-                    // Find the index of the element
-                    size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
-
-                    // Move the element to the back of the vector
-                    rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
-
-                    if(debug){cout << "** changed stolen note content to new note content and moved it to back of active_voices **\n";}
-                    outputFunction(active_voices.back(), NOTEON, 1, lock);
-                    // -> ...spiele neue note mit mono flag 1, diesem target und steal 1
-                }
-                else // nullpointer case
-                {
-                    if(debug){cout << "** did not find note to steal **"<<endl;}
-                }
-                return;
-            }
-    }
 }
 
 void handleNoteOnPoly(Note &note, lock &lock)
@@ -845,20 +777,107 @@ void handleNoteOff(Note &incomingNote, lock &lock)
     }
 }
 
-function listInlets = MIN_FUNCTION
+Note newNote(int mpitch, int vel)
+{    
+    Note newnote;
+    newnote.mpitch.push_back(mpitch); //always add mpitch since we need it to match note on/offs
+
+
+    if((output_mode == output_mode::freq) && scalearray.get_value(mpitch))
+    {
+        auto value = scalearray.get_value(mpitch);
+        newnote.freq.push_back(static_cast<double>(*value));
+    }
+
+    else
+    {
+        newnote.freq.push_back(mpitch); //always add frequency so the vector contains something that can be printed, although this is not a frequency
+    }
+    newnote.vel = vel;
+    return newnote;
+}
+
+void fromPoly(int target, int muteflag)
+{
+    if(debug){cout << endl
+         << "  Inlet 2: " << target << " " << muteflag << endl;}
+    if (muteflag && blockOutlet)
+    {
+        blockOutlet = false;
+        return;
+    }
+
+        if (!muteflag)
+    {
+        return;
+    }
+
+    if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
+                                         { return n.target == target; }))
+    {
+        inactive_voices.push(target);
+        // Find the index of the element
+        size_t index = note - &active_voices[0]; // Pointer arithmetic
+        // Move the element to the back of the vector
+        // rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
+        // active_voices.pop_back();
+        active_voices.erase(active_voices.begin() + index);
+    }
+}
+
+function listInlets = MIN_FUNCTION //mpitch, vel, (type), (realpitch), (monoflag) //print: 8 60. 2 600. 0
 {
     if (inlet == 0)
     {
         lock lock{m_mutex};
-        int mpitch = args[0];
+        int mpitch = args[0]; //if the input comes from a sequencer this will actually be a tranformed "target" message
         int vel = args[1];
 
         if(debug){cout << endl << "  Player Note to Inlet 1: " << mpitch << " " << vel << endl;}
 
         Note currentNote = newNote(mpitch, vel);
+
+        unsigned long argsize = args.size();
+
+            if(argsize >= 3)
+            {
+                int type = args[2];
+                currentNote.type = type;
+            }
+
+       
+            if(argsize >= 4)
+            /*                            
+            arg 4: "real" pitch, meaning the pitch that was actually recorded by our sequencer. 
+            Depending on output_mode it will either be a mpitch or a frequency.
+            Note that this means that we can't record the output of [voice-alligator] with output_mode: freq and 
+            send the recorded output to a [voice-alligator] with output_mode: mpitch and vice versa
+            */
+            { 
+                double realpitch = args[3];
+
+                if(output_mode == output_mode::freq)
+                {
+                if(!currentNote.freq.empty()) currentNote.freq.pop_back();                                    
+                currentNote.freq.push_back(realpitch);
+                } 
+                else
+                {
+                currentNote.mpitch.pop_back();
+                currentNote.mpitch.push_back(static_cast<int>(realpitch));
+                }                                                           
+            }
+
+            if(argsize >= 5)
+            {
+                int monoflag = args[4];
+                currentNote.monoflag = args[4];
+            }
+            
+
         if (vel != 0)
         {
-            if((output_mode == output_mode::freq) && !scalearray.get_value(mpitch)){
+            if(output_mode == output_mode::freq && !scalearray.get_value(mpitch) && argsize < 3){
             if(debug){cout << "mpitch " << mpitch << " not defined in the scalearray" << endl;}
             return {};}
             handleNoteOn(currentNote, lock);
@@ -873,32 +892,6 @@ function listInlets = MIN_FUNCTION
         lock lock{m_mutex};
         fromPoly(args[0], args[1]);
     }
-    return {};
-};
-
-function seqInlet = MIN_FUNCTION
-{
-    // if (inlet == 0)
-    // {
-        // lock lock{m_mutex};
-        // int mpitch = args[0]; //in this context mpitch is only an index?
-        // int vel = args[1];
-        // int rpitch = args[3]; // "real" pitch
-        // int monoflag = args[4];
-        // int stealflag = args[5];
-// 
-        // if(debug){cout << endl << "  Inlet 1: " << mpitch << " " << vel << endl;}
-// 
-        // Note currentNote = newNote(mpitch, vel);
-        // if (vel != 0)
-        // {
-            // handleNoteOn(currentNote, lock);
-        // }
-        // else
-        // {
-            // handleNoteOff(currentNote, lock);
-        // }
-    // }
     return {};
 };
 
@@ -1000,6 +993,10 @@ function scaleDefineFunction = MIN_FUNCTION
 
 function endallFunction = MIN_FUNCTION
 {
+        int endargument = 0;
+        unsigned long size = args.size();
+        if(size > 0) endargument = args[0];
+
     if (inlet == 0)
     {
     for (auto &itNote : active_voices)
@@ -1013,47 +1010,69 @@ function endallFunction = MIN_FUNCTION
     return {};
 };
 
-void fromPoly(int target, int muteflag)
-{
-    if(debug){cout << endl
-         << "  Inlet 2: " << target << " " << muteflag << endl;}
-    if (muteflag && blockOutlet)
-    {
-        blockOutlet = false;
-        return;
-    }
-
-        if (!muteflag)
-    {
-        return;
-    }
-
-    if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
-                                         { return n.target == target; }))
-    {
-        inactive_voices.push(target);
-        // Find the index of the element
-        size_t index = note - &active_voices[0]; // Pointer arithmetic
-        // Move the element to the back of the vector
-        // rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
-        // active_voices.pop_back();
-        active_voices.erase(active_voices.begin() + index);
-    }
-}
-
 message<> print{this, "print", "Print info to the max console",
-        MIN_FUNCTION
+    MIN_FUNCTION
+    {
+    if(!active_voices.size())
+    cout << "No notes in active_voices" << endl;
+    else
+    {
+        cout << active_voices.size() << " notes in active_voices{" << endl;
+        for (auto &i : active_voices)
         {
-            printActive();
-            printInactive();
-            return {};
+            cout << "mpitch [";
+            
+            for (int j : i.mpitch)
+            {
+                cout << j << " ";
+            }
+            cout << "], vel " << i.vel
+                    << ", type " << i.type
+                    << ", target " << i.target
+                    << ", freq [";
+            
+            for (double k : i.freq)
+            {
+                cout << k << " ";
+            }
+            cout << "], vel " << i.vel
+                    << ", mono " << (i.monoflag)
+                    << ", hold " << (i.holdflag)
+                    << ", release " << (i.releaseflag);
+            cout << endl;
         }
+        cout << "}" << endl; 
+    }
+
+        if (inactive_voices.empty())
+        {
+            cout << "There are no inactive voices available" << endl;
+        }
+        else if (inactive_voices.size() == 1)
+        {
+            cout << "There is " << inactive_voices.size() << " inactive voice available" << endl;
+        }
+        else
+        {
+            cout << "There are " << inactive_voices.size() << " inactive voices available" << endl;
+        }
+    return {};
+    }
 };
 
 message<> printscale{this, "printscale", "Print scalearray to the max console",
         MIN_FUNCTION
         {
-            printScalearray();
+        int scalearraylength = scalearray.length();
+        cout << "scale array length: " << scalearraylength << endl;
+
+        for (int i = 0; i < scalearraylength; ++i) {
+                if (scalearray.get_value(i)) 
+                {
+                    cout << "Index " << i << ": " << *scalearray.get_value(i) << endl;
+                } 
+            }
+
             return {};
         }
 };
