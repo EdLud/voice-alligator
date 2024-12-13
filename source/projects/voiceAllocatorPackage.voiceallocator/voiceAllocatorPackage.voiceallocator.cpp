@@ -195,6 +195,7 @@ int blockOutlet = false;
 Set to true on voice change to avoid sending stuff to [poly~] while it is initializing voices to avoid a crash.
 Set to false again by the muteflag of the voices of [poly~] itself after load.
 */
+
 // argument<int> voices { this, "voices", "Number of voices, default: 4",
     // MIN_ARGUMENT_FUNCTION {
         // int voicenr = arg;
@@ -207,7 +208,6 @@ Set to false again by the muteflag of the voices of [poly~] itself after load.
         // out1.send("voices", voicenr);
     // }
 // }; 
-//maybe make voices to an argument instead of attribute to output it correctly on load
 
 attribute<int> voices
 {
@@ -239,6 +239,9 @@ attribute<int> voices
     }
 };
 
+
+bool mono_attr_was_set_on_load = false;
+
 attribute<bool, threadsafe::yes> mono_attr
 {
     this, "mono", false,
@@ -250,12 +253,13 @@ attribute<bool, threadsafe::yes> mono_attr
             bool monotrue = args[0];
             if (!monotrue)
             {
+                if(mono_attr_was_set_on_load) lock lock{m_mutex};
+                mono_attr_was_set_on_load = true;
                 //When Monophony is being turned off we don't need multiple pitches in our Note objects, 
                 //so we set the mpitch & freq lists to contain only the last element
                 if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
                                                      { return n.type == 1 && n.mpitch.size() > 1; }))
                 {
-                    lock lock{m_mutex};
                     int tempMpitch = note->mpitch.back();
                     double tempFreq = note->freq.back();
                     note->mpitch.clear();
@@ -399,7 +403,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         {
             out1.send("target", note.target);
             out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
-            if(!flagsonly) out1.send("notemess", note.freq.back() * (440 / basefreq), note.vel);
+            if(!flagsonly) out1.send("notes", note.freq.back() * (440 / basefreq), note.vel);
             if(debug)
                 {
                 cout << " Outlet 1: target " << note.target
@@ -416,7 +420,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         {
             out1.send("target", note.target);
             out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
-            if(!flagsonly) out1.send("notemess", note.mpitch.back() * (440 / basefreq), note.vel);
+            if(!flagsonly) out1.send("notes", note.mpitch.back() * (440 / basefreq), note.vel);
             
             if(debug)
                 {
@@ -439,7 +443,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         {
             out1.send("target", note.target);
             out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
-            if(!flagsonly) out1.send("notemess", note.freq.back() * (440 / basefreq), NOTEOFF);
+            if(!flagsonly) out1.send("notes", note.freq.back() * (440 / basefreq), NOTEOFF);
             if(debug)
                 {
                 cout << " Outlet 1: target " << note.target
@@ -456,7 +460,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         {
             out1.send("target", note.target);
             out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
-            if(!flagsonly) out1.send("notemess", note.mpitch.back() * (440 / basefreq), NOTEOFF);
+            if(!flagsonly) out1.send("notes", note.mpitch.back() * (440 / basefreq), NOTEOFF);
             if(debug)
                 {
                 cout << " Outlet 1: target " << note.target
@@ -478,10 +482,10 @@ Note *findNoteToSteal(Note &incomingNote)
 
     if(!steal) return nullptr;
 
-    int stealCase = 1; //sequencer never steals non-sequencer notes, hold notes are never stolen
-    if(sequencer_steals && !steal_hold) stealCase = 2; //sequencer can steal non-sequencer notes, hold notes are never stolen
-    if(sequencer_steals && steal_hold)  stealCase = 3; //sequencer can steal non-sequencer notes, hold notes are stolen
-    if(!sequencer_steals && steal_hold) stealCase = 4;//sequencer never steals non-sequencer notes, hold notes are stolen
+    int stealCase = 1;                                  //sequencer never steals non-sequencer notes, hold notes are never stolen
+    if(sequencer_steals && !steal_hold) stealCase = 2;  //sequencer can steal non-sequencer notes, hold notes are never stolen
+    if(sequencer_steals && steal_hold)  stealCase = 3;  //sequencer can steal non-sequencer notes, hold notes are stolen
+    if(!sequencer_steals && steal_hold) stealCase = 4;  //sequencer never steals non-sequencer notes, hold notes are stolen
 
 
     switch (stealCase)
@@ -743,6 +747,7 @@ void handleNoteOnPoly(Note &note, lock &lock)
         }
     }
 }
+
 void handleNoteOff(Note &incomingNote, lock &lock)
 {
     if(debug) cout << "Called Handle Note Off" << endl;
@@ -823,7 +828,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
                 }
                 return;
             }
-            //what we always do: remove the pitch entrance of the note that was just released
+            //what we always do: remove the pitch entry of the note that was just released
             for (auto it = note->mpitch.begin(); it != note->mpitch.end(); ++it)
             {
                 if (*it == incomingNote.mpitch.back())
@@ -896,7 +901,6 @@ function seqInlet = MIN_FUNCTION
     // }
     return {};
 };
-
 
 function endHold = MIN_FUNCTION
 {
@@ -1008,7 +1012,6 @@ function endallFunction = MIN_FUNCTION
     }
     return {};
 };
-
 
 void fromPoly(int target, int muteflag)
 {

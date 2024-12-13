@@ -6,7 +6,7 @@ show mono
 tovoice attack 7
 tovoice decay 150
 tovoice sustain 0.7
-tovoice release 450
+tovoice release 1450
 tovoice glidetime 15
 tovoice legato_retrigger 1
 200 metro1 1

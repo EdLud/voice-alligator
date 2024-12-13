@@ -81,7 +81,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
 					"patching_rect" : [ 307.0, 52.0, 459.0, 22.0 ],
-					"text" : "route notemess flags"
+					"text" : "route notes flags"
 				}
 
 			}
@@ -116,8 +116,8 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 593.0, 297.0, 278.0, 33.0 ],
-					"text" : "<- if monoflag & stealflag are on, choose what to do with the note-on according to legato_mode."
+					"patching_rect" : [ 593.0, 300.0, 304.0, 33.0 ],
+					"text" : "<- if the note is part of a legato sequence, choose what to do with the note-on according to legato_mode."
 				}
 
 			}

@@ -3947,8 +3947,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 3,
 					"outlettype" : [ "signal", "", "" ],
-					"patching_rect" : [ 458.0, 531.0, 122.0, 22.0 ],
-					"text" : "poly~ testp-voice 500"
+					"patching_rect" : [ 449.0, 491.0, 142.0, 22.0 ],
+					"text" : "poly~ example-voice 500"
 				}
 
 			}
@@ -4610,33 +4610,15 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-122", 0 ],
-					"order" : 2,
-					"source" : [ "obj-33", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-6", 1 ],
-					"disabled" : 1,
-					"midpoints" : [ 519.0, 563.0, 697.0, 563.0, 697.0, 468.0, 696.0, 468.0, 696.0, 318.0, 655.5, 318.0 ],
+					"midpoints" : [ 520.0, 564.0, 723.0, 564.0, 723.0, 318.0, 655.5, 318.0 ],
 					"source" : [ "obj-33", 1 ]
 				}
 
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-80", 0 ],
-					"order" : 0,
-					"source" : [ "obj-33", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-89", 0 ],
-					"order" : 1,
 					"source" : [ "obj-33", 0 ]
 				}
 
@@ -5049,15 +5031,15 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "filter.dcblock~.mxo",
-				"type" : "iLaX"
-			}
-, 			{
-				"name" : "testp-voice.maxpat",
+				"name" : "example-voice.maxpat",
 				"bootpath" : "~/Documents/Max 8/Packages/voiceAllocatorPackage",
 				"patcherrelativepath" : ".",
 				"type" : "JSON",
 				"implicit" : 1
+			}
+, 			{
+				"name" : "filter.dcblock~.mxo",
+				"type" : "iLaX"
 			}
 , 			{
 				"name" : "voiceAllocatorPackage.voiceallocator.mxo",
