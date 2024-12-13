@@ -993,20 +993,31 @@ function scaleDefineFunction = MIN_FUNCTION
 
 function endallFunction = MIN_FUNCTION
 {
-        int endargument = 0;
         unsigned long size = args.size();
-        if(size > 0) endargument = args[0];
-
-    if (inlet == 0)
-    {
-    for (auto &itNote : active_voices)
-    {
-        lock lock{m_mutex};
-        itNote.holdflag = 0;
-        itNote.releaseflag = 1;
-        outputFunction(itNote, NOTEOFF, 0, lock);
-    }
-    }
+        if(size > 0) //if an argument was provided, end notes of type according to argument
+        {
+        int type = args[0];
+            for (auto &itNote : active_voices)
+            {
+                lock lock{m_mutex};
+                if(itNote.type == type)
+                {
+                itNote.holdflag = 0;
+                itNote.releaseflag = 1;
+                outputFunction(itNote, NOTEOFF, 0, lock);
+                }
+            }
+        }
+        else        //else end all notes
+        {
+            for (auto &itNote : active_voices)
+            {
+                lock lock{m_mutex};
+                itNote.holdflag = 0;
+                itNote.releaseflag = 1;
+                outputFunction(itNote, NOTEOFF, 0, lock);
+            }
+        }
     return {};
 };
 
