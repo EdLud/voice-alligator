@@ -10,10 +10,9 @@ tovoice release 50
 tovoice glidetime 50
 tovoice legato_retrigger 1
 pitchwheel 0
-mono 0
 hold 0
-250 mono 1
-300 note 60 60
+mono 1
+note 60 60
 200 note 64 60
 100 note 67 60
 200 note 62 60

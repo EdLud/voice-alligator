@@ -36,13 +36,13 @@ public:
     std::vector<int> mpitch;
     int vel;
     std::vector<double> freq;
-    int type = 1; // hold notes = type 0, player notes = type 1, sequencer notes = type 2
+    int channel = 1; // hold notes = channel 0, player notes = channel 1, sequencer notes = channel 2
     int target;      // voice instanz von poly~
     bool monoflag = false;
-    bool sequencerNoteFlag = false; //if sequencer note: lock mono flag.
+    bool sequencerNoteFlag = false; //if sequencer note: lock mono flag, don't set hold notes, don't be affected by sustain pedal
     bool sustainflag = false;
     bool holdflag = false;
-    bool releaseflag = false; // ist note in release phase?
+    bool releaseflag = false; // is note in release phase?
 
     int return_lowest_mpitch() const {
         if (mpitch.empty()) {
@@ -71,7 +71,6 @@ public:
         }
         return *std::max_element(freq.begin(), freq.end());
     }
-
 };
 
 class Scalearray 
@@ -118,6 +117,91 @@ private:
     int maxsize = 127;
 };
 
+class ActiveVoices
+{
+private:
+    std::vector<Note> voices; // Encapsulated vector of Note objects
+
+public:
+    // Add a note to the vector
+    void addNote(const Note& note)
+    {
+        voices.push_back(note);
+    }
+
+    // Overloaded push_back for compatibility with existing code
+    void push_back(const Note& note)
+    {
+        voices.push_back(note);
+    }
+
+    // Access all notes (optional, if needed elsewhere)
+    std::vector<Note>& getNotes()
+    {
+        return voices;
+    }
+
+    // Function to clear all entries except for the last one from "mpitch" in each Note
+    void clearMpitchExceptLast()
+    {
+        for (auto& note : voices)
+        {
+            if (note.mpitch.size() > 1)
+            {
+                note.mpitch = { note.mpitch.back() };
+            }
+        }
+    }
+
+    // Function to clear all entries except for the last one from "freq" in each Note
+    void clearFreqExceptLast()
+    {
+        for (auto& note : voices)
+        {
+            if (note.freq.size() > 1)
+            {
+                note.freq = { note.freq.back() };
+            }
+        }
+    }
+
+    // Optional: Clear all notes from the vector
+    void clearAllNotes()
+    {
+        voices.clear();
+    }
+
+    // Function to replace and update a stolen note's data
+    void replaceAndUpdateNote(Note* noteToSteal, const Note& newNote, bool debug = false)
+    {
+        if (noteToSteal)
+        {
+            if (debug) { std::cout << "** found note to steal **\n"; }
+
+            // Update the stolen note's data
+            noteToSteal->mpitch = newNote.mpitch;
+            noteToSteal->freq = newNote.freq;
+            noteToSteal->vel = newNote.vel;
+            noteToSteal->channel = newNote.channel;
+            noteToSteal->releaseflag = false;
+            noteToSteal->holdflag = false;
+            if (!newNote.sequencerNoteFlag) noteToSteal->monoflag = true;
+
+            // Find the index of the stolen note
+            size_t index = noteToSteal - &voices[0]; // Pointer arithmetic
+
+            // Move the stolen note to the back of the vector
+            std::rotate(voices.begin() + index, voices.begin() + index + 1, voices.end());
+
+            if (debug) { std::cout << "** changed stolen note content to new note content and moved it to back of active_voices **\n"; }
+        }
+        else // Null pointer case
+        {
+            if (debug) { std::cout << "** did not find note to steal **" << std::endl; }
+        }
+    }
+};
+
 Scalearray scalearray;
 std::vector<Note> active_voices;
 std::queue<int> inactive_voices;
@@ -127,7 +211,7 @@ attribute<bool>                     debug{this, "debug", false, description{"Deb
 attribute<bool>                     mono_steals_release_attr{this, "mono_steals_release", true, 
 description{"If false, new monophony notes will ignore monophony notes that are in release and will generate new notes"}};
 attribute<bool>                     hold_attr{this, "hold", false, description{"Hold on / off"}};
-attribute<bool>                     sustain_attr{this, "sustain", false, description{"Sustain on / off"}};
+attribute<bool>                     sustain_attr{this, "sustain", false, description{"Sustain on / off"}}; //not implemented
 // attribute<double>                   basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
 attribute<bool>                     steal{this, "steal", true, description{"Steal on / off"}};
 attribute<bool>                     steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; 
@@ -142,7 +226,7 @@ enum class mono_mode : int
     enum_count
 };
 
-enum_map mono_mode_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"}; //not implemented 
+enum_map mono_mode_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"}; //not implemented, i think only needs to be implemented in outputFunction.
 
 attribute<mono_mode> mono_mode{this, "mono_mode", mono_mode::last_note, mono_mode_range,
                                description{"Choose Mono Mode: Last Note, Low Note, High Note"}};
@@ -213,10 +297,10 @@ attribute<int> voices
         {
             int voicenr = (int)args[0];
             if(voicenr > 1024){return {voicenr};} 
-            /*range doesn't block for some reason so we need to make sure, that we 
-            don't have more inactive_voices in alligator max voices of [poly~]*/
+            /*range doesn't block for some reason so we need to make sure that we 
+            don't have more inactive_voices in alligator than max voices of [poly~]*/
                 blockOutlet = true; 
-                /*^this tries to ensure we don't try to send messages to [poly~] while it is reloading voices and notes are playing.
+                /*^this ensures we don't try to send messages to [poly~] while it is reloading voices and notes are playing.
                 this caused some crashes earlier, but now the crashes are more rare. 
                 the variable is set to false when the first instance of the newly reloaded
                 [poly~] sends a mute 1 message.
@@ -251,7 +335,7 @@ attribute<bool, threadsafe::yes> mono_attr
                 //When Monophony is being turned off we don't need multiple pitches in our Note objects, 
                 //so we set the mpitch & freq lists to contain only the last element
                 if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                     { return n.type == 1 && n.mpitch.size() > 1; }))
+                                                     { return n.channel == 1 && n.mpitch.size() > 1; })) // NEED TO DO THIS FOR ALL CHANNELS
                 {
                     int tempMpitch = note->mpitch.back();
                     double tempFreq = note->freq.back();
@@ -388,7 +472,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
     }
 }
 
-Note *findNoteToSteal(Note &incomingNote)
+Note* findNoteToSteal(Note &incomingNote)
 {
     if(debug){cout << "incoming note " << incomingNote.mpitch.back() << " asked for steal" << endl;} 
 
@@ -403,110 +487,110 @@ Note *findNoteToSteal(Note &incomingNote)
     switch (stealCase)
     {
     case 1: //sequencer never steals non-sequencer notes, hold notes are never stolen
-        if (incomingNote.type == 1)
+        if (incomingNote.channel == 1)
         { // PLAYER NOTE
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type > 1; }))
+                                                 { return n.releaseflag && n.channel > 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type == 1; }))
+                                                 { return n.releaseflag && n.channel == 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return !n.releaseflag && n.type > 1; }))
+                                                 { return !n.releaseflag && n.channel > 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return !n.releaseflag && n.type == 1; }))
+                                                 { return !n.releaseflag && n.channel == 1; }))
                 return note;
         }
-        else if (incomingNote.type > 1)
+        else if (incomingNote.channel > 1)
         { // SEQUENCER NOTE
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type > 1; }))
+                                                 { return n.releaseflag && n.channel > 1; }))
                 return note;
 
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                { return !n.releaseflag && n.type > 1; }))
+                                                { return !n.releaseflag && n.channel > 1; }))
                 return note;
 
             // if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                //  { return n.releaseflag && n.type > 0; }))
+                                                //  { return n.releaseflag && n.channel > 0; }))
                 // return note;
         break;
         }
 
     case 2: //sequencer can steal non-sequencer notes, hold notes are never stolen
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type > 1; }))
+                                                 { return n.releaseflag && n.channel > 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type == 1; }))
+                                                 { return n.releaseflag && n.channel == 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return !n.releaseflag && n.type > 1; }))
+                                                 { return !n.releaseflag && n.channel > 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return !n.releaseflag && n.type == 1; }))
+                                                 { return !n.releaseflag && n.channel == 1; }))
                 return note;
         break;
 
     case 3: //sequencer can steal non-sequencer notes, hold notes are stolen
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                 { return n.releaseflag && n.type > incomingNote.type; }))
+                                                 { return n.releaseflag && n.channel > incomingNote.channel; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                 { return n.releaseflag && n.type == incomingNote.type; }))
+                                                 { return n.releaseflag && n.channel == incomingNote.channel; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                 { return n.releaseflag && n.type < incomingNote.type; }))
+                                                 { return n.releaseflag && n.channel < incomingNote.channel; }))
                 return note;
 
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                 { return !n.releaseflag && n.type > incomingNote.type; }))
+                                                 { return !n.releaseflag && n.channel > incomingNote.channel; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                 { return !n.releaseflag && n.type == incomingNote.type; }))
+                                                 { return !n.releaseflag && n.channel == incomingNote.channel; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                 { return !n.releaseflag && n.type < incomingNote.type; }))
+                                                 { return !n.releaseflag && n.channel < incomingNote.channel; }))
                 return note;
         break;
 
     case 4: //sequencer never steals non-sequencer notes, hold notes are stolen (but not by sequencer)
-        if (incomingNote.type == 1)
+        if (incomingNote.channel == 1)
         { // PLAYER NOTE
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type > 1; }))
+                                                 { return n.releaseflag && n.channel > 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type == 1; }))
+                                                 { return n.releaseflag && n.channel == 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type < 1; }))
+                                                 { return n.releaseflag && n.channel < 1; }))
                 return note;
                 
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return !n.releaseflag && n.type > 1; }))
+                                                 { return !n.releaseflag && n.channel > 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return !n.releaseflag && n.type == 1; }))
+                                                 { return !n.releaseflag && n.channel == 1; }))
                 return note;
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return !n.releaseflag && n.type < 1; }))
+                                                 { return !n.releaseflag && n.channel < 1; }))
                 return note;
 
         }
-        else if (incomingNote.type > 1)
+        else if (incomingNote.channel > 1)
         { // SEQUENCER NOTE
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                 { return n.releaseflag && n.type > 1; }))
+                                                 { return n.releaseflag && n.channel > 1; }))
                 return note;
 
             if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                { return !n.releaseflag && n.type > 1; }))
+                                                { return !n.releaseflag && n.channel > 1; }))
                 return note;
 
             // if (auto *note = findFirstNoteWithPredicate([](const Note &n)
-                                                //  { return n.releaseflag && n.type > 0; }))
+                                                //  { return n.releaseflag && n.channel > 0; }))
                 // return note;
         }
         break;
@@ -516,7 +600,8 @@ Note *findNoteToSteal(Note &incomingNote)
 
 void handleNoteOn(Note &note, lock &lock)
 {
-    if(note.sequencerNoteFlag) // Note with locked mono flag, aka sequencer note
+    if(note.sequencerNoteFlag) 
+    // Note with locked mono flag, aka sequencer note. Not affected by mono attribute.
     {
         if(note.monoflag) 
         handleNoteOnMono(note, lock);
@@ -531,16 +616,15 @@ void handleNoteOn(Note &note, lock &lock)
 
 void handleNoteOnMono(Note &note, lock &lock)
 {
-    // mono_steals_release_attr:
-    // If false, new monophony notes will ignore monophony notes that are in release and will generate new notes
+    // mono_steals_release_attr: If false, new monophony notes will ignore monophony notes that are in release and will generate new notes
     int freeVoice = 0;
-    // Case: We have a pressed monophony note of the same type: generate note on to same target and push_back the new mpitch
+    // Case: We have a pressed monophony note of the same channel: generate note on to same target and push_back the new mpitch
     if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
                                                     {return n.monoflag == 1
-                                                    && n.type == note.type
+                                                    && n.channel == note.channel
                                                     && !n.releaseflag;}))
     {
-        if(debug){cout << "Mono key was pressed, mono voice of type " << monoTargetNote->type<< " found with target " << monoTargetNote->target << endl;}
+        if(debug){cout << "Mono key was pressed, mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
             if(monoTargetNote->mpitch.back() != note.mpitch.back())
             {
             monoTargetNote->mpitch.push_back(note.mpitch.back());
@@ -550,16 +634,16 @@ void handleNoteOnMono(Note &note, lock &lock)
         outputFunction(*monoTargetNote, NOTEON, 1, lock); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
         return;
     }
-    // Case: We have a released monophony note of the same type and mono_steals_release is 1: 
+    // Case: We have a released monophony note of the same channel and mono_steals_release is 1: 
     if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
                                         {return n.monoflag == 1
-                                        && n.type == note.type
+                                        && n.channel == note.channel
                                         && n.releaseflag;}))
     {
         if(mono_steals_release_attr)
         {
         //delete mpitch list, push_back new mpitch, generate note on on old target
-        if(debug){cout << "Mono key was pressed, released mono voice of type " << monoTargetNote->type<< " found with target " << monoTargetNote->target << endl;}
+        if(debug){cout << "Mono key was pressed, released mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
         monoTargetNote->releaseflag = 0;
         monoTargetNote->mpitch.clear();
         monoTargetNote->mpitch.push_back(note.mpitch.back());
@@ -570,10 +654,10 @@ void handleNoteOnMono(Note &note, lock &lock)
         return;
         }
         }
-        // Case: We have a released monophony note of the same type and mono_steals_release is 0: Generate new Note On.... 
+        // Case: We have a released monophony note of the same channel and mono_steals_release is 0: Generate new Note On.... 
         // ....so we continue.
 
-        // CASE: NO MONO VOICE PLAYING ON type, FREE VOICE AVAILABLE
+        // CASE: NO MONO VOICE PLAYING ON channel, FREE VOICE AVAILABLE
         if (!inactive_voices.empty())
         {
             freeVoice = inactive_voices.front();
@@ -595,7 +679,7 @@ void handleNoteOnMono(Note &note, lock &lock)
                 noteToSteal->mpitch = note.mpitch;
                 noteToSteal->freq = note.freq;
                 noteToSteal->vel = note.vel;
-                noteToSteal->type = note.type;
+                noteToSteal->channel = note.channel;
                 noteToSteal->releaseflag = 0;
                 noteToSteal->holdflag = 0;
                 if(!note.sequencerNoteFlag)noteToSteal->monoflag = 1;
@@ -643,10 +727,10 @@ void handleNoteOnPoly(Note &note, lock &lock)
             noteToSteal->mpitch = note.mpitch;
             noteToSteal->freq = note.freq;
             noteToSteal->vel = note.vel;
-            noteToSteal->type = note.type;
-            noteToSteal->releaseflag = 0;
-            noteToSteal->holdflag = 0;
-            if(!note.sequencerNoteFlag)noteToSteal->monoflag = 0;
+            noteToSteal->channel = note.channel;
+            noteToSteal->releaseflag = false;
+            noteToSteal->holdflag = false;
+            if(!note.sequencerNoteFlag)noteToSteal->monoflag = false;
 
             // Find the index of the element
             size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
@@ -674,18 +758,18 @@ void handleNoteOff(Note &incomingNote, lock &lock)
         if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
                                             {return n.mpitch.back() == incomingNote.mpitch.back() 
                                             && !n.holdflag 
-                                            && n.type == incomingNote.type;}))
+                                            && n.channel == incomingNote.channel;}))
         {
             if(debug)cout<<"set note " << note->mpitch.back() << "at target " << note->target << " to hold" << endl;
             note->holdflag = 1;
-            note->type = 0;
+            note->channel = 0;
             outputFunction(*note, NOTEOFF, 0, lock, true); //send flags only = true
             return;
         }
     }
     //Monophony note off case: we check that our note off doesn't belong to a legato note by checking the size of the vector of mpitches, and release it.
     if (auto *note = findFirstNoteWithPredicate([&](const Note &n) 
-                                        {return n.type == incomingNote.type 
+                                        {return n.channel == incomingNote.channel 
                                         && n.mpitch.size() == 1 
                                         && n.mpitch.back() == incomingNote.mpitch.back() 
                                         && !n.holdflag
@@ -702,7 +786,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
     {
         //most normal note off
         if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                            { return n.type == incomingNote.type 
+                                            { return n.channel == incomingNote.channel 
                                             && n.mpitch == incomingNote.mpitch 
                                             && !n.holdflag; }))
         {
@@ -720,7 +804,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
     else // CASE: MONOPHONY
     {
         if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                             { return n.type == incomingNote.type 
+                                             { return n.channel == incomingNote.channel 
                                                && n.monoflag 
                                                && !n.holdflag 
                                                && !n.releaseflag
@@ -810,7 +894,7 @@ void fromPoly(int target, int muteflag)
     }
 }
 
-function listInlets = MIN_FUNCTION //mpitch, vel, (type), (realpitch), (monoflag) //print: 8 60. 2 600. 0
+function listInlets = MIN_FUNCTION //mpitch, vel, (channel), (realpitch), (monoflag) //print: 8 60. 2 600. 0
 {
     if (inlet == 0)
     {
@@ -826,8 +910,8 @@ function listInlets = MIN_FUNCTION //mpitch, vel, (type), (realpitch), (monoflag
 
             if(argsize >= 3)
             {
-                int type = args[2];
-                currentNote.type = type;
+                int channel = args[2];
+                currentNote.channel = channel;
             }
 
             if(argsize >= 4)
@@ -981,13 +1065,13 @@ function scaleDefineFunction = MIN_FUNCTION
 function endallFunction = MIN_FUNCTION
 {
         unsigned long size = args.size();
-        if(size > 0) //if an argument was provided, end notes of type according to argument
+        if(size > 0) //if an argument was provided, end notes of channel according to argument
         {
-        int type = args[0];
+        int channel = args[0];
             for (auto &itNote : active_voices)
             {
                 lock lock{m_mutex};
-                if(itNote.type == type)
+                if(itNote.channel == channel)
                 {
                 itNote.holdflag = 0;
                 itNote.releaseflag = 1;
@@ -1025,7 +1109,7 @@ message<> print{this, "print", "Print info to the max console",
                 cout << j << " ";
             }
             cout << "], vel " << i.vel
-                    << ", type " << i.type
+                    << ", channel " << i.channel
                     << ", target " << i.target
                     << ", freq [";
             
@@ -1075,7 +1159,7 @@ message<> printscale{this, "printscale", "Print scalearray to the max console",
         }
 };
 
-message<threadsafe::yes> list{this, "list", "midipitch, velocity, type", listInlets};
+message<threadsafe::yes> list{this, "list", "midipitch, velocity, channel", listInlets};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
 message<threadsafe::yes> endhold{this, "endhold", "End hold notes 0 = all, 1 = last, 2 = first", endHold};
 message<threadsafe::yes> endall{this, "endall", "send message to release all voices", endallFunction};

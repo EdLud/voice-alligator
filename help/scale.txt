@@ -1,0 +1,29 @@
+descr 1 "Player presses F, F sounds in scale 0 (12-TET)"
+descr 2 "Player switches to scale 1 (some harmonics) and Presses G, the corresponding Note in Scale 1 sounds"
+descr 3 "Player releases G, F in scale 0 sounds again"
+show scale
+show mono
+mono 1
+tovoice attack 7
+tovoice decay 150
+tovoice sustain 0.7
+tovoice release 50
+tovoice glidetime 15
+tovoice legato_retrigger 1
+note 65 60
+500 scale 1
+500 note 67 60 
+1000 note 67 0
+1000 note 65 0
+2000 metroRandomSpeed 20
+metroRandom 1
+500 scale 1
+250 mono 0
+500 scale 2
+250 mono 1
+500 scale 0
+250 mono 0
+500 metroRandom 0 
+scale 0
+mono 0
+2060 end

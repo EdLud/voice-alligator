@@ -11,7 +11,7 @@ tovoice legato_retrigger 1
 pitchwheel 0
 mono 0
 hold 0
-250 note 60 60
+note 60 60
 note 64 60
 note 67 60
 500 mono 1
