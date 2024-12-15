@@ -76,6 +76,14 @@
         "chrono": "cpp",
         "format": "cpp",
         "system_error": "cpp",
-        "__availability": "cpp"
+        "__availability": "cpp",
+        "span": "cpp",
+        "text_encoding": "cpp",
+        "codecvt": "cpp",
+        "complex": "cpp",
+        "condition_variable": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "shared_mutex": "cpp"
     }
 }
