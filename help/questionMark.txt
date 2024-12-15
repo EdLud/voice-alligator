@@ -1,0 +1,54 @@
+class ActiveVoices
+{
+private:
+    std::vector<Note> voices; // Encapsulated vector of Note objects
+
+public:
+    // Overload push_back to maintain compatibility with existing code
+    void push_back(const Note& note)
+    {
+        voices.push_back(note);
+    }
+
+    // Add a note to the vector (optional, if new code prefers more descriptive names)
+    void addNote(const Note& note)
+    {
+        voices.push_back(note);
+    }
+
+    // Access all notes (optional, if needed elsewhere)
+    std::vector<Note>& getNotes()
+    {
+        return voices;
+    }
+
+    // Function to clear all entries except for the last one from "mpitch" in each Note
+    void clearMpitchExceptLast()
+    {
+        for (auto& note : voices)
+        {
+            if (note.mpitch.size() > 1)
+            {
+                note.mpitch = { note.mpitch.back() };
+            }
+        }
+    }
+
+    // Function to clear all entries except for the last one from "freq" in each Note
+    void clearFreqExceptLast()
+    {
+        for (auto& note : voices)
+        {
+            if (note.freq.size() > 1)
+            {
+                note.freq = { note.freq.back() };
+            }
+        }
+    }
+
+    // Optional: Clear all notes from the vector
+    void clearAllNotes()
+    {
+        voices.clear();
+    }
+};

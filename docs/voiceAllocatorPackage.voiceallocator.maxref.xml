@@ -47,8 +47,8 @@
 		</method>
 
 		<method name='list'>
-			<digest>midipitch, velocity, type </digest>
-			<description>midipitch, velocity, type </description>
+			<digest>midipitch, velocity, channel </digest>
+			<description>midipitch, velocity, channel </description>
 		</method>
 
 		<method name='printscale'>
@@ -83,9 +83,9 @@
 			<description>Monophony on / off </description>
 		</attribute>
 
-		<attribute name='mono_mode' get='1' set='1' type='long' size='1' >
-			<digest>Choose Mono Mode: Last Note, Low Note, High Note </digest>
-			<description>Choose Mono Mode: Last Note, Low Note, High Note </description>
+		<attribute name='mono_note_priority' get='1' set='1' type='long' size='1' >
+			<digest>Choose Mono Mode: Last Note, Low Note, High Note: NOT IMPLEMENTED </digest>
+			<description>Choose Mono Mode: Last Note, Low Note, High Note: NOT IMPLEMENTED </description>
 		</attribute>
 
 		<attribute name='mono_steals_release' get='1' set='1' type='long' size='1' >

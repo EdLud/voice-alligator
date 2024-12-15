@@ -742,10 +742,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 285.0, 703.0, 42.0, 22.0 ],
-					"saved_object_attributes" : 					{
-						"attr_comment" : ""
-					}
-,
 					"text" : "out~ 1"
 				}
 
@@ -889,8 +885,8 @@
 					"numinlets" : 11,
 					"numoutlets" : 3,
 					"outlettype" : [ "signal", "signal", "" ],
-					"patching_rect" : [ 572.0, 587.0, 363.999999999999545, 22.0 ],
-					"text" : "live.adsr~ 7 150 1 50"
+					"patching_rect" : [ 572.0, 587.0, 130.0, 22.0 ],
+					"text" : "live.adsr~ 7 150 0.5 50"
 				}
 
 			}
@@ -987,10 +983,6 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 351.0, 20.0, 47.0, 23.0 ],
-					"saved_object_attributes" : 					{
-						"attr_comment" : ""
-					}
-,
 					"text" : "in 1"
 				}
 
@@ -1083,7 +1075,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-12", 0 ],
-					"midpoints" : [ 926.499999999999545, 637.0, 1002.5, 637.0, 1002.5, 625.0, 1024.5, 625.0 ],
+					"midpoints" : [ 692.5, 637.0, 1002.5, 637.0, 1002.5, 625.0, 1024.5, 625.0 ],
 					"source" : [ "obj-19", 2 ]
 				}
 
