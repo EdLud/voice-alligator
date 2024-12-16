@@ -73,10 +73,10 @@ public:
         return *std::max_element(freq.begin(), freq.end());
     }
 
-    void remove_last_mpitch_entry(const Note& incomingNote) 
+    void remove_mpitch_entry(int mpitchToRemove) 
     {
     for (auto it = mpitch.begin(); it != mpitch.end(); ++it) {
-        if (*it == incomingNote.mpitch.back()) {
+        if (*it == mpitchToRemove) {
             size_t index = it - mpitch.begin(); // Pointer arithmetic to get the index
             mpitch.erase(mpitch.begin() + index);
             freq.erase(freq.begin() + index);
@@ -491,7 +491,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         if(output_mode == output_mode::freq)
         {
             out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
+            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
             if(!flagsonly) 
                 {
                     if(note.monoflag && !mononoteon) // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
@@ -536,7 +536,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         else //output mode is mpitch
         {
             out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
+            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
             if(!flagsonly)
             {
                 if(note.monoflag && !mononoteon) // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
@@ -586,7 +586,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         if(output_mode == output_mode::freq)
         {
             out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
+            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
             if(!flagsonly) out1.send("notes", note.freq.back() * (440 / 440), NOTEOFF);
             if(debug)
                 {
@@ -603,7 +603,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         else
         {
             out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag);
+            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
             if(!flagsonly) out1.send("notes", note.mpitch.back() * (440 / 440), NOTEOFF);
             if(debug)
                 {
@@ -773,13 +773,13 @@ void handleNoteOnMono(Note &note, lock &lock)
                                                     && n.channel == note.channel
                                                     && !n.releaseflag;}))
     {
-        if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back())
+        if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back() && !note.sequencerNoteFlag)
         {
             // we need a new NOTEON only if a lower note than our lowest note was pressed, this is not the case so we return
             return;
         }
 
-        if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back())
+        if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back()&& !note.sequencerNoteFlag)
         {
             // we need a new NOTEON only if a higher note than our lowest note was pressed
             return;
@@ -787,11 +787,11 @@ void handleNoteOnMono(Note &note, lock &lock)
 
 
         if(debug){cout << "Mono key was pressed, mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
-            if(monoTargetNote->mpitch.back() != note.mpitch.back())
-            {
-            monoTargetNote->mpitch.push_back(note.mpitch.back());
-            monoTargetNote->freq.push_back(note.freq.back());
-            }
+            // if(monoTargetNote->mpitch.back() != note.mpitch.back())
+            // {
+        monoTargetNote->mpitch.push_back(note.mpitch.back());
+        monoTargetNote->freq.push_back(note.freq.back());
+            // }
         monoTargetNote->vel = note.vel;
         outputFunction(*monoTargetNote, NOTEON, 1, lock, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
         return;
@@ -807,13 +807,13 @@ void handleNoteOnMono(Note &note, lock &lock)
                                             && n.channel == note.channel
                                             && n.releaseflag;}))
         {
-        if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back())
+        if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back() && !note.sequencerNoteFlag)
         {
             // we need a new NOTEON only if a lower note than our lowest note was pressed, this is not the case so we return
             return;
         }
 
-        if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back())
+        if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back() && !note.sequencerNoteFlag)
         {
             // we need a new NOTEON only if a higher note than our lowest note was pressed
             return;
@@ -931,7 +931,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
     // Set hold / sustain case: On note off, set the the note to hold or sustain and return
     if(!incomingNote.sequencerNoteFlag) //but only if the note didn't come from a sequencer
     {
-        if (hold_attr && !sustain_attr) //if hold is on and sustain is off set the note to hold and return
+        if (hold_attr && !sustain_attr) //if hold is on and sustain is off: set the note to hold and return
         {
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
                                                 {return n.mpitch.back() == incomingNote.mpitch.back() 
@@ -946,7 +946,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
             }
         }
         else if (sustain_attr) 
-        //if both are on or sustain is on, prefer sustain over hold as it is less impactful, set to sustain and return
+        //if sustain is on or both are on, prefer sustain over hold as it is less impactful: set to sustain and return
         {
             if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
                                                 {return n.mpitch.back() == incomingNote.mpitch.back() 
@@ -963,7 +963,6 @@ void handleNoteOff(Note &incomingNote, lock &lock)
 
     }
     
-    
     //Normal note off case: we check that our note off doesn't belong to a legato note by checking the size of the vector of mpitches. 
     //if the note only has one mpitch, we release it and return.
     if (auto *note = findFirstNoteWithPredicate([&](const Note &n) 
@@ -973,7 +972,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
                                         && !n.holdflag
                                         && !n.releaseflag;}))
     {
-        if(debug)cout<<"released incoming note with mpitch " << incomingNote.mpitch.back() << " matching it to note " << note->mpitch.back() << " at target " << note->target << " in monophony" << endl;
+        if(debug)cout<<"released incoming note with mpitch " << incomingNote.mpitch.back() << " matching it to note " << note->mpitch.back() << " at target " << note->target << endl;
         
         note->releaseflag = 1;
         outputFunction(*note, NOTEOFF, 0, lock);
@@ -984,7 +983,6 @@ void handleNoteOff(Note &incomingNote, lock &lock)
 
     {
         // if there is a mono note in our vector, which has not been released and is not in hold
-        // check the mpitch of the incomingNote depending on different cases
         if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
                                              { return n.channel == incomingNote.channel 
                                                && n.monoflag 
@@ -992,9 +990,10 @@ void handleNoteOff(Note &incomingNote, lock &lock)
                                                && !n.releaseflag
                                                ;}))
         {
+        // check the mpitch of the incomingNote depending on different cases
         switch (mono_note_priority_attr) {
             case mono_note_priority::LAST:
-            // we need a new NOTEON only if the player releases the last note that was played in monophony 
+            // we need a new NOTEON only if the last note was depressed 
                 if (note->mpitch.back() == incomingNote.mpitch.back()) {
                     if (note->mpitch.size() > 1) {
                         if (debug) {
@@ -1010,7 +1009,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
                 break;
 
             case mono_note_priority::HIGH:
-            // we need a new NOTEON only if a lower note than our highest note was depressed
+            // we need a new NOTEON only if the highest mpitch was depressed
                 if (note->return_highest_mpitch() == incomingNote.mpitch.back()) {
                     if (note->mpitch.size() > 1) {
                         note->remove_highest_mpitch_entry();
@@ -1022,7 +1021,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
                 break;
 
             case mono_note_priority::LOW:
-            // we need a new NOTEON only if a higher note than our lowest note was depressed
+            // we need a new NOTEON only if the lowest mpitch was depressed
                 if (note->return_lowest_mpitch() == incomingNote.mpitch.back()) {
                     if (note->mpitch.size() > 1) {
                         note->remove_lowest_mpitch_entry();
@@ -1037,23 +1036,9 @@ void handleNoteOff(Note &incomingNote, lock &lock)
                 // Handle any unexpected values of mono_note_priority_attr
                 cerr << "Invalid mono_note_priority_attr value." << endl;
                 break;
-        }
-            //
-            //if all of the above fails, we remove the mpitch from our vector and don't send anything
-            
-            note->remove_last_mpitch_entry(incomingNote);
-            // for (auto it = note->mpitch.begin(); it != note->mpitch.end(); ++it)
-            // {
-                // if (*it == incomingNote.mpitch.back())
-                // {
-                    // size_t index = it - note->mpitch.begin(); // Pointer arithmetic
-                    // note->mpitch.erase(note->mpitch.begin() + index);
-                    // note->freq.erase(note->freq.begin() + index);
-                    // if(debug)cout<<"removed entry with mpitch "<< incomingNote.mpitch.back() << "from mpitch vector of mono note" << endl;
-                    ///note->mpitch.erase(it);
-                    // break;
-                // }
-            // }
+        } 
+        //if all of the above fails, we remove the mpitch of the incoming depress and don't send out anything
+        note->remove_mpitch_entry(incomingNote.mpitch.back());
         }
     }
 }
@@ -1182,7 +1167,7 @@ function endHold = MIN_FUNCTION
 {
     if (inlet == 0)
     {
-        int endargument = 0;
+        int endargument = 0; //if a endHold message was send without args, we default to case 0.
         unsigned long size = args.size();
         if(size > 0) endargument = args[0];
         switch (endargument)
@@ -1235,7 +1220,7 @@ function scaleDefineFunction = MIN_FUNCTION
     {
         lock lock{m_mutex};
         unsigned long size = args.size();
-        if(scale_fill || !size)
+        if(scale_fill || !size) //if a scale_def message without args was send, we default to MTOF
         {
             if(debug){cout << "filled the scale array" << endl;}
             scalearray.fillContainer(scalearray_maxsize);
@@ -1274,7 +1259,7 @@ function scaleDefineFunction = MIN_FUNCTION
     return {};
 };
 
-function endallFunction = MIN_FUNCTION
+function endallFunction = MIN_FUNCTION //pseudo panic function, sends all notes into release
 {
         unsigned long size = args.size();
         if(size > 0) //if an argument was provided, end notes of channel according to argument
@@ -1332,7 +1317,8 @@ message<> print{this, "print", "Print info to the max console",
             cout << "], vel " << i.vel
                     << ", mono " << (i.monoflag)
                     << ", hold " << (i.holdflag)
-                    << ", release " << (i.releaseflag);
+                    << ", release " << (i.releaseflag)
+                    << ", sequencer_note: " << (i.sequencerNoteFlag);
             cout << endl;
         }
         cout << "}" << endl; 
