@@ -1,0 +1,56 @@
+descr 1 "Note Looper Time!"
+descr 2 ""
+descr 3 ""
+show scale
+show mono
+mono 0
+show notelooper
+tovoice attack 7
+tovoice decay 150
+tovoice sustain 0.7
+tovoice release 1500
+tovoice glidetime 15
+tovoice legato_retrigger 1
+scale 1
+notelooper record 1
+note 60 60
+200 note 60 0
+note 61 60
+200 note 61 0
+note 62 60
+200 note 62 0
+note 65 60
+200 note 65 0
+note 66 60
+200 note 66 0
+note 67 60
+200 note 67 0
+note 71 60
+200 note 71 0
+note 68 60
+200 note 68 0
+600 notelooper record 0
+1000 scale 0
+mono 1
+note 60 60
+200 note 60 0
+note 64 60
+200 note 64 0
+note 62 60
+200 note 62 0
+note 65 60
+200 note 65 0
+note 70 60
+200 note 70 0
+note 67 60
+200 note 67 0
+note 72 60
+200 note 72 0
+note 67 60
+show pitchwheel
+400 pitchwheel -12 1000
+1400 pitchwheel 0 2500
+1600 notelooper play 0
+200 note 67 0
+100 scale 0
+1000 mono 0

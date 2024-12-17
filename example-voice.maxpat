@@ -40,12 +40,24 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-33",
+					"linecount" : 13,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 782.0, 631.5, 131.0, 181.0 ],
+					"text" : "adsr~\n\n\nnever clicks\n\n\n\n\nlinear only\n\nhanging notes after roughly 30000 notes in 30 seconds."
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-57",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 569.0, 505.0, 41.0, 22.0 ],
+					"patching_rect" : [ 529.0, 498.0, 41.0, 22.0 ],
 					"text" : "sig~ 0"
 				}
 
@@ -57,7 +69,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 372.0, 630.0, 184.0, 68.0 ]
+					"patching_rect" : [ 332.0, 623.0, 184.0, 68.0 ]
 				}
 
 			}
@@ -69,7 +81,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 803.0, 382.0, 24.0, 24.0 ]
+					"patching_rect" : [ 763.0, 375.0, 24.0, 24.0 ]
 				}
 
 			}
@@ -80,7 +92,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 66.0, 598.0, 184.0, 68.0 ],
+					"patching_rect" : [ 26.0, 591.0, 184.0, 68.0 ],
 					"range" : [ 240.0, 360.0 ]
 				}
 
@@ -96,7 +108,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "signal", "float" ],
-					"patching_rect" : [ 213.0, 459.0, 56.0, 22.0 ],
+					"patching_rect" : [ 173.0, 452.0, 56.0, 22.0 ],
 					"sig" : 0.0
 				}
 
@@ -109,7 +121,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 527.0, 204.0, 24.0, 24.0 ]
+					"patching_rect" : [ 487.0, 197.0, 24.0, 24.0 ]
 				}
 
 			}
@@ -121,7 +133,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 716.0, 268.0, 24.0, 24.0 ]
+					"patching_rect" : [ 676.0, 261.0, 24.0, 24.0 ]
 				}
 
 			}
@@ -132,7 +144,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
-					"patching_rect" : [ 716.0, 238.0, 29.5, 22.0 ],
+					"patching_rect" : [ 676.0, 231.0, 29.5, 22.0 ],
 					"text" : "- 1"
 				}
 
@@ -146,7 +158,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "", "bang" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 494.0, 330.0, 50.0, 22.0 ]
+					"patching_rect" : [ 454.0, 323.0, 50.0, 22.0 ]
 				}
 
 			}
@@ -156,7 +168,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 406.0, 403.0, 61.0, 22.0 ],
+					"patching_rect" : [ 366.0, 396.0, 61.0, 22.0 ],
 					"text" : "print glide"
 				}
 
@@ -167,7 +179,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 175.0, 424.0, 65.0, 22.0 ],
+					"patching_rect" : [ 135.0, 417.0, 65.0, 22.0 ],
 					"text" : "print direct"
 				}
 
@@ -179,7 +191,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "bang", "" ],
-					"patching_rect" : [ 351.0, 84.0, 40.0, 22.0 ],
+					"patching_rect" : [ 311.0, 77.0, 40.0, 22.0 ],
 					"text" : "t l b l"
 				}
 
@@ -191,7 +203,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 5,
 					"outlettype" : [ "int", "int", "int", "int", "int" ],
-					"patching_rect" : [ 571.0, 172.0, 77.0, 22.0 ],
+					"patching_rect" : [ 531.0, 165.0, 77.0, 22.0 ],
 					"text" : "unpack i i i i i"
 				}
 
@@ -202,7 +214,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 612.0, 73.0, 265.0, 20.0 ],
+					"patching_rect" : [ 572.0, 66.0, 265.0, 20.0 ],
 					"text" : "flags: mono, steal, hold, sustain, sequencerNote"
 				}
 
@@ -214,7 +226,7 @@
 					"numinlets" : 3,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
-					"patching_rect" : [ 351.0, 49.0, 459.0, 22.0 ],
+					"patching_rect" : [ 311.0, 42.0, 459.0, 22.0 ],
 					"text" : "route notes flags"
 				}
 
@@ -226,7 +238,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 812.0, 211.0, 192.0, 74.0 ],
+					"patching_rect" : [ 772.0, 204.0, 192.0, 74.0 ],
 					"text" : "<the steal flag in combination with the mono flag gives us the information that our note is part of a legato sequence and was not the first note in that sequence"
 				}
 
@@ -238,7 +250,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 128.0, 117.0, 195.0, 154.0 ],
+					"patching_rect" : [ 88.0, 110.0, 195.0, 154.0 ],
 					"text" : "When the player has a key pressed in monophony and presses a second key (legato) and then releases the second key, [voice-alligator] actually produces a note on (!) even though technically it was a release. So here we can be sure: new pitches to the note, that interest us, are never in note offs. So we block them.------------------------------------>"
 				}
 
@@ -250,7 +262,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 637.0, 297.0, 304.0, 33.0 ],
+					"patching_rect" : [ 597.0, 290.0, 304.0, 33.0 ],
 					"text" : "<- if the note is part of a legato sequence, choose what to do with the note-on according to legato_mode."
 				}
 
@@ -261,7 +273,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 29.0, 337.0, 258.0, 20.0 ],
+					"patching_rect" : [ -11.0, 330.0, 258.0, 20.0 ],
 					"text" : "if the note is part of a legato sequence: glide ->"
 				}
 
@@ -273,7 +285,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 318.0, 249.0, 52.0, 22.0 ],
+					"patching_rect" : [ 278.0, 242.0, 52.0, 22.0 ],
 					"text" : "gate 1 1"
 				}
 
@@ -285,7 +297,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
-					"patching_rect" : [ 318.0, 221.0, 29.5, 22.0 ],
+					"patching_rect" : [ 278.0, 214.0, 29.5, 22.0 ],
 					"text" : "!= 0"
 				}
 
@@ -296,7 +308,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 1137.0, 100.0, 102.0, 22.0 ],
+					"patching_rect" : [ 1097.0, 93.0, 102.0, 22.0 ],
 					"text" : "s #0-params"
 				}
 
@@ -308,7 +320,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1137.0, 64.0, 160.0, 22.0 ],
+					"patching_rect" : [ 1097.0, 57.0, 160.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"attr_comment" : "params"
 					}
@@ -324,7 +336,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 285.0, 670.0, 47.0, 22.0 ],
+					"patching_rect" : [ 245.0, 663.0, 47.0, 22.0 ],
 					"text" : "*~ 0.25"
 				}
 
@@ -335,7 +347,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 1036.0, 719.0, 134.0, 20.0 ],
+					"patching_rect" : [ 996.0, 712.0, 134.0, 20.0 ],
 					"text" : "to voice-alligator inlet 2"
 				}
 
@@ -346,7 +358,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 277.0, 727.0, 58.0, 20.0 ],
+					"patching_rect" : [ 237.0, 720.0, 58.0, 20.0 ],
 					"text" : "audio out"
 				}
 
@@ -357,7 +369,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 400.0, 22.0, 110.0, 20.0 ],
+					"patching_rect" : [ 360.0, 15.0, 110.0, 20.0 ],
 					"text" : "from voice-alligator"
 				}
 
@@ -600,7 +612,6 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-57",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
@@ -940,7 +951,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 333.5, 453.0, 75.0, 22.0 ],
+					"patching_rect" : [ 294.0, 446.0, 75.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -960,7 +971,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 356.0, 337.0, 87.0, 22.0 ],
+					"patching_rect" : [ 316.0, 330.0, 87.0, 22.0 ],
 					"text" : "route glidetime"
 				}
 
@@ -972,7 +983,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 356.0, 307.0, 100.0, 22.0 ],
+					"patching_rect" : [ 316.0, 300.0, 100.0, 22.0 ],
 					"text" : "r #0-params"
 				}
 
@@ -984,7 +995,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 632.0, 383.0, 100.0, 22.0 ],
+					"patching_rect" : [ 592.0, 376.0, 100.0, 22.0 ],
 					"text" : "r #0-params"
 				}
 
@@ -996,7 +1007,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 1137.0, 605.0, 168.0, 87.0 ],
+					"patching_rect" : [ 1097.0, 598.0, 168.0, 87.0 ],
 					"text" : "<- every [poly~] voice controlled by [voice-alligator] needs to set it's muteflag to 1 on load and send it to the second inlet of [voice-alligator]"
 				}
 
@@ -1008,7 +1019,7 @@
 					"numinlets" : 5,
 					"numoutlets" : 5,
 					"outlettype" : [ "", "", "", "", "" ],
-					"patching_rect" : [ 606.0, 545.0, 191.0, 22.0 ],
+					"patching_rect" : [ 566.0, 538.0, 191.0, 22.0 ],
 					"text" : "route attack decay sustain release"
 				}
 
@@ -1020,7 +1031,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 606.0, 511.0, 100.0, 22.0 ],
+					"patching_rect" : [ 566.0, 504.0, 100.0, 22.0 ],
 					"text" : "r #0-params"
 				}
 
@@ -1031,11 +1042,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 285.0, 703.0, 42.0, 22.0 ],
-					"saved_object_attributes" : 					{
-						"attr_comment" : ""
-					}
-,
+					"patching_rect" : [ 245.0, 696.0, 42.0, 22.0 ],
 					"text" : "out~ 1"
 				}
 
@@ -1047,7 +1054,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 632.0, 412.0, 123.0, 22.0 ],
+					"patching_rect" : [ 592.0, 405.0, 123.0, 22.0 ],
 					"text" : "route legato_retrigger"
 				}
 
@@ -1059,7 +1066,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 632.0, 441.0, 296.0, 22.0 ],
+					"patching_rect" : [ 592.0, 434.0, 296.0, 22.0 ],
 					"text" : "gate 1 1"
 				}
 
@@ -1071,7 +1078,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 616.0, 337.0, 312.0, 22.0 ],
+					"patching_rect" : [ 576.0, 330.0, 312.0, 22.0 ],
 					"text" : "routepass 0"
 				}
 
@@ -1083,7 +1090,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 571.0, 297.0, 64.0, 22.0 ],
+					"patching_rect" : [ 531.0, 290.0, 64.0, 22.0 ],
 					"text" : "gate 2 1"
 				}
 
@@ -1091,12 +1098,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-21",
-					"linecount" : 9,
+					"linecount" : 13,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 600.0, 646.0, 256.0, 127.0 ],
-					"text" : "^Don't use [adsr~]!!\n\n[live.adsr~] is more reliable. We found that out during stress testing.\n\n[adsr~] gave us hanging notes after roughly 30.000 notes in 30 seconds. You can use it and it will probably not hang (often), but [live.adsr~] had no hanging notes."
+					"patching_rect" : [ 647.0, 577.0, 202.0, 194.0 ],
+					"text" : "^\n\nWe compared live.adsr~ and adsr~: \n\nlife.adsr~                             \npros:              \n\ncurved                              \nnever hanging notes\n\ncons:                  \n\nclicks.                               \n"
 				}
 
 			}
@@ -1107,7 +1114,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 318.0, 368.0, 57.0, 22.0 ],
+					"patching_rect" : [ 278.0, 361.0, 57.0, 22.0 ],
 					"text" : "pack f 50"
 				}
 
@@ -1119,7 +1126,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 285.0, 337.0, 52.0, 22.0 ],
+					"patching_rect" : [ 245.0, 330.0, 52.0, 22.0 ],
 					"text" : "gate 2 1"
 				}
 
@@ -1131,7 +1138,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "signal", "bang" ],
-					"patching_rect" : [ 285.0, 403.0, 34.0, 22.0 ],
+					"patching_rect" : [ 245.0, 396.0, 34.0, 22.0 ],
 					"text" : "line~"
 				}
 
@@ -1143,7 +1150,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 571.0, 211.0, 239.0, 22.0 ],
+					"patching_rect" : [ 531.0, 204.0, 239.0, 22.0 ],
 					"text" : "if $i1 == 1 && $i2 == 1 then 2 else 1"
 				}
 
@@ -1155,7 +1162,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "float" ],
-					"patching_rect" : [ 571.0, 459.0, 51.0, 22.0 ],
+					"patching_rect" : [ 531.0, 452.0, 51.0, 22.0 ],
 					"text" : "/ 127."
 				}
 
@@ -1167,7 +1174,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "float", "int" ],
-					"patching_rect" : [ 351.0, 164.0, 60.0, 22.0 ],
+					"patching_rect" : [ 311.0, 157.0, 60.0, 22.0 ],
 					"text" : "unpack f i"
 				}
 
@@ -1179,7 +1186,7 @@
 					"numinlets" : 5,
 					"numoutlets" : 4,
 					"outlettype" : [ "signal", "signal", "", "" ],
-					"patching_rect" : [ 572.0, 587.0, 109.0, 22.0 ],
+					"patching_rect" : [ 532.0, 580.0, 109.0, 22.0 ],
 					"text" : "adsr~ 7 150 0.5 50"
 				}
 
@@ -1191,7 +1198,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1015.0, 661.0, 56.0, 22.0 ],
+					"patching_rect" : [ 975.0, 654.0, 56.0, 22.0 ],
 					"text" : "pack i i"
 				}
 
@@ -1202,7 +1209,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 1015.0, 695.0, 175.0, 22.0 ],
+					"patching_rect" : [ 975.0, 688.0, 175.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"attr_comment" : "fromPoly"
 					}
@@ -1220,7 +1227,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 1079.0, 564.0, 91.0, 23.0 ],
+					"patching_rect" : [ 1039.0, 557.0, 91.0, 23.0 ],
 					"text" : "loadbang"
 				}
 
@@ -1234,7 +1241,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1079.0, 598.0, 48.0, 23.0 ],
+					"patching_rect" : [ 1039.0, 591.0, 48.0, 23.0 ],
 					"text" : "mute 1"
 				}
 
@@ -1248,7 +1255,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 1015.0, 566.0, 48.0, 23.0 ],
+					"patching_rect" : [ 975.0, 559.0, 48.0, 23.0 ],
 					"text" : "mute 0"
 				}
 
@@ -1262,7 +1269,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "int", "int", "int" ],
-					"patching_rect" : [ 1015.0, 630.0, 93.0, 23.0 ],
+					"patching_rect" : [ 975.0, 623.0, 93.0, 23.0 ],
 					"text" : "thispoly~"
 				}
 
@@ -1276,11 +1283,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 351.0, 20.0, 47.0, 23.0 ],
-					"saved_object_attributes" : 					{
-						"attr_comment" : ""
-					}
-,
+					"patching_rect" : [ 311.0, 13.0, 47.0, 23.0 ],
 					"text" : "in 1"
 				}
 
@@ -1294,7 +1297,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 285.0, 640.0, 29.5, 23.0 ],
+					"patching_rect" : [ 245.0, 633.0, 29.5, 23.0 ],
 					"text" : "*~"
 				}
 
@@ -1308,7 +1311,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 285.0, 501.0, 49.0, 23.0 ],
+					"patching_rect" : [ 245.0, 494.0, 49.0, 23.0 ],
 					"text" : "cycle~"
 				}
 
@@ -1373,7 +1376,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-12", 0 ],
-					"midpoints" : [ 641.5, 637.0, 1002.5, 637.0, 1002.5, 625.0, 1024.5, 625.0 ],
+					"midpoints" : [ 601.5, 630.0, 962.5, 630.0, 962.5, 618.0, 984.5, 618.0 ],
 					"source" : [ "obj-19", 2 ]
 				}
 
@@ -1381,7 +1384,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-12", 0 ],
-					"midpoints" : [ 581.5, 637.0, 1002.5, 637.0, 1002.5, 625.0, 1024.5, 625.0 ],
+					"midpoints" : [ 541.5, 630.0, 962.5, 630.0, 962.5, 618.0, 984.5, 618.0 ],
 					"order" : 0,
 					"source" : [ "obj-19", 0 ]
 				}
@@ -1690,7 +1693,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-11", 0 ],
-					"midpoints" : [ 371.0, 150.0, 1024.5, 150.0 ],
+					"midpoints" : [ 331.0, 143.0, 984.5, 143.0 ],
 					"source" : [ "obj-58", 1 ]
 				}
 
