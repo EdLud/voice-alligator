@@ -1,0 +1,98 @@
+voiceAllocatorPackage.voiceallocator: filled the scale array
+voiceAllocatorPackage.voiceallocator: scaledef fun got called with args:
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Player Note to Inlet 1: 65 60
+voiceAllocatorPackage.voiceallocator: Found inactive voice with target 6 and pushed new note to active_voices
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 6 0
+transformedInput: 6 60. 2 349.228231 1
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 6 349.228 60 1 0 0 0
+voiceAllocatorPackage.voiceallocator: filled the scale array
+voiceAllocatorPackage.voiceallocator: scaledef fun got called with args:
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Player Note to Inlet 1: 67 60
+voiceAllocatorPackage.voiceallocator: Mono key was pressed, mono voice of channel 1 found with target 6
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 6 0
+transformedInput: 6 60. 2 2093.004523 1
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 6 2093 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Player Note to Inlet 1: 67 0
+voiceAllocatorPackage.voiceallocator: Called Handle Note Off
+voiceAllocatorPackage.voiceallocator: monophony note off into note on case
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 6 0
+transformedInput: 6 60. 2 349.228231 1
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 6 349.228 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Player Note to Inlet 1: 65 0
+voiceAllocatorPackage.voiceallocator: Called Handle Note Off
+voiceAllocatorPackage.voiceallocator: released incoming note with mpitch 65 matching it to note 65 at target 6
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 6 0
+transformedInput: 6 0. 2 349.228231 1
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 6 349.228 0 1 0 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 6 1
+voiceAllocatorPackage.voiceallocator: filled the scale array
+voiceAllocatorPackage.voiceallocator: scaledef fun got called with args:
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 60 2 349.228231 1 
+voiceAllocatorPackage.voiceallocator: Found inactive voice with target 1 and pushed new note to active_voices
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 1 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 1 349.228 60 1 0 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 60 2 2093.004523 1 
+voiceAllocatorPackage.voiceallocator: Mono key was pressed, mono voice of channel 2 found with target 1
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 1 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 1 2093 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 60 2 349.228231 1 
+voiceAllocatorPackage.voiceallocator: Mono key was pressed, mono voice of channel 2 found with target 1
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 1 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 1 349.228 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 0 2 349.228231 1 
+voiceAllocatorPackage.voiceallocator: Called Handle Note Off
+voiceAllocatorPackage.voiceallocator: monophony note off into note on case
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 1 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 1 2093 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 1 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 1 2093 0 1 0 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 1 1
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 60 2 349.228231 1 
+voiceAllocatorPackage.voiceallocator: Found inactive voice with target 3 and pushed new note to active_voices
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 3 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 3 349.228 60 1 0 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 60 2 2093.004523 1 
+voiceAllocatorPackage.voiceallocator: Mono key was pressed, mono voice of channel 2 found with target 3
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 3 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 3 2093 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 60 2 349.228231 1 
+voiceAllocatorPackage.voiceallocator: Mono key was pressed, mono voice of channel 2 found with target 3
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 3 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 3 349.228 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Sequencer Note to Inlet 1: 6 0 2 349.228231 1 
+voiceAllocatorPackage.voiceallocator: Called Handle Note Off
+voiceAllocatorPackage.voiceallocator: monophony note off into note on case
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 3 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 3 2093 60 1 1 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 3 0
+voiceAllocatorPackage.voiceallocator:  Outlet 1: target 3 2093 0 1 0 0 0
+voiceAllocatorPackage.voiceallocator: 
+voiceAllocatorPackage.voiceallocator:   Inlet 2: 3 1

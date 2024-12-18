@@ -257,7 +257,7 @@ description{"If false, new monophony notes will ignore monophony notes that are 
 attribute<bool>                     hold_attr{this, "hold", false, description{"Hold on / off"}};
 
 
-// attribute<double>                   basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
+attribute<double>                   basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
 attribute<bool>                     steal{this, "steal", true, description{"Steal on / off"}};
 attribute<bool>                     steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; 
 attribute<bool>                     sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; 
@@ -392,17 +392,6 @@ attribute<bool, threadsafe::yes> mono_attr
                         note.freq = { note.freq.back() };
                     }
                 }
-
-                // if (auto *note = findFirstNoteWithPredicate([&](const Note &n)
-                                                    //  { return n.channel == 1 && n.mpitch.size() > 1; })) // NEED TO DO THIS FOR ALL CHANNELS
-                // {
-                    // int tempMpitch = note->mpitch.back();
-                    // double tempFreq = note->freq.back();
-                    // note->mpitch.clear();
-                    // note->mpitch.push_back(tempMpitch);
-                    // note->freq.clear();
-                    // note->freq.push_back(tempFreq);
-                // }
             }
             return {monotrue};
         }
@@ -500,15 +489,15 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
                         { //Last, Highest, Lowest
 
                         case mono_note_priority::LAST:
-                        out1.send("notes", note.freq.back() * (440 / 440), note.vel);
+                        out1.send("notes", note.freq.back() * (440 / basefreq), note.vel);
                         break;
 
                         case mono_note_priority::HIGH:
-                        out1.send("notes", note.return_highest_freq() * (440 / 440), note.vel);
+                        out1.send("notes", note.return_highest_freq() * (440 / basefreq), note.vel);
                         break;
 
                         case mono_note_priority::LOW:
-                        out1.send("notes", note.return_lowest_freq() * (440 / 440), note.vel);
+                        out1.send("notes", note.return_lowest_freq() * (440 / basefreq), note.vel);
                         break;
 
                         default:
@@ -517,7 +506,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
                     }
                     else
                     {
-                        out1.send("notes", note.freq.back() * (440 / 440), note.vel);
+                        out1.send("notes", note.freq.back() * (440 / basefreq), note.vel);
                     }
                 }
             
@@ -545,15 +534,15 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
                     { //Last, Highest, Lowest
 
                     case mono_note_priority::LAST:
-                    out1.send("notes", note.mpitch.back() * (440 / 440), note.vel);
+                    out1.send("notes", note.mpitch.back() * (440 / basefreq), note.vel);
                     break;
 
                     case mono_note_priority::HIGH:
-                    out1.send("notes", note.return_highest_mpitch() * (440 / 440), note.vel);
+                    out1.send("notes", note.return_highest_mpitch() * (440 / basefreq), note.vel);
                     break;
 
                     case mono_note_priority::LOW:
-                    out1.send("notes", note.return_lowest_mpitch() * (440 / 440), note.vel);
+                    out1.send("notes", note.return_lowest_mpitch() * (440 / basefreq), note.vel);
                     break;
 
                     default:
@@ -562,7 +551,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
                 }
                 else
                 {
-                    out1.send("notes", note.mpitch.back() * (440 / 440), note.vel);
+                    out1.send("notes", note.mpitch.back() * (440 / basefreq), note.vel);
                 }
             }
             
@@ -587,7 +576,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         {
             out1.send("target", note.target);
             out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
-            if(!flagsonly) out1.send("notes", note.freq.back() * (440 / 440), NOTEOFF);
+            if(!flagsonly) out1.send("notes", note.freq.back() * (440 / basefreq), NOTEOFF);
             if(debug)
                 {
                 cout << " Outlet 1: target " << note.target
@@ -604,7 +593,7 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
         {
             out1.send("target", note.target);
             out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
-            if(!flagsonly) out1.send("notes", note.mpitch.back() * (440 / 440), NOTEOFF);
+            if(!flagsonly) out1.send("notes", note.mpitch.back() * (440 / basefreq), NOTEOFF);
             if(debug)
                 {
                 cout << " Outlet 1: target " << note.target
@@ -768,38 +757,58 @@ void handleNoteOnMono(Note &note, lock &lock)
 
 
     // Case: We have a pressed monophony note of the same channel: generate note on to same target and push_back the new mpitch
-    if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
-                                                    {return n.monoflag == 1
-                                                    && n.channel == note.channel
-                                                    && !n.releaseflag;}))
+    if(!note.sequencerNoteFlag)
     {
-        if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back() && !note.sequencerNoteFlag)
+        if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
+                                                        {return n.monoflag == 1
+                                                        && n.channel == note.channel
+                                                        && !n.releaseflag;}))
         {
-            // we need a new NOTEON only if a lower note than our lowest note was pressed, this is not the case so we return
+            if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back())
+            {
+                // we need a new NOTEON only if a lower note than our lowest note was pressed, this is not the case so we return
+                return;
+            }
+
+            if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back())
+            {
+                // we need a new NOTEON only if a higher note than our lowest note was pressed
+                return;
+            }
+
+
+            if(debug){cout << "Mono key was pressed, Player mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
+                // if(monoTargetNote->mpitch.back() != note.mpitch.back())
+                // {
+            monoTargetNote->mpitch.push_back(note.mpitch.back());
+            monoTargetNote->freq.push_back(note.freq.back());
+                // }
+            monoTargetNote->vel = note.vel;
+            outputFunction(*monoTargetNote, NOTEON, 1, lock, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
             return;
         }
-
-        if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back()&& !note.sequencerNoteFlag)
-        {
-            // we need a new NOTEON only if a higher note than our lowest note was pressed
-            return;
-        }
-
-
-        if(debug){cout << "Mono key was pressed, mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
-            // if(monoTargetNote->mpitch.back() != note.mpitch.back())
-            // {
-        monoTargetNote->mpitch.push_back(note.mpitch.back());
-        monoTargetNote->freq.push_back(note.freq.back());
-            // }
-        monoTargetNote->vel = note.vel;
-        outputFunction(*monoTargetNote, NOTEON, 1, lock, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
-        return;
     }
+        else
+        //sequencer Notes only need one mpitch / freq
+        {
+                if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
+                                                            {return n.monoflag == 1
+                                                            && n.channel == note.channel
+                                                            && !n.releaseflag
+                                                            && n.mpitch.back() == note.mpitch.back();}))
+                {
+                    if(debug){cout << "Mono key was pressed, Sequencer mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
+                    monoTargetNote->vel = note.vel;
+                    monoTargetNote->mpitch = note.mpitch;
+                    monoTargetNote->freq = note.freq;
+                    outputFunction(*monoTargetNote, NOTEON, 1, lock, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
+                    return;
+                }
+        }
 
     // Case: We have a released monophony note of the same channel: 
 
-    if(mono_steals_release_attr)
+    if(mono_steals_release_attr && !note.sequencerNoteFlag)
         {   
 
         if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
@@ -807,13 +816,13 @@ void handleNoteOnMono(Note &note, lock &lock)
                                             && n.channel == note.channel
                                             && n.releaseflag;}))
         {
-        if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back() && !note.sequencerNoteFlag)
+        if((mono_note_priority_attr == mono_note_priority::LOW) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back())
         {
             // we need a new NOTEON only if a lower note than our lowest note was pressed, this is not the case so we return
             return;
         }
 
-        if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back() && !note.sequencerNoteFlag)
+        if((mono_note_priority_attr == mono_note_priority::HIGH) && monoTargetNote->return_highest_mpitch() > note.mpitch.back())
         {
             // we need a new NOTEON only if a higher note than our lowest note was pressed
             return;
@@ -832,50 +841,71 @@ void handleNoteOnMono(Note &note, lock &lock)
             return;
             }
         }
-
-        // CASE: NO MONO VOICE PLAYING ON channel, FREE VOICE AVAILABLE
-        if (!inactive_voices.empty())
+    
+    if(mono_steals_release_attr && note.sequencerNoteFlag)
+    {
+        if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
+                                            {return n.monoflag == 1
+                                            && n.channel == note.channel
+                                            && n.releaseflag
+                                            && n.mpitch.back() == note.mpitch.back();}))
         {
-            freeVoice = inactive_voices.front();
-            inactive_voices.pop();
-            note.target = freeVoice;
-            if(!note.sequencerNoteFlag) note.monoflag = 1;
-            active_voices.push_back(note);
-            if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new note to active_voices" << endl;}
-            outputFunction(note, NOTEON, 0, lock); // -> spiele neue note mit mono flag 1, freiem target und steal 0
-        }
-        // CASE: NO FREE VOICE AVAILABLE, LOOK FOR STEALING CANDIDATES
-        //       ...wenn kein freies target da ist schaue ob in activevoices eine stimme mit mono flag 0 spielt (müsste eigentlich), wenn ja:
-        else
-        {
-            Note *noteToSteal = findNoteToSteal(note);
-            if (noteToSteal)
-            {
-                if(debug){cout << "** found note to steal **\n";}
-                noteToSteal->mpitch = note.mpitch;
-                noteToSteal->freq = note.freq;
-                noteToSteal->vel = note.vel;
-                noteToSteal->channel = note.channel;
-                noteToSteal->releaseflag = 0;
-                noteToSteal->holdflag = 0;
-                if(!note.sequencerNoteFlag)noteToSteal->monoflag = 1;
-
-                // Find the index of the element
-                size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
-
-                // Move the element to the back of the vector
-                rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
-
-                if(debug){cout << "** changed stolen note content to new note content and moved it to back of active_voices **\n";}
-                outputFunction(active_voices.back(), NOTEON, 1, lock);
-                // -> ...spiele neue note mit mono flag 1, diesem target und steal 1
-            }
-            else // nullpointer case
-            {
-                if(debug){cout << "** did not find note to steal **"<<endl;}
-            }
+        
+            //delete mpitch list, push_back new mpitch, generate note on on old target
+            if(debug){cout << "Mono key was pressed, released mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
+            monoTargetNote->releaseflag = 0;
+            monoTargetNote->freq = note.freq;
+            monoTargetNote->mpitch = note.mpitch;
+            monoTargetNote->vel = note.vel;
+            outputFunction(*monoTargetNote, NOTEON, 1, lock, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
             return;
+            }
+    }
+    
+
+    // CASE: NO MONO VOICE PLAYING ON channel, FREE VOICE AVAILABLE
+    if (!inactive_voices.empty())
+    {
+        freeVoice = inactive_voices.front();
+        inactive_voices.pop();
+        note.target = freeVoice;
+        if(!note.sequencerNoteFlag) note.monoflag = 1;
+        active_voices.push_back(note);
+        if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new note to active_voices" << endl;}
+        outputFunction(note, NOTEON, 0, lock); // -> spiele neue note mit mono flag 1, freiem target und steal 0
+        return;
+    }
+    // CASE: NO FREE VOICE AVAILABLE, LOOK FOR STEALING CANDIDATES
+    //       ...wenn kein freies target da ist schaue ob in activevoices eine stimme mit mono flag 0 spielt (müsste eigentlich), wenn ja:
+    else
+    {
+        Note *noteToSteal = findNoteToSteal(note);
+        if (noteToSteal)
+        {
+            if(debug){cout << "** found note to steal **\n";}
+            noteToSteal->mpitch = note.mpitch;
+            noteToSteal->freq = note.freq;
+            noteToSteal->vel = note.vel;
+            noteToSteal->channel = note.channel;
+            noteToSteal->releaseflag = 0;
+            noteToSteal->holdflag = 0;
+            if(!note.sequencerNoteFlag)noteToSteal->monoflag = 1;
+
+            // Find the index of the element
+            size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
+
+            // Move the element to the back of the vector
+            rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
+
+            if(debug){cout << "** changed stolen note content to new note content and moved it to back of active_voices **\n";}
+            outputFunction(active_voices.back(), NOTEON, 1, lock);
+            // -> ...spiele neue note mit mono flag 1, diesem target und steal 1
         }
+        else // nullpointer case
+        {
+            if(debug){cout << "** did not find note to steal **"<<endl;}
+        }
+    }
 }
 
 void handleNoteOnPoly(Note &note, lock &lock)
@@ -1093,17 +1123,17 @@ void fromPoly(int target, int muteflag)
 
 function listInlets = MIN_FUNCTION //mpitch, vel, (channel), (realpitch), (monoflag) //print: 8 60. 2 600. 0
 {
-    if (inlet == 0)
+    if (inlet == 0) // notes
     {
         lock lock{m_mutex};
         int mpitch = args[0]; //if the input comes from a sequencer this will actually be a tranformed mpitch that we need to overwrite with the realpitch
         int vel = args[1];
+        unsigned long argsize = args.size();
 
-        if(debug){cout << endl << "  Player Note to Inlet 1: " << mpitch << " " << vel << endl;}
+        if(debug&&argsize < 4){cout << endl << "  Player Note to Inlet 1: " << mpitch << " " << vel << endl;}
 
         Note currentNote = newNote(mpitch, vel);
 
-            unsigned long argsize = args.size();
 
             if(argsize >= 3)
             {
@@ -1141,6 +1171,8 @@ function listInlets = MIN_FUNCTION //mpitch, vel, (channel), (realpitch), (monof
                 int monoflag = args[4];
                 currentNote.monoflag = args[4];
             }
+            if(debug&&argsize >= 4){cout << endl << "  Sequencer Note to Inlet 1: " << mpitch << " " << vel<< " "  << args[2]<< " "  << args[3]<< " "  << args[4]<< " "  << endl;}
+
             
 
         if (vel != 0)
@@ -1155,7 +1187,7 @@ function listInlets = MIN_FUNCTION //mpitch, vel, (channel), (realpitch), (monof
             handleNoteOff(currentNote, lock);
         }
     }
-    else
+    else //from thispoly~
     {
         lock lock{m_mutex};
         fromPoly(args[0], args[1]);
@@ -1251,10 +1283,9 @@ function scaleDefineFunction = MIN_FUNCTION
             } 
             else {
             // Handle the case when there is only one argument left
-            cout << "warning: tried to define note index " << i << " without providing value" << endl;
+            cwarn << "Tried to define note index " << args[i] << " without providing value" << endl;
             }
         }
-        if(debug){cout << endl;}
     }
     return {};
 };

@@ -68,6 +68,11 @@
 
 	<attributelist>
 
+		<attribute name='basefreq' get='1' set='1' type='float64' size='1' >
+			<digest>Standard A, Default: 440 hz </digest>
+			<description>Standard A, Default: 440 hz </description>
+		</attribute>
+
 		<attribute name='debug' get='1' set='1' type='long' size='1' >
 			<digest>Debug on / off </digest>
 			<description>Debug on / off </description>

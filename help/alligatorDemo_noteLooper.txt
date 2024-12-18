@@ -12,41 +12,42 @@ tovoice release 1500
 tovoice glidetime 15
 tovoice legato_retrigger 1
 scale 1
-notelooper record 1
-note 60 60
+notelooper play 0
+150 notelooper record 1
+note 60 30
 200 note 60 0
-note 61 60
+note 61 30
 200 note 61 0
-note 62 60
+note 62 30
 200 note 62 0
-note 65 60
+note 65 30
 200 note 65 0
-note 66 60
+note 66 30
 200 note 66 0
-note 67 60
+note 67 30
 200 note 67 0
-note 71 60
+note 71 30
 200 note 71 0
-note 68 60
+note 68 30
 200 note 68 0
-600 notelooper record 0
+200 notelooper record 0
 1000 scale 0
 mono 1
-note 60 60
+note 60 90
 200 note 60 0
-note 64 60
+note 64 90
 200 note 64 0
-note 62 60
+note 62 90
 200 note 62 0
-note 65 60
+note 65 90
 200 note 65 0
-note 70 60
+note 70 90
 200 note 70 0
-note 67 60
+note 67 90
 200 note 67 0
-note 72 60
+note 72 90
 200 note 72 0
-note 67 60
+note 67 90
 show pitchwheel
 400 pitchwheel -12 1000
 1400 pitchwheel 0 2500
