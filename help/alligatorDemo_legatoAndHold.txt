@@ -3,14 +3,15 @@ descr 2 "The glidetime and attack are both set to 30 seconds so we have long, sw
 descr 3 "The player presses A# and then presses a second note that will be the end pitch of the glide. Then they first release the second note and then A#. This is repeated a couple of times."
 show mono
 show hold
-0 tovoice attack 30000
-0 tovoice decay 150
-0 tovoice sustain 1
-0 tovoice release 300
-0 tovoice glidetime 30000
-0 tovoice legato_retrigger 0
-0 mono 1
-0 hold 1
+tovoice attack 30000
+tovoice decay 150
+tovoice sustain 1
+tovoice release 300
+tovoice glidetime 30000
+tovoice legato_retrigger 0
+tovoice wform saw
+mono 1
+hold 1
 50 note 70 60
 5000 note 69 60
 100 note 69 0

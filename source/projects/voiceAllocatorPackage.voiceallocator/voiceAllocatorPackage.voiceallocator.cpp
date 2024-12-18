@@ -35,7 +35,7 @@ struct Note
 {
 public:
     std::vector<int> mpitch;
-    int vel;
+    double vel;
     std::vector<double> freq;
     int channel = 1; // hold notes = channel 0, player notes = channel 1, sequencer notes = channel 2
     int target;      // voice instanz von poly~
@@ -408,27 +408,21 @@ attribute<bool, threadsafe::yes> sustain_attr{this, "sustain", false, descriptio
             bool sustainoff = args[0];
             if (!sustainoff && sustain_attr_was_set_on_load)
             {
-                endSustainNotes();
+                for (auto &itNote : active_voices)
+                {
+                  lock lock{m_mutex};
+                    if (itNote.sustainflag == 1 && !itNote.releaseflag)
+                    {
+                        itNote.releaseflag = true;
+                        outputFunction(itNote, NOTEOFF, 0, lock);
+                    }
+                }
             }
             sustain_attr_was_set_on_load = true;
             return {sustainoff};
         }
     }
 };
-
-void endSustainNotes()
-{
-        for (auto &itNote : active_voices)
-        {
-          lock lock{m_mutex};
-            if (itNote.sustainflag == 1 && !itNote.releaseflag)
-            {
-                itNote.releaseflag = true;
-                outputFunction(itNote, NOTEOFF, 0, lock);
-            }
-        }
-
-}
 
 attribute<int> scalearray_maxsize
 { //actually a vector but we called it scale array because max users know this term.
@@ -1127,7 +1121,7 @@ function listInlets = MIN_FUNCTION //mpitch, vel, (channel), (realpitch), (monof
     {
         lock lock{m_mutex};
         int mpitch = args[0]; //if the input comes from a sequencer this will actually be a tranformed mpitch that we need to overwrite with the realpitch
-        int vel = args[1];
+        double vel = args[1];
         unsigned long argsize = args.size();
 
         if(debug&&argsize < 4){cout << endl << "  Player Note to Inlet 1: " << mpitch << " " << vel << endl;}

@@ -13,8 +13,8 @@ tovoice glidetime 15
 tovoice legato_retrigger 1
 scale 1
 notelooper play 0
-150 notelooper record 1
-note 60 30
+notelooper record 1
+200 note 60 30
 200 note 60 0
 note 61 30
 200 note 61 0
@@ -30,7 +30,7 @@ note 71 30
 200 note 71 0
 note 68 30
 200 note 68 0
-200 notelooper record 0
+notelooper record 0
 1000 scale 0
 mono 1
 note 60 90

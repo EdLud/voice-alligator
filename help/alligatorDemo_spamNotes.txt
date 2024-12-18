@@ -352,19 +352,19 @@ note 62 30
 note 63 30
 44 note 63 0
 note 64 30
-44 note 64 0
 notelooper record 0
-500 note 65 60
-500 note 66 60
-500 note 67 60
-500 note 68 60
-500 note 69 60
-500 note 70 60
-500 note 71 60
-500 note 72 60
-500 note 73 60
-500 note 74 60
-500 note 75 60
+44 note 64 0
+500 note 65 19
+500 note 66 19
+500 note 67 19
+500 note 68 19
+500 note 69 19
+500 note 70 19
+500 note 71 19
+500 note 72 19
+500 note 73 19
+500 note 74 19
+500 note 75 19
 3500 note 75 0
 500 note 74 0
 500 note 73 0
