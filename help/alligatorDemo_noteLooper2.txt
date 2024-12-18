@@ -1,0 +1,28 @@
+descr 1 "The Note Looper not only remembers the pitch of the note but also the monophony settings"
+descr 2 ""
+descr 3 ""
+show scale
+show mono
+mono 1
+show notelooper
+tovoice attack 7
+tovoice decay 150
+tovoice sustain 0.7
+tovoice release 1500
+tovoice glidetime 50
+tovoice legato_retrigger 1
+scale 2
+notelooper play 0
+metroRandomLength 300
+metroRandomSpeed 200
+metroRandomRandom 5
+metroRandom 1
+notelooper record 1
+3200 metroRandom 0
+1600 notelooper record 0
+metroRandomOffset 63
+4800 metroRandom 1
+3200 notelooper play 0
+metroRandom 0  
+mono 0
+scale 0

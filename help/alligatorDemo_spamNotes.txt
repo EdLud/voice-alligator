@@ -26,7 +26,7 @@ note 60 30
 note 61 30
 44 note 61 0
 note 62 30
-note 65 60
+note 65 19
 44 note 62 0
 note 63 30
 44 note 63 0
@@ -35,60 +35,14 @@ note 64 30
 note 60 30
 44 note 60 0
 note 61 30
-note 66 60
+note 66 6
 44 note 61 0
 note 62 30
 44 note 62 0
 note 63 30
 44 note 63 0
-note 67 60
+note 67 6
 note 64 30
-44 note 64 0
-note 60 30
-44 note 60 0
-note 61 30
-44 note 61 0
-note 62 30
-44 note 62 0
-note 63 30
-44 note 63 0
-note 64 30
-note 68 60
-44 note 64 0
-note 60 30
-44 note 60 0
-note 61 30
-44 note 61 0
-note 62 30
-note 69 60
-44 note 62 0
-note 63 30
-44 note 63 0
-note 64 30
-44 note 64 0
-note 70 60
-note 60 30
-44 note 60 0
-note 61 30
-44 note 61 0
-note 62 30
-44 note 62 0
-note 63 30
-note 71 60
-44 note 63 0
-note 64 30
-44 note 64 0
-note 72 60
-note 60 30
-44 note 60 0
-note 61 30
-44 note 61 0
-note 62 30
-44 note 62 0
-note 63 30
-44 note 63 0
-note 64 30
-note 73 60
 44 note 64 0
 note 60 30
 44 note 60 0
@@ -98,8 +52,43 @@ note 62 30
 44 note 62 0
 note 63 30
 44 note 63 0
-note 74 60
 note 64 30
+note 68 6
+44 note 64 0
+note 60 30
+44 note 60 0
+note 61 30
+44 note 61 0
+note 62 30
+note 69 6
+44 note 62 0
+note 63 30
+44 note 63 0
+note 64 30
+44 note 64 0
+note 70 6
+note 60 30
+44 note 60 0
+note 61 30
+44 note 61 0
+note 62 30
+44 note 62 0
+note 63 30
+note 71 6
+44 note 63 0
+note 64 30
+44 note 64 0
+note 72 6
+note 60 30
+44 note 60 0
+note 61 30
+44 note 61 0
+note 62 30
+44 note 62 0
+note 63 30
+44 note 63 0
+note 64 30
+note 73 6
 44 note 64 0
 note 60 30
 44 note 60 0
@@ -134,7 +123,16 @@ note 64 30
 note 60 30
 44 note 60 0
 note 61 30
-note 75 60
+44 note 61 0
+note 62 30
+44 note 62 0
+note 63 30
+44 note 63 0
+note 64 30
+44 note 64 0
+note 60 30
+44 note 60 0
+note 61 30
 44 note 61 0
 note 62 30
 44 note 62 0
@@ -191,8 +189,6 @@ note 66 0
 5 note 71 0
 5 note 72 0
 5 note 73 0
-5 note 74 0
-5 note 75 0
 2000 notelooper record 1
 44 note 60 0
 note 61 30
@@ -362,13 +358,7 @@ notelooper record 0
 500 note 70 19
 500 note 71 19
 500 note 72 19
-500 note 73 19
-500 note 74 19
-500 note 75 19
-3500 note 75 0
-500 note 74 0
-500 note 73 0
-500 note 72 0
+1500 note 72 0
 500 note 71 0
 500 note 70 0
 500 note 69 0

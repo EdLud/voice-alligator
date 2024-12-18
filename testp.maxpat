@@ -2465,7 +2465,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 517.5, 501.0, 207.0, 22.0 ],
-					"text" : "voiceAllocatorPackage.voiceallocator"
+					"text" : "voice-alligator"
 				}
 
 			}
@@ -3032,13 +3032,13 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "testp-voice.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/voiceAllocatorPackage",
+				"bootpath" : "~/Documents/Max 8/Packages/voice-alligator",
 				"patcherrelativepath" : ".",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
-				"name" : "voiceAllocatorPackage.voiceallocator.mxo",
+				"name" : "voice-alligator.mxo",
 				"type" : "iLaX"
 			}
  ],

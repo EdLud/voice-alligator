@@ -38,7 +38,7 @@ public:
     double vel;
     std::vector<double> freq;
     int channel = 1; // hold notes = channel 0, player notes = channel 1, sequencer notes = channel 2
-    int target;      // voice instanz von poly~
+    int target;      // voice instance of poly~
     bool monoflag = false;
     bool sequencerNoteFlag = false; //if sequencer note: lock mono flag, don't set hold notes, don't be affected by sustain pedal
     bool sustainflag = false;
@@ -163,6 +163,7 @@ private:
 
 class ActiveVoices
 {
+    //note used, maybe use?
 private:
     std::vector<Note> voices; // Encapsulated vector of Note objects
 
@@ -250,17 +251,13 @@ Scalearray scalearray;
 std::vector<Note> active_voices;
 std::queue<int> inactive_voices;
 
-attribute<bool>                     debug{this, "debug", false, description{"Debug on / off"}};
-
-attribute<bool>                     mono_steals_release_attr{this, "mono_steals_release", true, 
-description{"If false, new monophony notes will ignore monophony notes that are in release and will generate new notes"}};
+attribute<bool>                     debug{this, "debug", false, description{"Debug on / off"}, visibility{visibility::hide}};
+attribute<bool>                     mono_steals_release_attr{this, "mono_steals_release", true, description{"If false, new monophony notes will ignore monophony notes that are in release and will generate new notes"}};
 attribute<bool>                     hold_attr{this, "hold", false, description{"Hold on / off"}};
-
-
 attribute<double>                   basefreq{this, "basefreq", 440.000, description{"Standard A, Default: 440 hz "}};
 attribute<bool>                     steal{this, "steal", true, description{"Steal on / off"}};
 attribute<bool>                     steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; 
-attribute<bool>                     sequencer_steals{this, "sequencer_steals", false, description{"Sequencer steals on / off"}}; 
+attribute<bool>                     sequencer_steals{this, "sequencer_steals", false, description{"Sequencer Steals Notes on / off"}}; 
 attribute<bool>                     scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale_def message with MTOF"}};
 
 enum class mono_note_priority : int
@@ -271,10 +268,10 @@ enum class mono_note_priority : int
     enum_count
 };
 
-enum_map mono_note_priority_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"}; //not implemented, i think only needs to be implemented in outputFunction.
+enum_map mono_note_priority_range = {"Last Note Priority", "Low Note Priority", "High Note Priority"}; 
 
 attribute<mono_note_priority> mono_note_priority_attr{this, "mono_note_priority", mono_note_priority::LAST, mono_note_priority_range,
-                               description{"Choose Mono Mode: Last Note, Low Note, High Note: NOT IMPLEMENTED"}};
+                               description{"Choose Mono Mode: Last Note, Low Note, High Note (default Last Note)"}};
 
 enum class scale_def_mode : int
 {
@@ -286,7 +283,7 @@ enum class scale_def_mode : int
 enum_map scale_def_mode_range = {"Midi Pitch", "Frequency"};
 
 attribute<scale_def_mode> scale_def_mode{this, "scale_def_mode", scale_def_mode::freq, scale_def_mode_range,
-                               description{"Define Scale by Midi Note or by Frequency"}};
+                               description{"Define Scale by Midi Note or by Frequency (default Frequency)"}};
 
 enum class output_mode : int
 {
@@ -298,7 +295,7 @@ enum class output_mode : int
 enum_map output_mode_range = {"Midi Pitch", "Frequency"};
 
 attribute<output_mode> output_mode{this, "output_mode", output_mode::freq, output_mode_range,
-                               description{"Output Midi Notes or Frequencies"}};
+                               description{"Output Midi Notes or Frequencies (default Frequency)"}};
 // attribute<int, threadsafe::yes>     legato_mode{this, "legato_mode", false, description{"retrigger / don't retrigger / ??"}};
 /*
 legato_mode -> für noten, die noch gespielt werden, also nicht released sind!
@@ -319,36 +316,21 @@ Set to true on voice change to avoid sending stuff to [poly~] while it is initia
 Set to false again by the muteflag of the voices of [poly~] itself after load.
 */
 
-// argument<int> voices { this, "voices", "Number of voices, default: 4",
-    // MIN_ARGUMENT_FUNCTION {
-        // int voicenr = arg;
-        // inactive_voices = {};
-        // active_voices.clear();
-        // for (int i = 1; i <= voicenr; ++i)
-        // {
-            // inactive_voices.push(i);
-        // }
-        // out1.send("voices", voicenr);
-    // }
-// }; 
-
 attribute<int> voices
 {
     this, "voices", 4,
-    description{"Number of voices, default: 4, max: 1024"}, range{1, 1024},
+    description{"Number of voices (default 4) max: 1024"}, range{1, 1024},
     setter
     {
         MIN_FUNCTION
         {
             int voicenr = (int)args[0];
             if(voicenr > 1024){return {voicenr};} 
-            /*range doesn't block for some reason so we need to make sure that we 
-            don't have more inactive_voices in alligator than max voices of [poly~]*/
                 blockOutlet = true; 
                 /*^this ensures we don't try to send messages to [poly~] while it is reloading voices and notes are playing.
                 this caused some crashes earlier, but now the crashes are more rare. 
                 the variable is set to false when the first instance of the newly reloaded
-                [poly~] sends a mute 1 message.
+                [poly~] sends a mute 1 message see (mainInletFunction).
                 */
                 inactive_voices = {};
                 active_voices.clear();
@@ -1115,7 +1097,7 @@ void fromPoly(int target, int muteflag)
     }
 }
 
-function listInlets = MIN_FUNCTION //mpitch, vel, (channel), (realpitch), (monoflag) //print: 8 60. 2 600. 0
+function mainInletFunction = MIN_FUNCTION //mpitch, vel, (channel), (realpitch), (monoflag) //print: 8 60. 2 600. 0
 {
     if (inlet == 0) // notes
     {
@@ -1382,10 +1364,11 @@ message<> printscale{this, "printscale", "Print scalearray to the max console",
         }
 };
 
-message<threadsafe::yes> list{this, "list", "midipitch, velocity, channel", listInlets};
+message<threadsafe::yes> list{this, "list", "Midipitch, Velocity, (channel), (realpitch), (monoflag)",
+mainInletFunction};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
-message<threadsafe::yes> endhold{this, "endhold", "End hold notes 0 = all, 1 = last, 2 = first", endHold};
-message<threadsafe::yes> endall{this, "endall", "send message to release all voices", endallFunction};
+message<threadsafe::yes> endhold{this, "endhold", "End hold notes 0 = all (default, can be omitted), 1 = last, 2 = first", endHold};
+message<threadsafe::yes> endall{this, "endall", "Send all Notes into release. If an argument was provided, send notes of channel (argument) into release.", endallFunction};
 
 private:
 mutex m_mutex;
