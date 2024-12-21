@@ -1,6 +1,6 @@
-descr 1 "set note looper to record and play a short melody in scale 1 (Harmonics of C2)"
-descr 2 "stop record, note looper plays."
-descr 3 "plays a short melody in scale 0 (MTOF)"
+descr 1 "Set note looper to record and play an ostinato in scale 1 (Harmonics of C2)"
+descr 2 "Stop record, note looper plays. Turn on mono, note looper ignores this"
+descr 3 "Play a short melody in scale 0 (12-TET). Pitchwheel is also ignored by note looper"
 show scale
 show mono
 mono 0
@@ -12,7 +12,6 @@ tovoice release 1500
 tovoice glidetime 15
 tovoice legato_retrigger 1
 scale 1
-notelooper play 0
 notelooper record 1
 200 note 60 30
 200 note 60 0

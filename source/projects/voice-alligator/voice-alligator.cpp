@@ -13,7 +13,7 @@ using namespace c74::min;
 using namespace c74::min::lib;
 
 
-class voice_allocator : public object<voice_allocator>
+class voice_alligator : public object<voice_alligator>
 {
 public:
 MIN_DESCRIPTION{"voice allocator for poly~ object"};
@@ -117,50 +117,6 @@ public:
     }
 };
 
-class Scalearray 
-{
-public:
-
-    void setMaxsize(int size) {
-        maxsize = size;
-    }
-
-    void fillContainer(int size) {
-        data.resize(size); 
-        for (int i = 0; i < size; ++i) {
-            data[i] = static_cast<double>(440 * exp(0.057762265 * (i - 69))); // Fill with MTOF
-        }
-    }
-
-    void set_value(int index, double value) {
-        if (index >= 0 && index < maxsize) {
-            data[index] = value; 
-        } 
-    }
-
-    int length()
-    {
-        return static_cast<int>(data.size());
-    }
-
-    void clear(){
-        data.clear();
-        data.resize(maxsize, std::nullopt);
-    }
-
-    std::optional<double> get_value(int index) //const 
-    {
-        if (index >= 0 && index < static_cast<int>(data.size())) {
-            return data[index]; // Return the value or "nothing"
-        }
-        else {return std::nullopt;} // Index out of bounds
-    }
-
-private:
-    std::vector<std::optional<double>> data;
-    int maxsize = 127;
-};
-
 class ActiveVoices
 {
     //note used, maybe use?
@@ -247,7 +203,6 @@ public:
     }
 };
 
-Scalearray scalearray;
 std::vector<Note> active_voices;
 std::queue<int> inactive_voices;
 
@@ -259,6 +214,52 @@ attribute<bool>                     steal{this, "steal", true, description{"Stea
 attribute<bool>                     steal_hold{this, "steal_hold", false, description{"Steal Hold Notes on / off"}}; 
 attribute<bool>                     sequencer_steals{this, "sequencer_steals", false, description{"Sequencer Steals Notes on / off"}}; 
 attribute<bool>                     scale_fill{this, "scale_fill", true, description{"Fill notes that are non-defined in scale_def message with MTOF"}};
+
+class Scalearray 
+{
+public:
+
+    void setMaxsize(int size) {
+        maxsize = size;
+    }
+
+    void fillContainer(int size, double basefreq) {
+        data.resize(size); 
+        for (int i = 0; i < size; ++i) {
+            data[i] = static_cast<double>((basefreq) * exp(0.057762265 * (i - 69))); // Fill with MTOF
+        }
+    }
+
+    void set_value(int index, double value, double basefreq) {
+        if (index >= 0 && index < maxsize) {
+            data[index] = value  * (440 / basefreq); 
+        } 
+    }
+
+    int length()
+    {
+        return static_cast<int>(data.size());
+    }
+
+    void clear(){
+        data.clear();
+        data.resize(maxsize, std::nullopt);
+    }
+
+    std::optional<double> get_value(int index) //const 
+    {
+        if (index >= 0 && index < static_cast<int>(data.size())) {
+            return data[index]; // Return the value or "nothing"
+        }
+        else {return std::nullopt;} // Index out of bounds
+    }
+
+private:
+    std::vector<std::optional<double>> data;
+    int maxsize = 127;
+};
+
+Scalearray scalearray;
 
 enum class mono_note_priority : int
 {
@@ -316,6 +317,13 @@ Set to true on voice change to avoid sending stuff to [poly~] while it is initia
 Set to false again by the muteflag of the voices of [poly~] itself after load.
 */
 
+argument<int> voices_arg { this, "voices", "Initial voices",
+        MIN_ARGUMENT_FUNCTION {
+            voices = arg;
+        }
+};
+
+
 attribute<int> voices
 {
     this, "voices", 4,
@@ -343,6 +351,11 @@ attribute<int> voices
         }
     }
 };
+
+voice_alligator(const atoms& args = {}) { //Constructor sends out number of voices to poly~
+        // cout << "post on load" << endl;
+            out1.send("voices", voices.get());
+}
 
 bool mono_attr_was_set_on_load = false; //skip first mutex lock
 
@@ -416,7 +429,7 @@ setter
         {
             int maxsize = args[0];
             scalearray.setMaxsize(maxsize);
-            scalearray.fillContainer(maxsize);
+            scalearray.fillContainer(maxsize, basefreq);
             return {maxsize};
         }
     }
@@ -445,7 +458,14 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
     return nullptr;
 }
 
-void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagsonly = false, bool mononoteon = false)
+// void outputMultipleFunction(Note[] notes, lock &lock)
+// {
+//     lock.unlock();
+//     for(i : notes){}
+// }
+
+
+void outputFunction(Note &note, bool noteon, bool steal, lock &lock, bool flagsonly = false, bool mononoteon = false)
 {
     //in this context "note on" means something different than in other functions:
     // a mono note-off to [voice-alligator] can be a note-on.
@@ -453,135 +473,65 @@ void outputFunction(Note note, bool noteon, bool steal, lock &lock, bool flagson
     if (noteon)
     {
         lock.unlock();
-        if(output_mode == output_mode::freq)
+        out1.send("target", note.target);
+        out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag, note.channel);
+        if(!flagsonly) 
         {
-            out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
-            if(!flagsonly) 
-                {
-                    if(note.monoflag && !mononoteon) // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
-                    {
-                        switch(mono_note_priority_attr)
-                        { //Last, Highest, Lowest
-
-                        case mono_note_priority::LAST:
-                        out1.send("notes", note.freq.back() * (440 / basefreq), note.vel);
-                        break;
-
-                        case mono_note_priority::HIGH:
-                        out1.send("notes", note.return_highest_freq() * (440 / basefreq), note.vel);
-                        break;
-
-                        case mono_note_priority::LOW:
-                        out1.send("notes", note.return_lowest_freq() * (440 / basefreq), note.vel);
-                        break;
-
-                        default:
-                        break;
-                        }
-                    }
-                    else
-                    {
-                        out1.send("notes", note.freq.back() * (440 / basefreq), note.vel);
-                    }
-                }
-            
             if(debug)
-                {
-                cout << " Outlet 1: target " << note.target
-                 << " " << note.freq.back()
-                 << " " << note.vel
-                 << " " << note.monoflag
-                 << " " << steal
-                 << " " << note.holdflag
-                 << " " << note.sustainflag
-                 << endl;
-                }
-        }
-        else //output mode is mpitch
-        {
-            out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
-            if(!flagsonly)
             {
-                if(note.monoflag && !mononoteon) // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
-                {
-                    switch(mono_note_priority_attr)
-                    { //Last, Highest, Lowest
+            cout << " Outlet 1: target " << note.target
+                << " " << note.freq.back()
+                << " " << note.vel
+                << " " << note.monoflag
+                << " " << steal
+                << " " << note.holdflag
+                << " " << note.sustainflag
+                << endl;
+            }        
+            if(note.monoflag && !mononoteon) // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
+            {
+                switch(mono_note_priority_attr)
+                { //Last, Highest, Lowest
 
-                    case mono_note_priority::LAST:
-                    out1.send("notes", note.mpitch.back() * (440 / basefreq), note.vel);
-                    break;
+                case mono_note_priority::LAST:
+                out1.send("notes", note.mpitch.back(), note.vel, note.freq.back());
+                break;
 
-                    case mono_note_priority::HIGH:
-                    out1.send("notes", note.return_highest_mpitch() * (440 / basefreq), note.vel);
-                    break;
+                case mono_note_priority::HIGH:
+                out1.send("notes",  note.return_highest_mpitch(), note.vel, note.return_highest_freq());
+                break;
 
-                    case mono_note_priority::LOW:
-                    out1.send("notes", note.return_lowest_mpitch() * (440 / basefreq), note.vel);
-                    break;
+                case mono_note_priority::LOW:
+                out1.send("notes", note.return_lowest_mpitch(), note.vel, note.return_lowest_freq());
+                break;
 
-                    default:
-                    break;
-                    }
+                default:
+                break;
                 }
-                else
-                {
-                    out1.send("notes", note.mpitch.back() * (440 / basefreq), note.vel);
                 }
+            else
+            {
+                out1.send("notes", note.mpitch.back(), note.vel, note.freq.back());
             }
-            
-            if(debug)
-                {
-                cout << " Outlet 1: target " << note.target
-                 << " " << note.freq.back()
-                 << " " << note.vel
-                 << " " << note.monoflag
-                 << " " << steal
-                 << " " << note.holdflag
-                 << " " << note.sustainflag
-                 << endl;
-                }
         }
     }
     else
-    //note off
     {
         lock.unlock();
-        if(output_mode == output_mode::freq)
-        {
-            out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
-            if(!flagsonly) out1.send("notes", note.freq.back() * (440 / basefreq), NOTEOFF);
-            if(debug)
-                {
-                cout << " Outlet 1: target " << note.target
-                 << " " << note.freq.back()
-                 << " " << NOTEOFF
-                 << " " << note.monoflag
-                 << " " << steal
-                 << " " << note.holdflag
-                 << " " << note.sustainflag
-                 << endl;
-                }
-        }
-        else
-        {
-            out1.send("target", note.target);
-            out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag);
-            if(!flagsonly) out1.send("notes", note.mpitch.back() * (440 / basefreq), NOTEOFF);
-            if(debug)
-                {
-                cout << " Outlet 1: target " << note.target
-                 << " " << note.freq.back()
-                 << " " << NOTEOFF
-                 << " " << note.monoflag
-                 << " " << steal
-                 << " " << note.holdflag
-                 << " " << note.sustainflag
-                 << endl;
-                }
-        }
+        out1.send("target", note.target);
+        out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag, note.channel);
+        if(!flagsonly) out1.send("notes", note.mpitch.back(), NOTEOFF, note.freq.back());
+        if(debug)
+            {
+            cout << " Outlet 1: target " << note.target
+                << " " << note.freq.back()
+                << " " << NOTEOFF
+                << " " << note.monoflag
+                << " " << steal
+                << " " << note.holdflag
+                << " " << note.sustainflag
+                << endl;
+            }
     }
 }
 
@@ -961,7 +911,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
             {
                 if(debug)cout<<"set note " << note->mpitch.back() << "at target " << note->target << " to sustain" << endl;
                 note->sustainflag = 1;
-                note->channel = 0;
+                // note->channel = 0;
                 outputFunction(*note, NOTEOFF, 0, lock, true); //send flags only = true
                 return;
             }
@@ -1231,7 +1181,7 @@ function scaleDefineFunction = MIN_FUNCTION
         if(scale_fill || !size) //if a scale_def message without args was send, we default to MTOF
         {
             if(debug){cout << "filled the scale array" << endl;}
-            scalearray.fillContainer(scalearray_maxsize);
+            scalearray.fillContainer(scalearray_maxsize, basefreq);
         }
         else
         {
@@ -1250,11 +1200,11 @@ function scaleDefineFunction = MIN_FUNCTION
                 
                 if(scale_def_mode == scale_def_mode::mpitch)
                 {
-                    scalearray.set_value(index, (440 * exp(0.057762265 * (value - 69))));
+                    scalearray.set_value(index, (440 * exp(0.057762265 * (value - 69))), basefreq);
                 }
                 else if(scale_def_mode == scale_def_mode::freq)
                 {
-                    scalearray.set_value(index, value);
+                    scalearray.set_value(index, value, basefreq);
                 }
             } 
             else {
@@ -1274,9 +1224,9 @@ function endallFunction = MIN_FUNCTION //pseudo panic function, sends all notes 
         int channel = args[0];
             for (auto &itNote : active_voices)
             {
-                lock lock{m_mutex};
                 if(itNote.channel == channel)
                 {
+                lock lock{m_mutex};
                 itNote.holdflag = 0;
                 itNote.releaseflag = 1;
                 outputFunction(itNote, NOTEOFF, 0, lock);
@@ -1367,11 +1317,11 @@ message<> printscale{this, "printscale", "Print scalearray to the max console",
 message<threadsafe::yes> list{this, "list", "Midipitch, Velocity, (channel), (realpitch), (monoflag)",
 mainInletFunction};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
-message<threadsafe::yes> endhold{this, "endhold", "End hold notes 0 = all (default, can be omitted), 1 = last, 2 = first", endHold};
+message<threadsafe::yes> endhold{this, "endhold", "End hold notes 0 = all (default, can be ommitted), 1 = last, 2 = first", endHold};
 message<threadsafe::yes> endall{this, "endall", "Send all Notes into release. If an argument was provided, send notes of channel (argument) into release.", endallFunction};
 
 private:
 mutex m_mutex;
 };
 
-MIN_EXTERNAL(voice_allocator);
+MIN_EXTERNAL(voice_alligator);

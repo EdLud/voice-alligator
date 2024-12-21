@@ -24,6 +24,11 @@
 
 	<objarglist>
 
+		<objarg name='voices' optional='1' type='int'>
+			<digest>Initial voices </digest>
+			<description>Initial voices </description>
+		</objarg>
+
 	</objarglist>
 
 
@@ -37,8 +42,8 @@
 		</method>
 
 		<method name='endhold'>
-			<digest>End hold notes 0 = all (default, can be omitted), 1 = last, 2 = first </digest>
-			<description>End hold notes 0 = all (default, can be omitted), 1 = last, 2 = first </description>
+			<digest>End hold notes 0 = all (default, can be ommitted), 1 = last, 2 = first </digest>
+			<description>End hold notes 0 = all (default, can be ommitted), 1 = last, 2 = first </description>
 		</method>
 
 		<method name='scale_def'>

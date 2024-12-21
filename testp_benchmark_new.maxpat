@@ -3668,8 +3668,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 84.0, 547.0, 286.0, 22.0 ],
-					"text" : "voiceAllocatorPackage.voiceallocator @voices 1024"
+					"patching_rect" : [ 84.0, 547.0, 162.0, 22.0 ],
+					"text" : "voice-alligator @voices 1024"
 				}
 
 			}
@@ -3842,7 +3842,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-6", 1 ],
-					"midpoints" : [ 158.0, 607.0, 296.5, 607.0, 296.5, 536.0, 360.5, 536.0 ],
+					"midpoints" : [ 158.0, 607.0, 296.5, 607.0, 296.5, 536.0, 236.5, 536.0 ],
 					"source" : [ "obj-33", 1 ]
 				}
 
@@ -4289,7 +4289,7 @@
 			}
 , 			{
 				"name" : "example-voice.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/voiceAllocatorPackage",
+				"bootpath" : "~/Documents/Max 8/Packages/voice-alligator-package",
 				"patcherrelativepath" : ".",
 				"type" : "JSON",
 				"implicit" : 1
@@ -4301,7 +4301,7 @@
 				"implicit" : 1
 			}
 , 			{
-				"name" : "voiceAllocatorPackage.voiceallocator.mxo",
+				"name" : "voice-alligator.mxo",
 				"type" : "iLaX"
 			}
  ],

@@ -1,0 +1,24 @@
+-Releasedatum 10. Januar. √
+
+-output_mode checken.
+
+-sequencer_steals in zB no_prio respect_channel_prio umbenennen?
+
+	-> Nochmal Note Stealing durchgehen und reflektieren.
+
+-Credits finalisieren. E-mail Adresse? Websites?
+
+-Referenz und Texte in Helpfile finalisieren. 
+
+
+
+-channel zu note? von flags weg? -> geht nicht wegen set hold case.
+
+
+Nochmal Legato_mode und Mono_steals_release durchgehen und reflektieren.
+
+De-Click, Curved envelopes?
+
+Note Looper kann noch besser sein, gibt teilweise undeterminierbaren Output.
+
+Sampler Voice schreiben.

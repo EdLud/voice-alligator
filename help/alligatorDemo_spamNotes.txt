@@ -1,8 +1,7 @@
-descr 1 "Here we show how different note priorities work."
-descr 2 "First we spam notes and try ".
-descr 3 "(Hold) is on. The player plays D, turns the pitchwheel, and releases D. The pitchbend position is locked. This is repeated a couple of times."
+descr 1 "Demo of note priorities. First the player uses their left hand to play fast and short notes with a relatively long release. Then they play sustained notes notes with the right hand. "
+descr 2 "Voice stealing begins. Sustained notes have a higher priority with regards to stealing than notes in release. So what we actually hear are shorter notes for the left hand, but all notes-ons are still audible.".
+descr 3 "Then the same thing is repeated, only this time left hand notes are recorded into the note looper. The note looper is not allowed to steal notes from the player, so notes get lost."
 show notelooper
-show scale
 tovoice attack 7
 tovoice decay 150
 tovoice sustain 0.7
@@ -10,7 +9,6 @@ tovoice release 500
 tovoice glidetime 50
 tovoice legato_retrigger 1
 scale 2
-notelooper play 0
 note 60 30
 44 note 60 0
 note 61 30
@@ -366,7 +364,7 @@ notelooper record 0
 500 note 67 0
 500 note 66 0
 500 note 65 0
-2000 notelooper play 0
+1000 notelooper play 0
 
 
 
