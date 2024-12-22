@@ -22,3 +22,5 @@ De-Click, Curved envelopes?
 Note Looper kann noch besser sein, gibt teilweise undeterminierbaren Output.
 
 Sampler Voice schreiben.
+
+convert /Users/eule/Desktop/Data/Incoming/2024-12-21\ 22.54.16.jpg -resize 500x500 logo.png

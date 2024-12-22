@@ -78,6 +78,11 @@
 			<description>Standard A, Default: 440 hz </description>
 		</attribute>
 
+		<attribute name='debug' get='1' set='1' type='long' size='1' >
+			<digest>Debug on / off </digest>
+			<description>Debug on / off </description>
+		</attribute>
+
 		<attribute name='hold' get='1' set='1' type='long' size='1' >
 			<digest>Hold on / off </digest>
 			<description>Hold on / off </description>

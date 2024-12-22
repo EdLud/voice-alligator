@@ -15,8 +15,8 @@ metroRandomOffset 60
 metroRandomLength 300
 metroRandomSpeed 200
 metroRandomRandom 5
-metroRandom 1
 notelooper record 1
+1 metroRandom 1
 3200 metroRandom 0
 1600 notelooper record 0
 metroRandomOffset 63
