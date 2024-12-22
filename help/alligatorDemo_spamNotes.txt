@@ -1,6 +1,6 @@
-descr 1 "Demo of note priorities. First the player uses the left hand to play fast and short notes with a relatively long release. Then they play sustained notes notes with the right hand. "
-descr 2 "Sustained notes have a higher priority with regards to stealing than notes in release. So what we actually hear are shorter notes for the left hand, but all notes-ons are still audible.".
-descr 3 "Then the same thing is repeated, only this time left hand notes are recorded into the note looper. The note looper is set to be not allowed to steal notes from the player, so notes get lost."
+descr 1 "Demo of note priorities. First use the left hand to play fast and short notes with a relatively long release. Then play sustained notes with the right hand."
+descr 2 "Sustained notes have a higher priority with regards to stealing than notes in release. So what we actually hear are shorter notes for the left hand, but all note-ons are still audible.".
+descr 3 "Now the same thing is repeated, only this time left hand notes are recorded into the Note Looper. The Note Looper has a lower priority and can't steal notes from the player, so notes get lost."
 show notelooper
 tovoice attack 7
 tovoice decay 150

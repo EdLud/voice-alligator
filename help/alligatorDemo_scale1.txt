@@ -1,6 +1,6 @@
-descr 1 "Player presses F, F sounds in scale 0 (12-TET)"
-descr 2 "Player switches to scale 1 (some harmonics) and Presses G, the corresponding Note in Scale 1 sounds"
-descr 3 "Player releases G, F in scale 0 sounds again"
+descr 1 "[voice-alligator] can handle different scales/tunings while playing and remembers the pitches of played notes."
+descr 2 "Monophony is enabled. Press the note F: F sounds in default equal-tempered scale (12-TET). Switch to scale 1 (some harmonics) and press G: the corresponding pitch in scale 1 sounds."
+descr 3 "Release G: F in scale 0 sounds again."
 show scale
 show mono
 mono 1

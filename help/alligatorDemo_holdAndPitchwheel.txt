@@ -1,6 +1,6 @@
 descr 1 "This example shows how (hold) notes can be treated differently than non-hold notes."
-descr 2 "The holdflag that [voice.alligator] sends to the voice is used as a lock for the position of the pitchwheel on note off".
-descr 3 "(Hold) is on. The player plays D, turns the pitchwheel, and releases D. The pitchbend position is locked. This is repeated a couple of times."
+descr 2 "The holdflag that [voice.alligator] sends to the poly~ voice is used to lock the position of the pitchwheel on note off".
+descr 3 "(Hold) is on. Play a D, move the pitchwheel and release D. The pitchbend position is locked. This is repeated a couple of times."
 show pitchwheel
 show hold
 tovoice attack 7

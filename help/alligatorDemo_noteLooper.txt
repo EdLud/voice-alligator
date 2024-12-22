@@ -1,6 +1,6 @@
-descr 1 "Set note looper to record and play an ostinato in scale 1 (Harmonics of C2)"
-descr 2 "Stop record, note looper plays. Turn on mono, note looper ignores this"
-descr 3 "Play a short melody in scale 0 (12-TET). Pitchwheel is also ignored by note looper"
+descr 1 "Note Looper records and plays back sequences of the [voice alligator]'s output."
+descr 2 "Set Note Looper to record and play an ostinato in scale 1 (Harmonics of C2). Stop record, Note Looper plays the recorded sequence."
+descr 3 "Now play a short melody in scale 0 (12-TET) with monophony. Pitchwheel and monophony don't affect the Note Looper's sequence."
 show scale
 show mono
 mono 0
