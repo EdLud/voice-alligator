@@ -25,8 +25,8 @@
 	<objarglist>
 
 		<objarg name='voices' optional='1' type='int'>
-			<digest>Initial voices </digest>
-			<description>Initial voices </description>
+			<digest>Number of voices, max: 1024 </digest>
+			<description>Number of voices, max: 1024 </description>
 		</objarg>
 
 	</objarglist>
@@ -36,9 +36,9 @@
 
 	<methodlist>
 
-		<method name='endall'>
-			<digest>Send all Notes into release</digest>
-			<description>Send all Notes into release. If an argument was provided, send notes of channel (argument) into release. </description>
+		<method name='end'>
+			<digest>Sends Notes into release</digest>
+			<description>Sends Notes into release. If an argument was provided, send notes of channel (argument) into release, else send all notes into release. </description>
 		</method>
 
 		<method name='endhold'>
@@ -52,8 +52,8 @@
 		</method>
 
 		<method name='list'>
-			<digest>Midipitch, Velocity, (channel), (realpitch), (monoflag) </digest>
-			<description>Midipitch, Velocity, (channel), (realpitch), (monoflag) </description>
+			<digest>Midipitch, Velocity, (channel), (monoflag), (realpitch) </digest>
+			<description>Midipitch, Velocity, (channel), (monoflag), (realpitch) </description>
 		</method>
 
 		<method name='printscale'>
@@ -108,24 +108,24 @@
 			<description>Output Midi Notes or Frequencies (default Frequency) </description>
 		</attribute>
 
+		<attribute name='respect_channels' get='1' set='1' type='long' size='1' >
+			<digest>0 Don't respect, 1 Respect, 2 Respect but steal </digest>
+			<description>0 Don't respect, 1 Respect, 2 Respect but steal </description>
+		</attribute>
+
 		<attribute name='scale_def_mode' get='1' set='1' type='long' size='1' >
 			<digest>Define Scale by Midi Note or by Frequency (default Frequency) </digest>
 			<description>Define Scale by Midi Note or by Frequency (default Frequency) </description>
 		</attribute>
 
 		<attribute name='scale_fill' get='1' set='1' type='long' size='1' >
-			<digest>Fill notes that are non-defined in scale_def message with MTOF </digest>
-			<description>Fill notes that are non-defined in scale_def message with MTOF </description>
+			<digest>Fill notes that are non-defined in scale_def message with MTOF, Default: True </digest>
+			<description>Fill notes that are non-defined in scale_def message with MTOF, Default: True </description>
 		</attribute>
 
 		<attribute name='scalearray_maxsize' get='1' set='1' type='long' size='1' >
 			<digest>Set maximum number of entries in scale array (default 128) </digest>
 			<description>Set maximum number of entries in scale array (default 128) </description>
-		</attribute>
-
-		<attribute name='sequencer_steals' get='1' set='1' type='long' size='1' >
-			<digest>Sequencer Steals Notes on / off </digest>
-			<description>Sequencer Steals Notes on / off </description>
 		</attribute>
 
 		<attribute name='steal' get='1' set='1' type='long' size='1' >
@@ -141,11 +141,6 @@
 		<attribute name='sustain' get='1' set='1' type='long' size='1' >
 			<digest>Sustain on / off </digest>
 			<description>Sustain on / off </description>
-		</attribute>
-
-		<attribute name='voices' get='1' set='1' type='long' size='1' >
-			<digest>Number of voices (default 4) max: 1024 </digest>
-			<description>Number of voices (default 4) max: 1024 </description>
 		</attribute>
 
 	</attributelist>

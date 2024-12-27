@@ -1,5 +1,5 @@
-descr 1 "With a long attack time (30 s) and (hold) turned on, a key that is pressed very shortly will nevertheless trigger the whole attack/decay/sustain part of the ADSR."
-descr 2 "With glidetime and attack both set to 30 seconds we get long, swelling notes that also glide in pitch. legato_retrigger 0 prevents a retriggering of the ADSR."
+descr 1 "With a long attack time (30 s) and (hold) turned on, a key that is pressed very shorter than the attack+decay time will still trigger the whole ADS part of the ADSR."
+descr 2 "With glidetime and attack both set to 30 seconds we get long, swelling notes that also glide in pitch. legato_retrigger is set to 0, this prevents a retriggering of the ADSR."
 descr 3 "The player can therefore play an evolving glissando chord. Play the starting note A#, then a second note that will be the glide's target, then first release A#, then the target note. Repeat this for different end pitches."
 show mono
 show hold

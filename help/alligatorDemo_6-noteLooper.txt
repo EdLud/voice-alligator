@@ -12,7 +12,7 @@ tovoice release 1500
 tovoice glidetime 15
 tovoice legato_retrigger 1
 scale 1
-notelooper record 1
+10 notelooper record 1
 200 note 60 30
 200 note 60 0
 note 61 30

@@ -1406,7 +1406,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 795.0, 376.0, 164.0, 60.0 ],
-					"text" : "<- if the note is part of a legato sequence, choose what to do with the note-on according to legato_mode."
+					"text" : "<- if the note is part of a legato sequence, choose if the note-on will retrigger the adsr"
 				}
 
 			}
@@ -2174,6 +2174,10 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 214.0, 749.0, 42.0, 22.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "out~ 1"
 				}
 
@@ -2269,7 +2273,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "float", "float" ],
-					"patching_rect" : [ 297.0, 175.0, 61.0, 22.0 ],
+					"patching_rect" : [ 295.0, 175.0, 61.0, 22.0 ],
 					"text" : "unpack f f"
 				}
 
@@ -2379,6 +2383,10 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 323.0, 10.0, 47.0, 23.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "in 1"
 				}
 
