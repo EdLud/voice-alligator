@@ -394,8 +394,6 @@ function mainInletFunction = MIN_FUNCTION{
     if (inlet == 0) // notes: mpitch, vel, (channel), (monoflag), (realpitch)
     {
         lock lock{m_mutex};
-        if(debug){c74::min::object<voice_alligator>::cout << "mutex lock2"<< endl;}
-
         int mpitch = args[0]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
         double vel = args[1];
         unsigned long argsize = args.size();
@@ -486,8 +484,6 @@ Note newNote(int mpitch, int vel)
 
 Note* findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate)
 {
-    if(debug){cout << " findFirstNoteWithPredicate  "<< endl;}
-
     for (auto &noteIt : active_voices)
     {
         if (predicate(noteIt))
@@ -647,9 +643,8 @@ void outputFunction(Note &note, bool noteon, bool steal, lock &lock, bool flagso
     }
 }
 
-
 void setStealcase(){
-    if(     respect_channel_priorities_var   == 1  && !steal_hold_var)  stealCase = 1;
+    if(     respect_channel_priorities_var   == 1  && !steal_hold_var)  stealCase = 1;  //hold notes are never stolen, channels are respected (means not allowed to steal from lower channels) (default)
     else if(respect_channel_priorities_var   == 0  && !steal_hold_var)  stealCase = 2;  //hold notes are never stolen, channels are ignored
     else if(respect_channel_priorities_var   == 2  && !steal_hold_var)  stealCase = 3;  //hold notes are never stolen, channels are allowed to steal
     else if(respect_channel_priorities_var   == 1  &&  steal_hold_var)  stealCase = 4;  //hold notes are stolen, channels are respected (means not allowed to steal from lower channels)
@@ -662,7 +657,7 @@ Note* findNoteToSteal(Note &incomingNote)
     if(debug){cout << "incoming note " << incomingNote.mpitch.back() << " asked for steal" << endl;} 
 
     if(!steal) return nullptr;
-    int channel = incomingNote.channel; //this got rid of a bug, we captured incomingNote.channel by reference in the lambdas below, this lead to crashes
+    int channel = incomingNote.channel; //this got rid of a bug. Before, we captured incomingNote.channel by reference in the lambdas below, this lead to crashes
 
     switch (stealCase)
     {
@@ -818,7 +813,7 @@ void handleNoteOnMono(Note &note, lock &lock)
                                                             {return n.monoflag == 1
                                                             && n.channel == note.channel
                                                             && !n.releaseflag
-                                                            && n.mpitch.back() == note.mpitch.back();}))
+                                                            ;}))//&& n.mpitch.back() == note.mpitch.back()
                 {
                     if(debug){cout << "Mono key was pressed, Sequencer mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
                     monoTargetNote->vel = note.vel;
@@ -909,7 +904,8 @@ void handleNoteOnMono(Note &note, lock &lock)
         freeVoice = inactive_voices.front();
         inactive_voices.pop();
         note.target = freeVoice;
-        if(!note.sequencerNoteFlag) note.monoflag = 1;
+        // if(!note.sequencerNoteFlag) note.monoflag = 1;
+        note.monoflag = 1;
         active_voices.push_back(note);
         if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new mono note to active_voices" << endl;}
         outputFunction(note, 1, 0, lock); // -> spiele neue note mit mono flag 1, freiem target und steal 0
@@ -929,7 +925,8 @@ void handleNoteOnMono(Note &note, lock &lock)
             noteToSteal->channel = note.channel;
             noteToSteal->releaseflag = 0;
             noteToSteal->holdflag = 0;
-            if(!note.sequencerNoteFlag)noteToSteal->monoflag = 1;
+            // if(!note.sequencerNoteFlag)noteToSteal->monoflag = 1;
+            noteToSteal->monoflag = 1;
 
             // Find the index of the element
             size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
@@ -958,7 +955,8 @@ void handleNoteOnPoly(Note &note, lock &lock)
         freeVoice = inactive_voices.front();
         inactive_voices.pop();
         note.target = freeVoice;
-        if(!note.sequencerNoteFlag)note.monoflag = 0;
+        note.monoflag = 0;
+        // if(!note.sequencerNoteFlag)note.monoflag = 0;
         active_voices.push_back(note);
         if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new note with mpitch " << note.mpitch.back() << " to active_voices" << endl;}
         outputFunction(note, 1, 0, lock); // -> spiele neue note mit freiem target, mono flag 0 und steal 0
@@ -976,7 +974,8 @@ void handleNoteOnPoly(Note &note, lock &lock)
             noteToSteal->channel = note.channel;
             noteToSteal->releaseflag = false;
             noteToSteal->holdflag = false;
-            if(!note.sequencerNoteFlag)noteToSteal->monoflag = false;
+            // if(!note.sequencerNoteFlag)noteToSteal->monoflag = false;
+            noteToSteal->monoflag = false;
 
             // Find the index of the element
             size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
@@ -1033,6 +1032,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
 
     }
     
+    //From here on, sequencer notes are also processed
     //Normal note off case: we check that our note off doesn't belong to a legato note by checking the size of the vector of mpitches. 
     //if the note only has one mpitch, we release it and return.
     if (auto *note = findFirstNoteWithPredicate([&](const Note &n) 
@@ -1118,7 +1118,6 @@ void fromPoly(int target, int muteflag)
 
     if (!muteflag)return;
     lock lock{m_mutex};
-    if(debug){cout << "mutex lock1"<< endl;}
 
     if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
                                          { return n.target == target; }))

@@ -40,6 +40,42 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-3",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 704.0, 339.0, 85.0, 22.0 ],
+					"text" : "loadmess #4"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-27",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 707.0, 279.0, 143.0, 22.0 ],
+					"text" : "sprintf replace %s::0 #4"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-26",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 707.0, 93.0, 96.0, 22.0 ],
+					"text" : "loadmess #3"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-13",
 					"maxclass" : "newobj",
 					"numinlets" : 2,
@@ -125,7 +161,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 892.0, 40.0, 83.0, 22.0 ],
+					"patching_rect" : [ 892.0, 40.0, 96.0, 22.0 ],
 					"text" : "r #1-notes"
 				}
 
@@ -172,7 +208,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 721.0, 132.0, 640.0, 480.0 ],
+						"rect" : [ 766.0, 178.0, 640.0, 480.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -526,7 +562,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 426.0, 105.0, 79.0, 22.0 ],
+					"patching_rect" : [ 426.0, 105.0, 92.0, 22.0 ],
 					"text" : "r #1-flags"
 				}
 
@@ -539,7 +575,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 337.0, 74.0, 93.0, 22.0 ],
+					"patching_rect" : [ 337.0, 74.0, 107.0, 22.0 ],
 					"text" : "r #1-params"
 				}
 
@@ -547,12 +583,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-5",
-					"linecount" : 3,
+					"linecount" : 4,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 20.0, 16.0, 225.0, 47.0 ],
-					"text" : "argument 1 = unique instance id of voice\nargument 2 = unique instance id of poly~\nargument 3 = name of parameter"
+					"patching_rect" : [ 20.0, 16.0, 225.0, 60.0 ],
+					"text" : "argument 1 = unique instance id of voice\nargument 2 = unique instance id of poly~\nargument 3 = name of parameter\nargument 4 = default value"
 				}
 
 			}
@@ -641,7 +677,16 @@
  ],
 		"lines" : [ 			{
 				"patchline" : 				{
+					"destination" : [ "obj-13", 1 ],
+					"order" : 0,
+					"source" : [ "obj-1", 2 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-13", 0 ],
+					"order" : 1,
 					"source" : [ "obj-1", 2 ]
 				}
 
@@ -685,6 +730,27 @@
 				"patchline" : 				{
 					"destination" : [ "obj-15", 0 ],
 					"source" : [ "obj-18", 1 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-27", 0 ],
+					"source" : [ "obj-26", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-35", 0 ],
+					"source" : [ "obj-27", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-2", 0 ],
+					"source" : [ "obj-3", 0 ]
 				}
 
 			}

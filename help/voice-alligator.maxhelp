@@ -88,6 +88,56 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"hidden" : 1,
+									"id" : "obj-10",
+									"maxclass" : "newobj",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 594.0, 382.0, 72.0, 22.0 ],
+									"text" : "prepend set"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"hidden" : 1,
+									"id" : "obj-13",
+									"maxclass" : "newobj",
+									"numinlets" : 2,
+									"numoutlets" : 2,
+									"outlettype" : [ "", "" ],
+									"patching_rect" : [ 594.0, 356.0, 61.0, 22.0 ],
+									"text" : "route play"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"bgcolor" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 1.0 ],
+									"id" : "obj-73",
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 635.0, 252.0, 31.0, 20.0 ],
+									"text" : "play"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-58",
+									"maxclass" : "toggle",
+									"numinlets" : 1,
+									"numoutlets" : 1,
+									"outlettype" : [ "int" ],
+									"parameter_enable" : 0,
+									"patching_rect" : [ 604.0, 250.0, 24.0, 24.0 ]
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-23",
 									"maxclass" : "newobj",
 									"numinlets" : 1,
@@ -121,7 +171,7 @@
 									"numoutlets" : 2,
 									"outlettype" : [ "", "bang" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 676.0, 228.0, 86.0, 22.0 ]
+									"patching_rect" : [ 697.0, 244.0, 86.0, 22.0 ]
 								}
 
 							}
@@ -132,7 +182,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 676.0, 263.0, 72.0, 22.0 ],
+									"patching_rect" : [ 697.0, 279.0, 72.0, 22.0 ],
 									"text" : "ffreq ch2 $1"
 								}
 
@@ -1706,6 +1756,14 @@
  ],
 						"lines" : [ 							{
 								"patchline" : 								{
+									"destination" : [ "obj-13", 0 ],
+									"hidden" : 1,
+									"source" : [ "obj-1", 1 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-21", 0 ],
 									"source" : [ "obj-1", 2 ]
 								}
@@ -1720,8 +1778,25 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-58", 0 ],
+									"hidden" : 1,
+									"midpoints" : [ 603.5, 408.0, 873.0, 408.0, 873.0, 227.0, 613.5, 227.0 ],
+									"source" : [ "obj-10", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-23", 0 ],
 									"source" : [ "obj-12", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-10", 0 ],
+									"hidden" : 1,
+									"source" : [ "obj-13", 0 ]
 								}
 
 							}
@@ -1839,6 +1914,13 @@
 								"patchline" : 								{
 									"destination" : [ "obj-14", 0 ],
 									"source" : [ "obj-57", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-1", 0 ],
+									"source" : [ "obj-58", 0 ]
 								}
 
 							}
@@ -3499,7 +3581,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -3922,8 +4004,8 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 206.0, 316.0, 279.0, 33.0 ],
-													"text" : "<if a note is higher than MIDI pitch 83 transpose an octave down and set it to channel 2"
+													"patching_rect" : [ 206.0, 316.0, 272.0, 33.0 ],
+													"text" : "<if a note is higher than MIDI pitch 83, \ntranspose an octave down and set it to channel 2"
 												}
 
 											}
@@ -4373,19 +4455,6 @@
 													"numoutlets" : 0,
 													"patching_rect" : [ 162.0, 471.0, 110.0, 25.0 ],
 													"text" : "Turn on audio"
-												}
-
-											}
-, 											{
-												"box" : 												{
-													"hidden" : 1,
-													"id" : "obj-21",
-													"maxclass" : "newobj",
-													"numinlets" : 1,
-													"numoutlets" : 1,
-													"outlettype" : [ "bang" ],
-													"patching_rect" : [ 349.0, 447.0, 58.0, 22.0 ],
-													"text" : "loadbang"
 												}
 
 											}
@@ -5122,14 +5191,6 @@
 											}
 , 											{
 												"patchline" : 												{
-													"destination" : [ "obj-9", 0 ],
-													"hidden" : 1,
-													"source" : [ "obj-21", 0 ]
-												}
-
-											}
-, 											{
-												"patchline" : 												{
 													"destination" : [ "obj-10", 1 ],
 													"midpoints" : [ 194.0, 453.5, 286.0, 453.5, 286.0, 387.5, 268.5, 387.5 ],
 													"source" : [ "obj-33", 1 ]
@@ -5231,6 +5292,16 @@
 												"patchline" : 												{
 													"destination" : [ "obj-70", 0 ],
 													"hidden" : 1,
+													"order" : 1,
+													"source" : [ "obj-68", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-9", 0 ],
+													"hidden" : 1,
+													"order" : 0,
 													"source" : [ "obj-68", 0 ]
 												}
 
@@ -5299,7 +5370,7 @@
 										}
 ,
 										"classnamespace" : "box",
-										"rect" : [ 134.0, 159.0, 798.0, 602.0 ],
+										"rect" : [ 34.0, 87.0, 1372.0, 779.0 ],
 										"bglocked" : 0,
 										"openinpresentation" : 0,
 										"default_fontsize" : 12.0,
@@ -5329,13 +5400,75 @@
 										"assistshowspatchername" : 0,
 										"boxes" : [ 											{
 												"box" : 												{
+													"id" : "obj-26",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 2,
+													"outlettype" : [ "bang", "" ],
+													"patching_rect" : [ 591.0, 198.0, 34.0, 22.0 ],
+													"text" : "sel 0"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-25",
+													"maxclass" : "newobj",
+													"numinlets" : 5,
+													"numoutlets" : 4,
+													"outlettype" : [ "int", "", "", "int" ],
+													"patching_rect" : [ 591.0, 174.0, 65.0, 22.0 ],
+													"text" : "counter 63"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"bgcolor" : [ 0.090196078431373, 0.545098039215686, 0.0, 0.18 ],
+													"id" : "obj-1",
+													"linecount" : 2,
+													"maxclass" : "comment",
+													"numinlets" : 1,
+													"numoutlets" : 0,
+													"patching_rect" : [ 446.0, 249.0, 129.0, 33.0 ],
+													"presentation_linecount" : 6,
+													"text" : "<change the monoflag of Sequencer Notes"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-11",
+													"maxclass" : "newobj",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 420.0, 279.0, 72.0, 22.0 ],
+													"text" : "prepend set"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-6",
+													"maxclass" : "toggle",
+													"numinlets" : 1,
+													"numoutlets" : 1,
+													"outlettype" : [ "int" ],
+													"parameter_enable" : 0,
+													"patching_rect" : [ 420.0, 249.0, 24.0, 24.0 ]
+												}
+
+											}
+, 											{
+												"box" : 												{
 													"id" : "obj-14",
 													"maxclass" : "button",
 													"numinlets" : 1,
 													"numoutlets" : 1,
 													"outlettype" : [ "bang" ],
 													"parameter_enable" : 0,
-													"patching_rect" : [ 568.0, 248.0, 24.0, 24.0 ]
+													"patching_rect" : [ 591.0, 248.0, 24.0, 24.0 ]
 												}
 
 											}
@@ -5343,12 +5476,12 @@
 												"box" : 												{
 													"bgcolor" : [ 0.090196078431373, 0.545098039215686, 0.0, 0.18 ],
 													"id" : "obj-4",
-													"linecount" : 4,
+													"linecount" : 3,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 205.0, 278.0, 156.0, 60.0 ],
-													"text" : "set the monoflag, telling voice-alligator that for this> source, hold, mono and sustain are ignored"
+													"patching_rect" : [ 202.75, 291.0, 156.0, 47.0 ],
+													"text" : "set the monoflag, telling voice-alligator that this is>   a Sequencer Note"
 												}
 
 											}
@@ -5359,7 +5492,7 @@
 													"numinlets" : 1,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 354.0, 291.0, 59.0, 22.0 ],
+													"patching_rect" : [ 354.0, 303.0, 59.0, 22.0 ],
 													"text" : "append 0"
 												}
 
@@ -5383,7 +5516,7 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 607.0, 250.0, 60.0, 20.0 ],
+													"patching_rect" : [ 630.0, 250.0, 60.0, 20.0 ],
 													"text" : "< \"player\""
 												}
 
@@ -5468,7 +5601,7 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 197.0, 225.0, 164.0, 47.0 ],
+													"patching_rect" : [ 196.0, 235.0, 164.0, 47.0 ],
 													"text" : "set the channel, meaning in this case the note stealing  > priority, to 2 "
 												}
 
@@ -5481,7 +5614,7 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 638.0, 288.0, 139.0, 60.0 ],
+													"patching_rect" : [ 661.0, 288.0, 139.0, 60.0 ],
 													"text" : "< generate slower and longer notes, no further argument appended, so automatically channel 1"
 												}
 
@@ -5495,31 +5628,8 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 418.0, 187.0, 66.0, 47.0 ],
+													"presentation_linecount" : 3,
 													"text" : "<generate really fast notes"
-												}
-
-											}
-, 											{
-												"box" : 												{
-													"id" : "obj-25",
-													"maxclass" : "newobj",
-													"numinlets" : 2,
-													"numoutlets" : 2,
-													"outlettype" : [ "bang", "" ],
-													"patching_rect" : [ 568.0, 216.0, 34.0, 22.0 ],
-													"text" : "sel 0"
-												}
-
-											}
-, 											{
-												"box" : 												{
-													"id" : "obj-24",
-													"maxclass" : "newobj",
-													"numinlets" : 5,
-													"numoutlets" : 4,
-													"outlettype" : [ "int", "", "", "int" ],
-													"patching_rect" : [ 568.0, 185.0, 65.0, 22.0 ],
-													"text" : "counter 63"
 												}
 
 											}
@@ -5581,7 +5691,7 @@
 													"numinlets" : 1,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 354.0, 235.0, 59.0, 22.0 ],
+													"patching_rect" : [ 354.0, 249.0, 59.0, 22.0 ],
 													"text" : "append 2"
 												}
 
@@ -5664,7 +5774,7 @@
 																	"numoutlets" : 1,
 																	"outlettype" : [ "int" ],
 																	"patching_rect" : [ 50.0, 131.0, 32.0, 22.0 ],
-																	"text" : "+ 40"
+																	"text" : "+ 50"
 																}
 
 															}
@@ -5751,7 +5861,7 @@
  ]
 													}
 ,
-													"patching_rect" : [ 568.0, 288.0, 62.0, 22.0 ],
+													"patching_rect" : [ 591.0, 288.0, 62.0, 22.0 ],
 													"saved_object_attributes" : 													{
 														"description" : "",
 														"digest" : "",
@@ -6188,6 +6298,13 @@
 											}
 , 											{
 												"patchline" : 												{
+													"destination" : [ "obj-3", 0 ],
+													"source" : [ "obj-11", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
 													"destination" : [ "obj-19", 0 ],
 													"source" : [ "obj-14", 0 ]
 												}
@@ -6237,15 +6354,15 @@
 											}
 , 											{
 												"patchline" : 												{
-													"destination" : [ "obj-25", 0 ],
-													"source" : [ "obj-24", 0 ]
+													"destination" : [ "obj-26", 0 ],
+													"source" : [ "obj-25", 0 ]
 												}
 
 											}
 , 											{
 												"patchline" : 												{
 													"destination" : [ "obj-14", 0 ],
-													"source" : [ "obj-25", 0 ]
+													"source" : [ "obj-26", 0 ]
 												}
 
 											}
@@ -6324,6 +6441,13 @@
 											}
 , 											{
 												"patchline" : 												{
+													"destination" : [ "obj-11", 0 ],
+													"source" : [ "obj-6", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
 													"destination" : [ "obj-9", 0 ],
 													"source" : [ "obj-8", 0 ]
 												}
@@ -6339,7 +6463,7 @@
 											}
 , 											{
 												"patchline" : 												{
-													"destination" : [ "obj-24", 0 ],
+													"destination" : [ "obj-25", 0 ],
 													"order" : 0,
 													"source" : [ "obj-9", 0 ]
 												}
@@ -8497,7 +8621,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -11664,7 +11788,7 @@
 													"numinlets" : 2,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
-													"patching_rect" : [ 11.0, 574.0, 1336.0, 109.0 ],
+													"patching_rect" : [ 11.0, 574.0, 1339.0, 109.0 ],
 													"text" : "scale_def 1 0.539191 2 0.576332 3 0.640369 4 0.732582 5 0.788934 6 0.859375 7 1.004098 8 1.078381 9 1.152664 10 1.280738 11 1.465164 12 1.577869 13 1.71875 14 2.008197 15 2.156762 16 2.305328 17 2.561476 18 2.930328 19 3.155738 20 3.4375 21 4.016393 22 4.313525 23 4.610657 24 5.122953 25 5.860656 26 6.311475 27 6.875 28 8.032787 29 8.627049 30 9.221313 31 10.245905 32 11.721312 33 12.62295 34 13.75 35 16.065573 36 17.254099 37 18.442626 38 20.49181 39 23.442625 40 25.2459 41 27.5 42 32.131146 43 34.508198 44 36.885253 45 40.983621 46 46.88525 47 50.4918 48 55. 49 64.262293 50 69.016395 51 73.770505 52 81.967242 53 93.7705 54 100.983601 55 110. 56 128.524585 57 138.03279 58 147.541011 59 163.934484 60 187.540999 61 201.967201 62 220. 63 257.049171 64 276.06558 65 295.082021 66 327.868967 67 375.081998 68 403.934403 69 440. 70 514.098341 71 552.13116 72 590.164043 73 655.737934 74 750.163997 75 807.868805 76 880. 77 1028.196682 78 1104.26232 79 1180.328086 80 1311.475869 81 1500.327993 82 1615.73761 83 1760. 84 2056.393365 85 2208.524641 86 2360.656171 87 2622.951738 88 3000.655986 89 3231.475221 90 3520. 91 4112.78673 92 4417.049282 93 4721.312343 94 5245.903475 95 6001.311972 96 6462.950441 97 7040. 98 8225.573459 99 8834.098564 100 9442.624685 101 10491.80695 102 12002.623944 103 12925.9 104 14080. 105 16451.146919 106 17668.197127 107 18885.24937 108 20983.613901",
 													"textcolor" : [ 0.396078431372549, 0.0, 0.0, 1.0 ]
 												}
@@ -12449,7 +12573,7 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-6", 1 ],
-									"midpoints" : [ 872.0, 391.0, 1197.5, 391.0, 1197.5, 309.0, 1004.5, 309.0 ],
+									"midpoints" : [ 872.0, 391.0, 1047.5, 391.0, 1047.5, 309.0, 1004.5, 309.0 ],
 									"source" : [ "obj-33", 1 ]
 								}
 
@@ -16534,7 +16658,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 35.0, 505.0, 124.0, 24.0 ],
-									"text" : "67 0"
+									"text" : "scale_def"
 								}
 
 							}
@@ -21968,7 +22092,6 @@
 , 															{
 																"box" : 																{
 																	"id" : "obj-31",
-																	"linecount" : 3,
 																	"maxclass" : "newobj",
 																	"numinlets" : 1,
 																	"numoutlets" : 0,
@@ -22929,7 +23052,6 @@
 , 															{
 																"box" : 																{
 																	"id" : "obj-6",
-																	"linecount" : 3,
 																	"maxclass" : "newobj",
 																	"numinlets" : 1,
 																	"numoutlets" : 0,
@@ -22977,7 +23099,6 @@
 , 															{
 																"box" : 																{
 																	"id" : "obj-80",
-																	"linecount" : 3,
 																	"maxclass" : "newobj",
 																	"numinlets" : 0,
 																	"numoutlets" : 1,
@@ -23048,7 +23169,6 @@
 , 																			{
 																				"box" : 																				{
 																					"id" : "obj-2",
-																					"linecount" : 3,
 																					"maxclass" : "newobj",
 																					"numinlets" : 0,
 																					"numoutlets" : 1,
@@ -23894,7 +24014,6 @@
 , 																			{
 																				"box" : 																				{
 																					"id" : "obj-33",
-																					"linecount" : 3,
 																					"maxclass" : "newobj",
 																					"numinlets" : 1,
 																					"numoutlets" : 0,
@@ -24394,7 +24513,7 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 618.0, 692.0, 176.0, 69.0 ],
+													"patching_rect" : [ 618.0, 692.0, 179.0, 69.0 ],
 													"presentation" : 1,
 													"presentation_rect" : [ 502.0, 51.0, 534.0, 22.0 ],
 													"text" : "First play a low legato melody and record it. Then play in a higher register over the recording.",
@@ -24411,9 +24530,9 @@
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 580.0, 657.0, 130.0, 69.0 ],
+													"patching_rect" : [ 580.0, 657.0, 131.0, 69.0 ],
 													"presentation" : 1,
-													"presentation_rect" : [ 505.0, 11.0, 511.0, 22.0 ],
+													"presentation_rect" : [ 505.0, 11.0, 514.0, 22.0 ],
 													"text" : "Note Looper not only remembers the pitch of the note, but also the monophony flag.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
@@ -25227,7 +25346,7 @@
 											}
 , 											{
 												"box" : 												{
-													"comment" : "parameter settings for voice",
+													"comment" : "\"to voice\"",
 													"id" : "obj-3",
 													"index" : 2,
 													"maxclass" : "outlet",
@@ -25347,7 +25466,7 @@
 											}
 , 											{
 												"box" : 												{
-													"comment" : "notes: list (midipitch, velocity)",
+													"comment" : "\"to alligator\"",
 													"id" : "obj-11",
 													"index" : 1,
 													"maxclass" : "outlet",
