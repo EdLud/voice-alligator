@@ -1,0 +1,340 @@
+[2025-01-04 12:54:28.519005 info] [2356545] 45 0
+[2025-01-04 12:54:28.519013 info] [2356545] mutex lock2
+[2025-01-04 12:54:28.519015 info] [2356545]   Player Note to Inlet 1: 45 0
+[2025-01-04 12:54:28.519018 info] [2356545] Called Handle Note Off
+[2025-01-04 12:54:28.519020 info] [2356545]  findFirstNoteWithPredicate  
+[2025-01-04 12:54:28.519025 info] [2356545] released incoming note with mpitch 45 matching it to note 45 at target 356
+[2025-01-04 12:54:28.519046 info] [2356545]   Inlet 2 target: 356 muteflag: 0
+[2025-01-04 12:54:28.519059 info] [2356545]  Outlet 1: target 356 110 0 0 0 0 0
+[2025-01-04 12:54:28.519073 info] [2356545] 38 5
+[2025-01-04 12:54:28.519075 info] [2356545] mutex lock2
+[2025-01-04 12:54:28.519078 info] [2356545]   Player Note to Inlet 1: 38 5
+[2025-01-04 12:54:28.519082 info] [2356545] Found inactive voice with target 656 and pushed new note with mpitch 38 to active_voices
+[2025-01-04 12:54:28.519098 info] [2356545]  Outlet 1: target 656 73.4162 5 0 0 0 0
+[2025-01-04 12:54:28.519104 info] [2356545]   Inlet 2 target: 656 muteflag: 0
+[2025-01-04 12:54:28.520004 info] [2356545] 96 0
+
+
+
+
+
+[2025-01-04 12:55:20.081180 info] [2357421]  findFirstNoteWithPredicate  
+[2025-01-04 12:55:20.081182 info] [2357421] Searching for Note To Remove from Vector
+[2025-01-04 12:55:20.081194 info] [2357495] 75 0
+[2025-01-04 12:55:20.081204 info] [2357421]   Inlet 2 target: 217 muteflag: 1
+[2025-01-04 12:55:20.081207 info] [2357495] 
+[2025-01-04 12:55:20.081211 info] [2357495]   Player Note to Inlet 1: 75 0
+[2025-01-04 12:55:20.081214 info] [2357495] Called Handle Note Off
+[2025-01-04 12:55:20.081217 info] [2357495]  findFirstNoteWithPredicate  
+[2025-01-04 12:55:20.081222 info] [2357495] released incoming note with mpitch 75 matching it to note 75 at target 266
+[2025-01-04 12:55:20.081229 info] [2357421] mutex lock1
+
+
+
+
+[2025-01-04 12:55:50.777853 info] [2358217] Searching for Note To Remove from Vector
+[2025-01-04 12:55:50.777872 info] [2358217]   Inlet 2 target: 90 muteflag: 1
+[2025-01-04 12:55:50.777877 info] [2358283] 66 0
+[2025-01-04 12:55:50.777884 info] [2358217] mutex lock1
+[2025-01-04 12:55:50.777889 info] [2358217]  findFirstNoteWithPredicate  
+[2025-01-04 12:55:50.777896 info] [2358217] Searching for Note To Remove from Vector
+[2025-01-04 12:55:50.777915 info] [2358283] mutex lock2
+[2025-01-04 12:55:50.777919 info] [2358283]   Player Note to Inlet 1: 66 0
+[2025-01-04 12:55:50.777927 info] [2358217] 
+[2025-01-04 12:55:50.777930 info] [2358283] 
+[2025-01-04 12:55:50.777932 info] [2358283]  findFirstNoteWithPredicate  
+
+
+
+
+[2025-01-04 12:56:32.553121 info] [2359022] mutex lock1
+[2025-01-04 12:56:32.553122 info] [2359022]  findFirstNoteWithPredicate  
+[2025-01-04 12:56:32.553124 info] [2359022] Searching for Note To Remove from Vector
+[2025-01-04 12:56:32.553146 info] [2359091] 44 0
+[2025-01-04 12:56:32.553150 info] [2359022]   Inlet 2 target: 106 muteflag: 1
+[2025-01-04 12:56:32.553152 info] [2359091]   Inlet 2 target: 106 muteflag: 1mutex lock2
+[2025-01-04 12:56:32.553154 info] [2359091]   Player Note to Inlet 1: 44 0
+[2025-01-04 12:56:32.553157 info] [2359091] Called Handle Note Off
+[2025-01-04 12:56:32.553159 info] [2359091]  findFirstNoteWithPredicate  
+
+[2025-01-04 13:04:36.372704 info] [2367874]  findFirstNoteWithPredicate  
+[2025-01-04 13:04:36.372706 info] [2367874] Searching for Note To Remove from Vector
+[2025-01-04 13:04:36.372706 info] [2367946] 89 0
+[2025-01-04 13:04:36.372726 info] [2367946] mutex lock2
+[2025-01-04 13:04:36.372729 info] [2367946]   Player Note to Inlet 1: 89 0
+[2025-01-04 13:04:36.372732 info] [2367946]   Inlet 2 target: Called Handle Note Off
+[2025-01-04 13:04:36.372734 info] [2367874]   Inlet 2 target: Called Handle Note Off156 muteflag: 1
+[2025-01-04 13:04:36.372734 info] [2367946]  findFirstNoteWithPredicate  
+[2025-01-04 13:04:36.372738 info] [2367946] released incoming note with mpitch 89 matching it to note 89 at target 217
+[2025-01-04 13:04:36.372744 info] [2367874] mutex lock1
+[2025-01-04 13:04:36.372747 info] [2367874]  findFirstNoteWithPredicate  
+[2025-01-04 13:04:36.372749 info] [2367874] Searching for Note To Remove from Vector
+[2025-01-04 13:04:36.372768 info] [2367874]   Inlet 2 target: 157 muteflag: 1
+[2025-01-04 13:04:36.372770 info] [2367874] mutex lock1
+[2025-01-04 13:04:36.372772 info] [2367874]  findFirstNoteWithPredicate  
+[2025-01-04 13:04:36.372774 info] [2367874] Searching for Note To Remove from Vector
+
+
+[2025-01-04 12:57:00.612757 info] [2359757] 71 77
+[2025-01-04 12:57:00.612759 info] [2359757] mutex lock2
+[2025-01-04 12:57:00.612761 info] [2359757]   Player Note to Inlet 1: 71 77
+[2025-01-04 12:57:00.612764 info] [2359757] Found inactive voice with target 600 and pushed new note with mpitch 71 to active_voices
+[2025-01-04 12:57:00.612778 info] [2359757]  Outlet 1: target 600 493.883 77 0 0 0 0
+[2025-01-04 12:57:00.612783 info] [2359757]   Inlet 2 target: 600 muteflag: 0
+[2025-01-04 12:57:00.613701 info] [2359757] 96 0
+[2025-01-04 12:57:00.613707 info] [2359757] mutex lock2
+[2025-01-04 12:57:00.613710 info] [2359757]   Player Note to Inlet 1: 96 0
+[2025-01-04 12:57:00.613713 info] [2359757] Called Handle Note Off
+[2025-01-04 12:57:00.613715 info] [2359757]  findFirstNoteWithPredicate  
+[2025-01-04 12:57:00.613720 info] [2359757] released incoming note with mpitch 96 matching it to note 96 at target 301
+[2025-01-04 12:57:00.613753 info] [2359757]   Inlet 2 target: 301 muteflag: 0
+
+
+
+[2025-01-04 12:57:28.361963 info] [2360431]   Player Note to Inlet 1: 41 102
+[2025-01-04 12:57:28.361968 info] [2360431] Found inactive voice with target 124 and pushed new note with mpitch 41 to active_voices
+[2025-01-04 12:57:28.361984 info] [2360431]  Outlet 1: target 124 87.3071 102 0 0 0 0
+[2025-01-04 12:57:28.361991 info] [2360431]   Inlet 2 target: 124 muteflag: 0
+[2025-01-04 12:57:28.362852 info] [2360362]   Inlet 2 target: 782 muteflag: 1
+[2025-01-04 12:57:28.362857 info] [2360362] mutex lock1
+[2025-01-04 12:57:28.362860 info] [2360362]  findFirstNoteWithPredicate  
+[2025-01-04 12:57:28.362862 info] [2360362] Searching for Note To Remove from Vector
+[2025-01-04 12:57:28.362883 info] [2360362]   Inlet 2 target: 783 muteflag: 1
+[2025-01-04 12:57:28.362886 info] [2360362] mutex lock1
+[2025-01-04 12:57:28.362887 info] [2360362]  findFirstNoteWithPredicate  
+[2025-01-04 12:57:28.362888 info] [2360431] 58 0
+[2025-01-04 12:57:28.362889 info] [2360362] Searching for Note To Remove from Vector
+[2025-01-04 12:57:28.362915 info] [2360431] mutex lock2
+[2025-01-04 12:57:28.362919 info] [2360431]   Player Note to Inlet 1: 58 0
+
+
+
+
+
+[2025-01-04 12:58:26.905027 info] [2361294] mutex lock2
+[2025-01-04 12:58:26.905030 info] [2361294]   Player Note to Inlet 1: 78 0
+[2025-01-04 12:58:26.905034 info] [2361294] Called Handle Note Off
+[2025-01-04 12:58:26.905036 info] [2361294]  findFirstNoteWithPredicate  
+[2025-01-04 12:58:26.905044 info] [2361294] released incoming note with mpitch 78 matching it to note 78 at target 765
+[2025-01-04 12:58:26.905082 info] [2361294]   Inlet 2 target: 765 muteflag: 0
+[2025-01-04 12:58:26.905094 info] [2361294]  Outlet 1: target 765 739.989 0 0 0 0 0
+[2025-01-04 12:58:26.905111 info] [2361294] 43 103
+[2025-01-04 12:58:26.905113 info] [2361294] mutex lock2
+[2025-01-04 12:58:26.905115 info] [2361294]   Player Note to Inlet 1: 43 103
+[2025-01-04 12:58:26.905120 info] [2361294] Found inactive voice with target 40 and pushed new note with mpitch 43 to active_voices
+[2025-01-04 12:58:26.905139 info] [2361294]  Outlet 1: target 40 97.9989 103 0 0 0 0
+[2025-01-04 12:58:26.905146 info] [2361294]   Inlet 2 target: 40 muteflag: 0
+
+
+
+
+[2025-01-04 12:59:15.832587 info] [2362321] Found inactive voice with target 726 and pushed new note with mpitch 74 to active_voices
+[2025-01-04 12:59:15.832613 info] [2362321]  Outlet 1: target 726 587.33 86 0 0 0 0
+[2025-01-04 12:59:15.832621 info] [2362321]   Inlet 2 target: 726 muteflag: 0
+[2025-01-04 12:59:15.832758 info] [2362234]   Inlet 2 target: 723 muteflag: 0
+[2025-01-04 12:59:15.832766 info] [2362234]   Inlet 2 target: 372 muteflag: 1
+[2025-01-04 12:59:15.832771 info] [2362234] mutex lock1
+[2025-01-04 12:59:15.832774 info] [2362234]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:15.832776 info] [2362234] Searching for Note To Remove from Vector
+[2025-01-04 12:59:15.832795 info] [2362234]   Inlet 2 target: 373 muteflag: 1
+[2025-01-04 12:59:15.832797 info] [2362234] mutex lock1
+[2025-01-04 12:59:15.832799 info] [2362234]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:15.832801 info] [2362234] Searching for Note To Remove from Vector
+[2025-01-04 12:59:15.832819 info] [2362234]   Inlet 2 target: 374 muteflag: 1
+[2025-01-04 12:59:15.832822 info] [2362234] mutex lock1
+[2025-01-04 12:59:15.832823 info] [2362234]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:15.832825 info] [2362234] Searching for Note To Remove from Vector
+[2025-01-04 12:59:15.832843 info] [2362234]   Inlet 2 target: 375 muteflag: 1
+[2025-01-04 12:59:15.832845 info] [2362234] mutex lock1
+[2025-01-04 12:59:15.832847 info] [2362234]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:15.832849 info] [2362234] Searching for Note To Remove from Vector
+[2025-01-04 12:59:15.832866 info] [2362234]   Inlet 2 target: 376 muteflag: 1
+[2025-01-04 12:59:15.832870 info] [2362234] mutex lock1
+[2025-01-04 12:59:15.832871 info] [2362234]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:15.832873 info] [2362234] Searching for Note To Remove from Vector
+
+
+
+
+[2025-01-04 12:59:58.684101 info] [2362997]   Inlet 2 target: 485 muteflag: 1
+[2025-01-04 12:59:58.684103 info] [2362997] mutex lock1
+[2025-01-04 12:59:58.684105 info] [2362997]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:58.684107 info] [2362997] Searching for Note To Remove from Vector
+[2025-01-04 12:59:58.684127 info] [2362997]   Inlet 2 target: 486 muteflag: 1
+[2025-01-04 12:59:58.684129 info] [2362997] mutex lock1
+[2025-01-04 12:59:58.684131 info] [2362997]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:58.684132 info] [2362997] Searching for Note To Remove from Vector
+[2025-01-04 12:59:58.684152 info] [2362997]   Inlet 2 target: 487 muteflag: 1
+[2025-01-04 12:59:58.684154 info] [2362997] mutex lock1
+[2025-01-04 12:59:58.684157 info] [2362997]  findFirstNoteWithPredicate  
+[2025-01-04 12:59:58.684159 info] [2362997] Searching for Note To Remove from Vector
+[2025-01-04 12:59:58.684178 info] [2362997]   Inlet 2 target: 488 muteflag: 1
+[2025-01-04 12:59:58.684180 info] [2362997] mutex lock1
+
+
+[2025-01-04 13:00:43.602010 info] [2363981] 72 0
+[2025-01-04 13:00:43.602014 info] [2363899]   Inlet 2 target: 125 muteflag: 1
+[2025-01-04 13:00:43.602016 info] [2363899] mutex lock1
+[2025-01-04 13:00:43.602019 info] [2363899]  findFirstNoteWithPredicate  
+[2025-01-04 13:00:43.602021 info] [2363899] Searching for Note To Remove from Vector
+[2025-01-04 13:00:43.602042 info] [2363981] mutex lock2
+[2025-01-04 13:00:43.602044 info] [2363899] mutex lock2  Inlet 2 target: 126 muteflag: 1
+[2025-01-04 13:00:43.602048 info] [2363981] 
+[2025-01-04 13:00:43.602050 info] [2363981] Called Handle Note Off
+[2025-01-04 13:00:43.602053 info] [2363981]  findFirstNoteWithPredicate  
+[2025-01-04 13:00:43.602057 info] [2363981] released incoming note with mpitch 72 matching it to note 72 at target 193
+
+
+
+[2025-01-04 13:01:18.950285 info] [2364860] 91 0
+[2025-01-04 13:01:18.950304 info] [2364860] mutex lock2
+[2025-01-04 13:01:18.950309 info] [2364860]   Player Note to Inlet 1: 91 0
+[2025-01-04 13:01:18.950315 info] [2364860] Called Handle Note Off
+[2025-01-04 13:01:18.950318 info] [2364860]  findFirstNoteWithPredicate  
+[2025-01-04 13:01:18.950325 info] [2364860] released incoming note with mpitch 91 matching it to note 91 at target 29
+[2025-01-04 13:01:18.950368 info] [2364860]   Inlet 2 target: 29 muteflag: 0
+[2025-01-04 13:01:18.950388 info] [2364860]  Outlet 1: target 29 1567.98 0 0 0 0 0
+[2025-01-04 13:01:18.950427 info] [2364860] 73 59
+[2025-01-04 13:01:18.950432 info] [2364860] mutex lock2
+[2025-01-04 13:01:18.950437 info] [2364860]   Player Note to Inlet 1: 73 59
+[2025-01-04 13:01:18.950443 info] [2364860] Found inactive voice with target 329 and pushed new note with mpitch 73 to active_voices
+[2025-01-04 13:01:18.950464 info] [2364860]  Outlet 1: target 329 554.365 59 0 0 0 0
+[2025-01-04 13:01:18.950475 info] [2364860]   Inlet 2 target: 329 muteflag: 0
+
+
+[2025-01-04 13:03:51.335436 info] [2366928]  Outlet 1: target 894 261.626 0 0 0 0 0
+[2025-01-04 13:03:51.335455 info] [2366928] 72 22
+[2025-01-04 13:03:51.335457 info] [2366928] mutex lock2
+[2025-01-04 13:03:51.335459 info] [2366928]   Player Note to Inlet 1: 72 22
+[2025-01-04 13:03:51.335464 info] [2366928] Found inactive voice with target 170 and pushed new note with mpitch 72 to active_voices
+[2025-01-04 13:03:51.335482 info] [2366928]  Outlet 1: target 170 523.251 22 0 0 0 0
+[2025-01-04 13:03:51.335488 info] [2366928]   Inlet 2 target: 170 muteflag: 0
+[2025-01-04 13:03:51.336172 info] [2366855]   Inlet 2 target: 156 muteflag: 0
+[2025-01-04 13:03:51.336198 info] [2366855]   Inlet 2 target: 157 muteflag: 0
+[2025-01-04 13:03:51.336207 info] [2366855]   Inlet 2 target: 158 muteflag: 0
+[2025-01-04 13:03:51.336218 info] [2366855]   Inlet 2 target: 159 muteflag: 0
+[2025-01-04 13:03:51.336224 info] [2366855]   Inlet 2 target: 160 muteflag: 0
+[2025-01-04 13:03:51.336231 info] [2366855]   Inlet 2 target: 161 muteflag: 0
+[2025-01-04 13:03:51.336237 info] [2366855]   Inlet 2 target: 162 muteflag: 0
+[2025-01-04 13:03:51.336243 info] [2366855]   Inlet 2 target: 163 muteflag: 0
+
+[2025-01-04 13:05:15.643927 info] [2368670]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:15.643929 info] [2368670] Searching for Note To Remove from Vector
+[2025-01-04 13:05:15.643948 info] [2368670]   Inlet 2 target: 984 muteflag: 1
+[2025-01-04 13:05:15.643950 info] [2368670] mutex lock1
+[2025-01-04 13:05:15.643952 info] [2368670]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:15.643954 info] [2368670] Searching for Note To Remove from Vector
+[2025-01-04 13:05:15.643972 info] [2368670]   Inlet 2 target: 985 muteflag: 1
+[2025-01-04 13:05:15.643973 info] [2368670] mutex lock1
+[2025-01-04 13:05:15.643975 info] [2368670]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:15.643977 info] [2368670] Searching for Note To Remove from Vector
+[2025-01-04 13:05:15.643995 info] [2368670]   Inlet 2 target: 986 muteflag: 1
+[2025-01-04 13:05:15.643996 info] [2368670] mutex lock1
+[2025-01-04 13:05:15.643998 info] [2368670]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:15.644001 info] [2368670] Searching for Note To Remove from Vector
+[2025-01-04 13:05:15.644018 info] [2368670]   Inlet 2 target: 987 muteflag: 1
+[2025-01-04 13:05:15.644020 info] [2368670] mutex lock1
+[2025-01-04 13:05:15.644022 info] [2368670]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:15.644023 info] [2368670] Searching for Note To Remove from Vector
+[2025-01-04 13:05:15.644042 info] [2368670]   Inlet 2 target: 988 muteflag: 1
+[2025-01-04 13:05:15.644043 info] [2368670] mutex lock1
+[2025-01-04 13:05:15.644045 info] [2368670]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:15.644046 info] [2368670] Searching for Note To Remove from Vector
+
+
+[2025-01-04 13:05:46.219592 info] [2369584]   Inlet 2 target: 992 muteflag: 0
+[2025-01-04 13:05:46.220494 info] [2369513]   Inlet 2 target: 634 muteflag: 1
+[2025-01-04 13:05:46.220497 info] [2369513] mutex lock1
+[2025-01-04 13:05:46.220499 info] [2369513]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:46.220501 info] [2369513] Searching for Note To Remove from Vector
+[2025-01-04 13:05:46.220514 info] [2369584] 51 0
+[2025-01-04 13:05:46.220523 info] [2369584] mutex lock2
+[2025-01-04 13:05:46.220526 info] [2369513] mutex lock2  Inlet 2 target: 635 muteflag: 1
+[2025-01-04 13:05:46.220527 info] [2369584]   Player Note to Inlet 1: 51 0
+[2025-01-04 13:05:46.220530 info] [2369584] Called Handle Note Off
+[2025-01-04 13:05:46.220531 info] [2369584]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:46.220537 info] [2369584] released incoming note with mpitch 51 matching it to note 51 at target 693
+[2025-01-04 13:05:46.220544 info] [2369513] mutex lock1
+[2025-01-04 13:05:46.220546 info] [2369513]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:46.220548 info] [2369513] Searching for Note To Remove from Vector
+[2025-01-04 13:05:46.220566 info] [2369513]   Inlet 2 target: 636 muteflag: 1
+[2025-01-04 13:05:46.220569 info] [2369513] mutex lock1
+[2025-01-04 13:05:46.220571 info] [2369513]  findFirstNoteWithPredicate  
+[2025-01-04 13:05:46.220579 info] [2369513] Searching for Note To Remove from Vector
+
+[2025-01-04 13:06:19.879976 info] [2370316] mutex lock2
+[2025-01-04 13:06:19.879980 info] [2370316]   Player Note to Inlet 1: 67 14
+[2025-01-04 13:06:19.879988 info] [2370316] Found inactive voice with target 102 and pushed new note with mpitch 67 to active_voices
+[2025-01-04 13:06:19.880018 info] [2370316]  Outlet 1: target 102 391.995 14 0 0 0 0
+[2025-01-04 13:06:19.880028 info] [2370316]   Inlet 2 target: 102 muteflag: 0
+[2025-01-04 13:06:19.880957 info] [2370316] 38 66
+[2025-01-04 13:06:19.880970 info] [2370316] mutex lock2
+[2025-01-04 13:06:19.880974 info] [2370316]   Player Note to Inlet 1: 38 66
+[2025-01-04 13:06:19.880981 info] [2370316] Found inactive voice with target 103 and pushed new note with mpitch 38 to active_voices
+[2025-01-04 13:06:19.881008 info] [2370316]  Outlet 1: target 103 73.4162 66 0 0 0 0
+[2025-01-04 13:06:19.881017 info] [2370316]   Inlet 2 target: 103 muteflag: 0
+
+
+[2025-01-04 13:06:44.240638 info] [2370955] Found inactive voice with target 120 and pushed new note with mpitch 60 to active_voices
+[2025-01-04 13:06:44.240657 info] [2370955]  Outlet 1: target 120 261.626 39 0 0 0 0
+[2025-01-04 13:06:44.240663 info] [2370955]   Inlet 2 target: 120 muteflag: 0
+[2025-01-04 13:06:44.240854 info] [2370883]   Inlet 2 target: 113 muteflag: 0
+[2025-01-04 13:06:44.240865 info] [2370883]   Inlet 2 target: 114 muteflag: 0
+[2025-01-04 13:06:44.241624 info] [2370955] 59 75
+[2025-01-04 13:06:44.241631 info] [2370955] mutex lock2
+[2025-01-04 13:06:44.241634 info] [2370955]   Player Note to Inlet 1: 59 75
+[2025-01-04 13:06:44.241641 info] [2370955] Found inactive voice with target   Inlet 2 target: 121 and pushed new note with mpitch 59 to active_voices
+[2025-01-04 13:06:44.241666 info] [2370955]  Outlet 1: target 121 246.942 75 0 0 0 0
+
+
+
+[2025-01-04 13:07:25.433845 info] [2371803]   Player Note to Inlet 1: 72 11
+[2025-01-04 13:07:25.433850 info] [2371803] Found inactive voice with target 406 and pushed new note with mpitch 72 to active_voices
+[2025-01-04 13:07:25.433872 info] [2371803]  Outlet 1: target 406 523.251 11 0 0 0 0
+[2025-01-04 13:07:25.433879 info] [2371803]   Inlet 2 target: 406 muteflag: 0
+[2025-01-04 13:07:25.434471 info] [2371731]   Inlet 2 target: 400 muteflag: 0
+[2025-01-04 13:07:25.434480 info] [2371731]   Inlet 2 target: 401 muteflag: 0
+[2025-01-04 13:07:25.434768 info] [2371731]   Inlet 2 target: 50 muteflag: 1
+[2025-01-04 13:07:25.434778 info] [2371803] 47 0
+[2025-01-04 13:07:25.434781 info] [2371731] mutex lock1
+[2025-01-04 13:07:25.434784 info] [2371731]  findFirstNoteWithPredicate  
+[2025-01-04 13:07:25.434789 info] [2371731] Searching for Note To Remove from Vector
+[2025-01-04 13:07:25.434812 info] [2371803] mutex lock2
+[2025-01-04 13:07:25.434813 info] [2371731] mutex lock2  Inlet 2 target: 51 muteflag: 1
+[2025-01-04 13:07:25.434816 info] [2371803] 0
+
+
+
+[2025-01-04 13:08:16.176004 info] [2372594] mutex lock1
+[2025-01-04 13:08:16.176006 info] [2372594]  findFirstNoteWithPredicate  
+[2025-01-04 13:08:16.176008 info] [2372594] Searching for Note To Remove from Vector
+[2025-01-04 13:08:16.176027 info] [2372594]   Inlet 2 target: 423 muteflag: 1
+[2025-01-04 13:08:16.176029 info] [2372594] mutex lock1
+[2025-01-04 13:08:16.176030 info] [2372594]  findFirstNoteWithPredicate  
+[2025-01-04 13:08:16.176032 info] [2372594] Searching for Note To Remove from Vector
+[2025-01-04 13:08:16.176051 info] [2372594]   Inlet 2 target: 424 muteflag: 1
+[2025-01-04 13:08:16.176052 info] [2372594] mutex lock1
+[2025-01-04 13:08:16.176054 info] [2372594]  findFirstNoteWithPredicate  
+[2025-01-04 13:08:16.176055 info] [2372594] Searching for Note To Remove from Vector
+[2025-01-04 13:08:16.176073 info] [2372594]   Inlet 2 target: 425 muteflag: 1
+[2025-01-04 13:08:16.176074 info] [2372594] mutex lock1
+[2025-01-04 13:08:16.176076 info] [2372594]  findFirstNoteWithPredicate  
+
+
+
+
+[2025-01-04 13:08:45.003141 info] [2373503] mutex lock2
+[2025-01-04 13:08:45.003144 info] [2373503]   Player Note to Inlet 1: 50 0
+[2025-01-04 13:08:45.003147 info] [2373503] Called Handle Note Off
+[2025-01-04 13:08:45.003149 info] [2373503]  findFirstNoteWithPredicate  
+[2025-01-04 13:08:45.003157 info] [2373503] released incoming note with mpitch 50 matching it to note 50 at target 583
+[2025-01-04 13:08:45.003184 info] [2373503]   Inlet 2 target: 583 muteflag: 0
+[2025-01-04 13:08:45.003203 info] [2373503]  Outlet 1: target 583 146.832 0 0 0 0 0
+[2025-01-04 13:08:45.003229 info] [2373503] 38 16
+[2025-01-04 13:08:45.003232 info] [2373503] mutex lock2
+[2025-01-04 13:08:45.003234 info] [2373503]   Player Note to Inlet 1: 38 16
+[2025-01-04 13:08:45.003239 info] [2373503] Found inactive voice with target 883 and pushed new note with mpitch 38 to active_voices
+[2025-01-04 13:08:45.003257 info] [2373503]  Outlet 1: target 883 73.4162 16 0 0 0 0
+[2025-01-04 13:08:45.003263 info] [2373503]   Inlet 2 target: 883 muteflag: 0
+
+

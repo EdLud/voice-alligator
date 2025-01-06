@@ -40,6 +40,78 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-40",
+					"maxclass" : "newobj",
+					"numinlets" : 5,
+					"numoutlets" : 4,
+					"outlettype" : [ "int", "", "", "int" ],
+					"patching_rect" : [ 795.0, 251.0, 61.0, 22.0 ],
+					"text" : "counter 2"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-32",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 339.0, 619.0, 125.0, 22.0 ],
+					"text" : "target 0, release 4000"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-31",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 340.75, 649.0, 29.5, 22.0 ],
+					"text" : "end"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-26",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 339.0, 587.0, 125.0, 22.0 ],
+					"text" : "target 0, panic"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-23",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 339.0, 546.0, 66.0, 22.0 ],
+					"text" : "voices 512"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-24",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 339.0, 510.0, 71.0, 22.0 ],
+					"text" : "debug 1"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"attr" : "mono_note_priority",
 					"id" : "obj-14",
 					"maxclass" : "attrui",
@@ -47,7 +119,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 483.0, 482.0, 329.0, 22.0 ]
+					"patching_rect" : [ 245.0, 475.0, 329.0, 22.0 ]
 				}
 
 			}
@@ -60,317 +132,6 @@
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 26.0, 483.0, 49.0, 22.0 ],
 					"text" : "append"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-1",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "multichannelsignal" ],
-					"patcher" : 					{
-						"fileversion" : 1,
-						"appversion" : 						{
-							"major" : 8,
-							"minor" : 6,
-							"revision" : 5,
-							"architecture" : "x64",
-							"modernui" : 1
-						}
-,
-						"classnamespace" : "box",
-						"rect" : [ 34.0, 146.0, 640.0, 480.0 ],
-						"bglocked" : 0,
-						"openinpresentation" : 0,
-						"default_fontsize" : 12.0,
-						"default_fontface" : 0,
-						"default_fontname" : "Arial",
-						"gridonopen" : 1,
-						"gridsize" : [ 15.0, 15.0 ],
-						"gridsnaponopen" : 1,
-						"objectsnaponopen" : 1,
-						"statusbarvisible" : 2,
-						"toolbarvisible" : 1,
-						"lefttoolbarpinned" : 0,
-						"toptoolbarpinned" : 0,
-						"righttoolbarpinned" : 0,
-						"bottomtoolbarpinned" : 0,
-						"toolbars_unpinned_last_save" : 0,
-						"tallnewobj" : 0,
-						"boxanimatetime" : 200,
-						"enablehscroll" : 1,
-						"enablevscroll" : 1,
-						"devicewidth" : 0.0,
-						"description" : "",
-						"digest" : "",
-						"tags" : "",
-						"style" : "",
-						"subpatcher_template" : "",
-						"assistshowspatchername" : 0,
-						"boxes" : [ 							{
-								"box" : 								{
-									"id" : "obj-4",
-									"maxclass" : "message",
-									"numinlets" : 2,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 321.0, 137.0, 62.0, 22.0 ],
-									"text" : "17 0.4525"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-43",
-									"maxclass" : "newobj",
-									"numinlets" : 0,
-									"numoutlets" : 1,
-									"outlettype" : [ "bang" ],
-									"patching_rect" : [ 246.5, 100.0, 65.0, 22.0 ],
-									"text" : "pastebang"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-42",
-									"maxclass" : "message",
-									"numinlets" : 2,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 251.0, 135.0, 49.0, 22.0 ],
-									"text" : "10 0.18"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-38",
-									"maxclass" : "newobj",
-									"numinlets" : 2,
-									"numoutlets" : 1,
-									"outlettype" : [ "multichannelsignal" ],
-									"patching_rect" : [ 50.0, 161.0, 60.0, 22.0 ],
-									"text" : "mc.pack~"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"id" : "obj-37",
-									"maxclass" : "newobj",
-									"numinlets" : 1,
-									"numoutlets" : 2,
-									"outlettype" : [ "signal", "signal" ],
-									"patching_rect" : [ 117.0, 100.0, 74.0, 22.0 ],
-									"text" : "mc.unpack~"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"autosave" : 1,
-									"bgmode" : 0,
-									"border" : 0,
-									"clickthrough" : 0,
-									"id" : "obj-36",
-									"maxclass" : "newobj",
-									"numinlets" : 2,
-									"numoutlets" : 8,
-									"offset" : [ 0.0, 0.0 ],
-									"outlettype" : [ "signal", "signal", "", "list", "int", "", "", "" ],
-									"patching_rect" : [ 117.0, 143.0, 110.0, 22.0 ],
-									"save" : [ "#N", "vst~", "loaduniqueid", 0, 2, "LexPlate.vst", ";" ],
-									"saved_attribute_attributes" : 									{
-										"valueof" : 										{
-											"parameter_invisible" : 1,
-											"parameter_longname" : "vst~",
-											"parameter_modmode" : 0,
-											"parameter_shortname" : "vst~",
-											"parameter_type" : 3
-										}
-
-									}
-,
-									"saved_object_attributes" : 									{
-										"parameter_enable" : 1,
-										"parameter_mappable" : 0
-									}
-,
-									"snapshot" : 									{
-										"filetype" : "C74Snapshot",
-										"version" : 2,
-										"minorversion" : 0,
-										"name" : "snapshotlist",
-										"origin" : "vst~",
-										"type" : "list",
-										"subtype" : "Undefined",
-										"embed" : 1,
-										"snapshot" : 										{
-											"pluginname" : "LexPlate.auinfo",
-											"plugindisplayname" : "LexPlate",
-											"pluginsavedname" : "",
-											"pluginsaveduniqueid" : 1633710624,
-											"version" : 1,
-											"isbank" : 0,
-											"isbase64" : 1,
-											"blob" : "2167.hAGaoMGcv.y0AHv.DTfAGfPBJr.CM3.WsEla0YVXiQWcxUlbTQVXzE1UyUmXzkGbkckckI2bo8laeAwCpU2XkAEa0cVZtMEcgQWYTQWdvUFUtEVakIASkgWZOEQ.jC..............6...............A.........f..........L..........D.........PA.........X..........G..........B.........j..........J.........vB.........v..........M.........fC.........7..........P.........PD.........HA.........S..........E.........TA.........V.........vE.........fA.........Y.........fF.........rA.........b.........PG.........3A.........e..........H.........DB.........h.........vH.........PB.........k.........fI.........bB.........n.........PJ.........nB.........q..........K.........zB.........t.........vK..........C.........w.........fL.........LC.........z.........PM.........XC.........2..........N.........jC.........5.....fDLAGaw.A.OEQAda0PxDB0E...7vTQXkzPO4zWPIUQSUDUf.kTEMUQT8kUEI0TI8jS8HBLh.RPLczSRkDUH0zWNETSE0iHLUFdPwVXzUlHf.UPRETSEQUQR80POUkST0iH0jiHfL0alQ2WPElbg0VYzUlbeASOh.kbkQVYrEVdh.xTuYFceAUXxEVakQWYx8UL8HhTkYWYxIFHTkVakIBHS8lYz8ETgIWXsUFckI2WxziHRYmXf7TczAhQxUVbh.xTuYFceAUXxEVakQWYx80L8HBQoYlY0MWZu4lHfL0alQ2WPElbg0VYzUlbeQSOhHEUffTZCUGch.xTuYFceAUXxEVakQWYx8UM8HhPgM2bRQkHfL0alQ2WPElbg0VYzUlbeYSOhPUXowFHWkFYzglHfL0alQ2WPElbg0VYzUlbecSOhTTXxwVdfvTY1UFah.xTuYFceAUXxEVakQWYx8EN8HRSogmHfzTZ30iHfDCNkHBHPIWYjUFagk2WM8FYk0iHAI1buwVczUlHf.kbkQVYrEVd8HBHf.iKv.CHsMmHfPTZlYVcyk1at0iHw.CLkHBHSgVXvUVOhPCNh.xTvIWYgQVOh.hL1ThHfLUZ5UVOhLCLt.CHsUFckI2bh.hTkYWYxI1WTkVak0iHfDiKwjSN3.xbkMlHfHTXyMmTT0iHw3RMvfmHfHTXyM2WX8jU8HBHfXCLvfjdh.hTT8ERoMTcz0iHfLCNv.CR5IBHRQERC8EQg0Fbo41Y8HBRkElc4IBHTEFbeMEauAWY8HBHf.iHfLEbo4VOhDiKvfjdh.xUg4FYkIWOhDiK0z1bh.RRtYVZtkFck0iHOYlYh.BUgkFaecUZjQGZ8HxTzUlbk8lHfHkYr8EUo0VYe0TXyQWOhDCLvThHfvzWRYFae0zajUVOhDjXy8Fa0QWYh.BSeIkYr8EQrkWOh.RL23BLv.RayIBHL8kTlw1WP8FagIWZzkWOh3zax0VXrIBHL8kTlw1WGEVZt0iHfzRNt.CHjIjHfH0WRYFae0zajUVOhDjXy8Fa0QWYh.hTeIkYr8EQrkWOh.hLy3BLv.RayIBHR8kTlw1WP8FagIWZzkWOh3zax0VXrIBHR8kTlw1WGEVZt0iHfzRNt.CHjIjHfTzZu8EUo0VYe0TXyQWOhDCLvThHfTzZu8kQhM1Ze0TXyQWOh.BHvThHfvzWEs1ae0zajUVOhDjXy8Fa0QWYh.BSeUzZu8EQrkWOh.xL23BLv.RayIBHL8UQq81WGEVZt8ETuwVXxkFc40iHN8lbsEFah.BSeUzZu80Qgkla8HRKwLiKv.BYBIBHL8UQq81WFITXis1WP8FagIWZzkWOhjja1UlbzUFYh.BSeUzZu8kQBE1Xq0iHsjiMt.CHjIDHI4jUh.hTeUzZu8USuQVY8HRPhM2arUGckIBHR8UQq81WDwVd8HBHzLiKv.CHsMmHfH0WEs1aecTXo41WP8FagIWZzkWOh3zax0VXrIBHR8UQq81WGEVZt0iHsDSMt.CHjIjHfH0WEs1aeYjPgM1ZeA0arElboQWd8HRRtYWYxQWYjIBHR8UQq81WFITXisVOhzRN13BLfPlPfjjSVIBHEElbrk2WLUlckwVOh.RKy3RMfPlPh.RQxw1WOUGceQUdvUVOhP0cuABTuwVYfvzavE1byIBHEIGae8Tcz8kQxUVb8HBHwjCLvfjdh.RQxw1WOUGceIzUoQFcn0iHw3BLf7zXzIBHEIGae8Tcz80TnUFal0iHsDSLt.CHjIjHfHkch8ESkYWYr0iHfzhLt.CHjIjHfHkch80S0Q2WTkGbk0iHTc2af.0arUFHL8FbgM2bh.hT1I1WOUGceYjbkEWOh.xL0.CLHomHfHkch80S0Q2WBcUZjQGZ8HBLtDCHOMFch.hT1I1WOUGceMEZkwlY8HRK4XiKv.BYBIBHFEzPT8jTY8ETRUzTEQ0WF8DSDUjT8HRLh.hQAMDUOIUVeAkTEMUQT8URNQTQX0iHvHxK9...RDVclgGVU4FcoQGakQF.H.vE.PB.o.PL.jC.KA.T.TE.ZIfPBbj.IgvJH.C.......f.A.........vC...................B4."
-										}
-,
-										"snapshotlist" : 										{
-											"current_snapshot" : 0,
-											"entries" : [ 												{
-													"filetype" : "C74Snapshot",
-													"version" : 2,
-													"minorversion" : 0,
-													"name" : "LexPlate",
-													"origin" : "LexPlate.auinfo",
-													"type" : "AudioUnit",
-													"subtype" : "AudioEffect",
-													"embed" : 0,
-													"snapshot" : 													{
-														"pluginname" : "LexPlate.auinfo",
-														"plugindisplayname" : "LexPlate",
-														"pluginsavedname" : "",
-														"pluginsaveduniqueid" : 1633710624,
-														"version" : 1,
-														"isbank" : 0,
-														"isbase64" : 1,
-														"blob" : "2167.hAGaoMGcv.y0AHv.DTfAGfPBJr.CM3.WsEla0YVXiQWcxUlbTQVXzE1UyUmXzkGbkckckI2bo8laeAwCpU2XkAEa0cVZtMEcgQWYTQWdvUFUtEVakIASkgWZOEQ.jC..............6...............A.........f..........L..........D.........PA.........X..........G..........B.........j..........J.........vB.........v..........M.........fC.........7..........P.........PD.........HA.........S..........E.........TA.........V.........vE.........fA.........Y.........fF.........rA.........b.........PG.........3A.........e..........H.........DB.........h.........vH.........PB.........k.........fI.........bB.........n.........PJ.........nB.........q..........K.........zB.........t.........vK..........C.........w.........fL.........LC.........z.........PM.........XC.........2..........N.........jC.........5.....fDLAGaw.A.OEQAda0PxDB0E...7vTQXkzPO4zWPIUQSUDUf.kTEMUQT8kUEI0TI8jS8HBLh.RPLczSRkDUH0zWNETSE0iHLUFdPwVXzUlHf.UPRETSEQUQR80POUkST0iH0jiHfL0alQ2WPElbg0VYzUlbeASOh.kbkQVYrEVdh.xTuYFceAUXxEVakQWYx8UL8HhTkYWYxIFHTkVakIBHS8lYz8ETgIWXsUFckI2WxziHRYmXf7TczAhQxUVbh.xTuYFceAUXxEVakQWYx80L8HBQoYlY0MWZu4lHfL0alQ2WPElbg0VYzUlbeQSOhHEUffTZCUGch.xTuYFceAUXxEVakQWYx8UM8HhPgM2bRQkHfL0alQ2WPElbg0VYzUlbeYSOhPUXowFHWkFYzglHfL0alQ2WPElbg0VYzUlbecSOhTTXxwVdfvTY1UFah.xTuYFceAUXxEVakQWYx8EN8HRSogmHfzTZ30iHfDCNkHBHPIWYjUFagk2WM8FYk0iHAI1buwVczUlHf.kbkQVYrEVd8HBHf.iKv.CHsMmHfPTZlYVcyk1at0iHw.CLkHBHSgVXvUVOhPCNh.xTvIWYgQVOh.hL1ThHfLUZ5UVOhLCLt.CHsUFckI2bh.hTkYWYxI1WTkVak0iHfDiKwjSN3.xbkMlHfHTXyMmTT0iHw3RMvfmHfHTXyM2WX8jU8HBHfXCLvfjdh.hTT8ERoMTcz0iHfLCNv.CR5IBHRQERC8EQg0Fbo41Y8HBRkElc4IBHTEFbeMEauAWY8HBHf.iHfLEbo4VOhDiKvfjdh.xUg4FYkIWOhDiK0z1bh.RRtYVZtkFck0iHOYlYh.BUgkFaecUZjQGZ8HxTzUlbk8lHfHkYr8EUo0VYe0TXyQWOhDCLvThHfvzWRYFae0zajUVOhDjXy8Fa0QWYh.BSeIkYr8EQrkWOh.RL23BLv.RayIBHL8kTlw1WP8FagIWZzkWOh3zax0VXrIBHL8kTlw1WGEVZt0iHfzRNt.CHjIjHfH0WRYFae0zajUVOhDjXy8Fa0QWYh.hTeIkYr8EQrkWOh.hLy3BLv.RayIBHR8kTlw1WP8FagIWZzkWOh3zax0VXrIBHR8kTlw1WGEVZt0iHfzRNt.CHjIjHfTzZu8EUo0VYe0TXyQWOhDCLvThHfTzZu8kQhM1Ze0TXyQWOh.BHvThHfvzWEs1ae0zajUVOhDjXy8Fa0QWYh.BSeUzZu8EQrkWOh.xL23BLv.RayIBHL8UQq81WGEVZt8ETuwVXxkFc40iHN8lbsEFah.BSeUzZu80Qgkla8HRKwLiKv.BYBIBHL8UQq81WFITXis1WP8FagIWZzkWOhjja1UlbzUFYh.BSeUzZu8kQBE1Xq0iHsjiMt.CHjIDHI4jUh.hTeUzZu8USuQVY8HRPhM2arUGckIBHR8UQq81WDwVd8HBHzLiKv.CHsMmHfH0WEs1aecTXo41WP8FagIWZzkWOh3zax0VXrIBHR8UQq81WGEVZt0iHsDSMt.CHjIjHfH0WEs1aeYjPgM1ZeA0arElboQWd8HRRtYWYxQWYjIBHR8UQq81WFITXisVOhzRN13BLfPlPfjjSVIBHEElbrk2WLUlckwVOh.RKy3RMfPlPh.RQxw1WOUGceQUdvUVOhP0cuABTuwVYfvzavE1byIBHEIGae8Tcz8kQxUVb8HBHwjCLvfjdh.RQxw1WOUGceIzUoQFcn0iHw3BLf7zXzIBHEIGae8Tcz80TnUFal0iHsDSLt.CHjIjHfHkch8ESkYWYr0iHfzhLt.CHjIjHfHkch80S0Q2WTkGbk0iHTc2af.0arUFHL8FbgM2bh.hT1I1WOUGceYjbkEWOh.xL0.CLHomHfHkch80S0Q2WBcUZjQGZ8HBLtDCHOMFch.hT1I1WOUGceMEZkwlY8HRK4XiKv.BYBIBHFEzPT8jTY8ETRUzTEQ0WF8DSDUjT8HRLh.hQAMDUOIUVeAkTEMUQT8URNQTQX0iHvHxK9...RDVclgGVU4FcoQGakQF.H.vE.PB.o.PL.jC.KA.T.TE.ZIfPBbj.IgvJH.C.......f.A.........vC...................B4."
-													}
-,
-													"fileref" : 													{
-														"name" : "LexPlate",
-														"filename" : "LexPlate.maxsnap",
-														"filepath" : "~/Documents/Max 8/Snapshots",
-														"filepos" : -1,
-														"snapshotfileid" : "5eb58cc06ff8ac8eb25ce969ba74b4a2"
-													}
-
-												}
- ]
-										}
-
-									}
-,
-									"text" : "vst~ 2 LexPlate.vst",
-									"varname" : "vst~",
-									"viewvisibility" : 0
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"comment" : "",
-									"id" : "obj-44",
-									"index" : 1,
-									"maxclass" : "inlet",
-									"numinlets" : 0,
-									"numoutlets" : 1,
-									"outlettype" : [ "" ],
-									"patching_rect" : [ 117.0, 40.0, 30.0, 30.0 ]
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"comment" : "",
-									"id" : "obj-45",
-									"index" : 1,
-									"maxclass" : "outlet",
-									"numinlets" : 1,
-									"numoutlets" : 0,
-									"patching_rect" : [ 50.0, 243.0, 30.0, 30.0 ]
-								}
-
-							}
- ],
-						"lines" : [ 							{
-								"patchline" : 								{
-									"destination" : [ "obj-38", 1 ],
-									"source" : [ "obj-36", 1 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-38", 0 ],
-									"source" : [ "obj-36", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-36", 1 ],
-									"source" : [ "obj-37", 1 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-36", 0 ],
-									"source" : [ "obj-37", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-45", 0 ],
-									"source" : [ "obj-38", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-36", 0 ],
-									"source" : [ "obj-4", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-36", 0 ],
-									"source" : [ "obj-42", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-4", 0 ],
-									"order" : 0,
-									"source" : [ "obj-43", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-42", 0 ],
-									"order" : 1,
-									"source" : [ "obj-43", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-37", 0 ],
-									"source" : [ "obj-44", 0 ]
-								}
-
-							}
- ]
-					}
-,
-					"patching_rect" : [ 395.0, 542.0, 61.0, 22.0 ],
-					"saved_object_attributes" : 					{
-						"description" : "",
-						"digest" : "",
-						"globalpatchername" : "",
-						"tags" : ""
-					}
-,
-					"text" : "p lexPlate"
 				}
 
 			}
@@ -563,7 +324,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 164.0, 512.0, 32.0, 22.0 ],
+					"patching_rect" : [ 339.5, 679.0, 32.0, 22.0 ],
 					"text" : "print"
 				}
 
@@ -585,25 +346,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-91",
-					"linecount" : 3,
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 795.0, 300.0, 64.0, 49.0 ],
-					"text" : "prepend sequencer_steals"
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-92",
-					"maxclass" : "toggle",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "int" ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 795.0, 249.0, 24.0, 24.0 ]
+					"patching_rect" : [ 795.0, 300.0, 196.0, 22.0 ],
+					"text" : "prepend respect_channel_priorities"
 				}
 
 			}
@@ -879,7 +627,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
 					"patching_rect" : [ 122.0, 180.0, 49.0, 22.0 ],
-					"text" : "% 5197"
+					"text" : "% 277"
 				}
 
 			}
@@ -3585,7 +3333,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 138.0, 673.0, 184.0, 68.0 ]
+					"patching_rect" : [ 138.0, 696.0, 184.0, 68.0 ]
 				}
 
 			}
@@ -3668,8 +3416,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 84.0, 547.0, 162.0, 22.0 ],
-					"text" : "voice-alligator @voices 1024"
+					"patching_rect" : [ 84.0, 547.0, 171.0, 22.0 ],
+					"text" : "voice-alligator 1024 @debug 0"
 				}
 
 			}
@@ -3786,6 +3534,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-6", 0 ],
+					"hidden" : 1,
 					"source" : [ "obj-2", 0 ]
 				}
 
@@ -3808,6 +3557,30 @@
 				"patchline" : 				{
 					"destination" : [ "obj-9", 2 ],
 					"source" : [ "obj-22", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-6", 0 ],
+					"hidden" : 1,
+					"source" : [ "obj-23", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-6", 0 ],
+					"hidden" : 1,
+					"source" : [ "obj-24", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-33", 1 ],
+					"hidden" : 1,
+					"source" : [ "obj-26", 0 ]
 				}
 
 			}
@@ -3841,8 +3614,24 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-6", 0 ],
+					"hidden" : 1,
+					"source" : [ "obj-31", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-6", 0 ],
+					"hidden" : 1,
+					"source" : [ "obj-32", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-6", 1 ],
-					"midpoints" : [ 158.0, 607.0, 296.5, 607.0, 296.5, 536.0, 236.5, 536.0 ],
+					"midpoints" : [ 158.0, 607.0, 296.5, 607.0, 296.5, 536.0, 245.5, 536.0 ],
 					"source" : [ "obj-33", 1 ]
 				}
 
@@ -3886,6 +3675,13 @@
 				"patchline" : 				{
 					"destination" : [ "obj-30", 0 ],
 					"source" : [ "obj-4", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-91", 0 ],
+					"source" : [ "obj-40", 0 ]
 				}
 
 			}
@@ -4204,14 +4000,7 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-91", 0 ],
-					"source" : [ "obj-92", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-92", 0 ],
+					"destination" : [ "obj-40", 0 ],
 					"source" : [ "obj-93", 0 ]
 				}
 
@@ -4263,8 +4052,6 @@
 			}
  ],
 		"parameters" : 		{
-			"obj-1::obj-36" : [ "vst~", "vst~", 0 ],
-			"obj-1::obj-43::obj-2" : [ "pastebang", "pastebang", 0 ],
 			"obj-34::obj-109" : [ "number[5]", "number[5]", 0 ],
 			"obj-34::obj-83" : [ "number[6]", "number[6]", 0 ],
 			"obj-63" : [ "number[3]", "number[3]", 0 ],
@@ -4281,22 +4068,9 @@
 		}
 ,
 		"dependency_cache" : [ 			{
-				"name" : "LexPlate.maxsnap",
-				"bootpath" : "~/Documents/Max 8/Snapshots",
-				"patcherrelativepath" : "../../Snapshots",
-				"type" : "mx@s",
-				"implicit" : 1
-			}
-, 			{
 				"name" : "example-voice.maxpat",
-				"bootpath" : "~/Documents/Max 8/Packages/voice-alligator-package",
+				"bootpath" : "~/Documents/Max 9/Packages/voice-alligator-package",
 				"patcherrelativepath" : ".",
-				"type" : "JSON",
-				"implicit" : 1
-			}
-, 			{
-				"name" : "pastebang.maxpat",
-				"bootpath" : "C74:/packages/BEAP/misc",
 				"type" : "JSON",
 				"implicit" : 1
 			}
