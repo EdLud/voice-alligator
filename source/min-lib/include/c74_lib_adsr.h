@@ -22,6 +22,24 @@ namespace c74::min::lib {
             release,
             retrigger,      // start a new envelope while the current one is still active
             early_release,  // release before the sustain has been reached
+            /* EDIS:
+            ms declick_time = 5; //default 5
+
+            if we get a note on while the adsr is active and we're not dealing with a legato note, we declick: 
+            -set declick_active to true
+            -go to 0 in (declick_time) 
+            -set declick_active to false
+            -start attack, go to velocity
+
+            if we receive another note on while declick_active is true:
+
+            -just set new velocity, the de-clicking operation will finish and go to that new velocity
+
+            if we receive a note-off during de-clicking:
+            -wait until de-clicking is at 0
+            -go back to value before de-clicking started in (declick_time) 
+            -go to release phase
+            */
         };
 
 
@@ -114,7 +132,7 @@ namespace c74::min::lib {
         /// @param	attack_curve		The attack slope as a +/- percentage.
 
         void attack_curve(number attack_curve) {
-            m_attack_exp = attack_curve;
+            m_attack_exp = attack_curve * 100;
         }
 
 
@@ -131,7 +149,7 @@ namespace c74::min::lib {
         /// @param	decay_curve			The decay slope as a +/- percentage.
 
         void decay_curve(number decay_curve) {
-            m_decay_exp = decay_curve;
+            m_decay_exp = decay_curve * 100;
         }
 
 
@@ -148,7 +166,7 @@ namespace c74::min::lib {
         /// @param	release_curve		The release slope as a +/- percentage.
 
         void release_curve(number release_curve) {
-            m_release_exp = release_curve;
+            m_release_exp = release_curve * 100;
         }
 
 
@@ -213,7 +231,7 @@ namespace c74::min::lib {
             switch (m_stage) {
                 case adsr_stage::attack:
                     m_attack_current += m_attack_step;
-                    ++m_index;
+                    ++m_index; 
                     if (m_index == m_attack_step_count) {
                         output = m_peak_cached;
                         m_stage = adsr_stage::decay;
@@ -245,7 +263,7 @@ namespace c74::min::lib {
                     m_release_current += m_release_step;
                     ++m_index;
                     if (m_index >= m_release_step_count) {
-                        output = m_end_cached;
+                        output = m_end_cached; //0 in case of traditional volume ADSR
                         m_stage = adsr_stage::inactive;
                         m_active = false;
                     }
@@ -281,7 +299,7 @@ namespace c74::min::lib {
                             output = m_initial_cached;
                         }
                         else {
-                            // we aren't returning to zero -- instead starting in the middle of the attack ftom the value where already are
+                            // we aren't returning to zero -- instead starting in the middle of the attack from the value where we already are
 
                             number attack_current {};
                             number attack_curved {};
