@@ -26,6 +26,44 @@ public:
     outlet<> out1 {this, "(signal) envelope", "signal"};
     outlet<> out2 {this, "(signal) new envelope trigger", "signal"};
     outlet<> out3 {this, "(message) mute outlet"};
+    
+  void perform(signal<vector<double>> output_signal, signal<vector<double>> active_signal) {
+        for (size_t i = 0; i < output_signal.size(); ++i) {
+            // Call lib::adsr::operator() to compute the envelope
+            output_signal[i] = lib::adsr::operator()();
+
+            // Call active() and assign the result to the active_signal
+            active_signal[i] = active() ? 1.0 : 0.0;
+        }
+    }
+
+    // Audio processing connection
+    message<threadsafe::audio> dspsetup {this, "dspsetup",
+        MIN_FUNCTION {
+            // Ensure DSP setup for two outlets
+            return {};
+        }
+    };
+
+    // DSP processing
+    message<threadsafe::audio> dsp {this, "dsp",
+        MIN_FUNCTION {
+            auto perform_fn = [this](audio_bundle input, audio_bundle output) {
+                // Access the audio outputs
+                auto out1_signal = output.samples(0); // First outlet (envelope signal)
+                auto out2_signal = output.samples(1); // Second outlet (active status)
+
+                // Perform the signal processing
+                perform(out1_signal, out2_signal);
+            };
+
+            // Bind the perform function to the DSP chain
+            return {perform_fn};
+        }
+    };
+};
+
+
 
     argument<number> attack_arg { this, "attack", "Initial frequency in hertz.",
         MIN_ARGUMENT_FUNCTION {

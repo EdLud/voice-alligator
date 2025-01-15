@@ -79,7 +79,7 @@ struct Note
     {
         // Find the iterator pointing to the lowest mpitch
         auto it = std::min_element(mpitch.begin(), mpitch.end());
-        size_t index = it - mpitch.begin(); // Calculate the index
+        size_t index = it - mpitch.begin(); // Calculate the index (according to chatGPT this )
 
         // Erase entries from both mpitch and freq
         mpitch.erase(mpitch.begin() + index);
@@ -95,16 +95,16 @@ class Scalearray
         arrsize = size;
     }
 
-    void fillContainer(int size, double basefrequency) {
+    void fillContainer(int size) {
         data.resize(size); 
         for (int i = 0; i < size; ++i) {
-            data[i] = static_cast<double>((basefrequency) * exp(0.057762265 * (i - 69))); // Fill with MTOF
+            data[i] = static_cast<double>(440 * (exp(0.057762265 * (i - 69)))); // Fill with MTOF
         }
     }
 
-    void set_value(int index, double value, double basefrequency) {
+    void set_value(int index, double value) {
         if (index >= 0 && index < arrsize) {
-            data[index] = value  * (440 / basefrequency); 
+            data[index] = value; 
         } 
     }
 
@@ -139,7 +139,7 @@ attribute<bool>                     active{this, "active", true, description{"Ac
 attribute<bool>                     debug{this, "debug", false, description{"Debug on / off"}};
 attribute<bool>                     mono_steals_release_attr{this, "mono_steals_release", true, description{"If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default true)"}};
 attribute<bool>                     hold_attr{this, "hold", false, description{"Hold on / off"}};
-attribute<double>                   basefreq{this, "basefreq", 440.0, description{"Standard A, (default 440.0 hz) "}};
+attribute<double>                   basefreq_attr{this, "basefreq", 440.0f, description{"Standard A, (default 440.0 hz) "}};
 attribute<bool>                     steal{this, "steal", true, description{"Steal on / off (default true)"}};
 
 int stealCase = 1;  //set at different places in the code, used in a switch case in the findNoteToSteal function.
@@ -361,7 +361,7 @@ setter
         {
             int maxsize = args[0];
             scalearray.setSize(maxsize);
-            scalearray.fillContainer(maxsize, basefreq);
+            scalearray.fillContainer(maxsize);
             return {maxsize};
         }
     }
@@ -448,7 +448,7 @@ Note newNote(int mpitch, int vel)
     if((output_mode == output_mode::freq) && scalearray.get_value(mpitch))
     {
         auto value = scalearray.get_value(mpitch);
-        newnote.freq.push_back(static_cast<double>(*value)); //why weird conversion?
+        newnote.freq.push_back(static_cast<double>(*value) * (basefreq_attr / 440));
     }
 
     else
@@ -484,9 +484,8 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
 
 void nonLockOutputFunction(Note &note, bool noteon, bool steal, bool flagsonly = false, bool mononoteon = false)
 {
-    // in this context "note on" means something different than in other functions:
-    // a note-off to [voice-alligator] can be a note-on if there is still a key pressed in monophony.
-    // if(blockOutlet){return;}
+    // in this context "note on" means something different than in other contexts:
+    // a note-off to [voice-alligator] will be a note-on if there is still a key on the same channel pressed in monophony.
     if (noteon)
     {
         out1.send("target", note.target);
@@ -556,7 +555,7 @@ void outputFunction(Note &note, bool noteon, bool steal, lock &lock, bool flagso
 {
     //in this context "note on" means something different than in other functions:
     // a mono note-off to [voice-alligator] can be a note-on.
-    // if(blockOutlet){return;}
+
     if (noteon)
     {
         lock.unlock();
@@ -869,11 +868,10 @@ void handleNoteOnMono(Note &note, lock &lock)
         note.monoflag = 1;
         active_voices.push_back(note);
         if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new mono note to active_voices" << endl;}
-        outputFunction(note, 1, 0, lock); // -> spiele neue note mit mono flag 1, freiem target und steal 0
+        outputFunction(note, 1, 0, lock);
         return;
     }
     // CASE: NO FREE VOICE AVAILABLE, LOOK FOR STEALING CANDIDATES
-    //       ...wenn kein freies target da ist schaue ob in active_voices eine stimme mit mono flag 0 spielt (müsste eigentlich), wenn ja:
     else
     {
         Note *noteToSteal = findNoteToSteal(note);
@@ -917,7 +915,6 @@ void handleNoteOnPoly(Note &note, lock &lock)
         inactive_voices.pop();
         note.target = freeVoice;
         note.monoflag = 0;
-        // if(!note.sequencerNoteFlag)note.monoflag = 0;
         active_voices.push_back(note);
         if(debug){cout << "Found inactive voice with target " << freeVoice << " and pushed new note with mpitch " << note.mpitch.back() << " to active_voices" << endl;}
         outputFunction(note, 1, 0, lock); // -> spiele neue note mit freiem target, mono flag 0 und steal 0
@@ -935,7 +932,6 @@ void handleNoteOnPoly(Note &note, lock &lock)
             noteToSteal->channel = note.channel;
             noteToSteal->releaseflag = false;
             noteToSteal->holdflag = false;
-            // if(!note.sequencerNoteFlag)noteToSteal->monoflag = false;
             noteToSteal->monoflag = false;
 
             // Find the index of the element
@@ -1146,7 +1142,7 @@ function scaleDefineFunction = MIN_FUNCTION{
         if(scale_fill_attr || !size) //if a scale_def message without args was send, we default to MTOF
         {
             if(debug){cout << "filled the scale array" << endl;}
-            scalearray.fillContainer(scalearray_maxsize_attr, basefreq);
+            scalearray.fillContainer(scalearray_maxsize_attr);
         }
         else
         {
@@ -1165,11 +1161,11 @@ function scaleDefineFunction = MIN_FUNCTION{
                 
                 if(scale_def_mode == scale_def_mode::mpitch)
                 {
-                    scalearray.set_value(index, (440 * exp(0.057762265 * (value - 69))), basefreq);
+                    scalearray.set_value(index, (440 * exp(0.057762265 * (value - 69))));
                 }
                 else if(scale_def_mode == scale_def_mode::freq)
                 {
-                    scalearray.set_value(index, value, basefreq);
+                    scalearray.set_value(index, value);
                 }
             } 
             else {

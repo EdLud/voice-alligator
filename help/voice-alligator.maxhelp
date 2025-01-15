@@ -2505,7 +2505,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 373.0, 361.0, 339.0, 87.0 ],
-									"text" : "What happens when a monophony note A is in release and a new note B is played?\nmono_steals_release 1: note B \"steals\" note A, and produces a pitch_change.\nmono_steals_release 0: = note B sounds on a new voice, A is unaffected",
+									"text" : "What happens when a monophony note A is in release and a new note B is played?\nmono_steals_release 1: note B \"steals\" note A, and produces a pitch change.\nmono_steals_release 0: = note B sounds on a new voice, A is unaffected",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
 
@@ -5260,6 +5260,109 @@
 										"assistshowspatchername" : 0,
 										"boxes" : [ 											{
 												"box" : 												{
+													"hidden" : 1,
+													"id" : "obj-56",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 1,
+													"outlettype" : [ "float" ],
+													"patching_rect" : [ 702.0, 148.0, 40.0, 22.0 ],
+													"text" : "* 100."
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"hidden" : 1,
+													"id" : "obj-52",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 1,
+													"outlettype" : [ "float" ],
+													"patching_rect" : [ 757.0, 134.0, 40.0, 22.0 ],
+													"text" : "* 620."
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"hidden" : 1,
+													"id" : "obj-49",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 1,
+													"outlettype" : [ "int" ],
+													"patching_rect" : [ 874.0, 144.0, 29.5, 22.0 ],
+													"text" : "i"
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"hidden" : 1,
+													"id" : "obj-35",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 1,
+													"outlettype" : [ "float" ],
+													"patching_rect" : [ 874.0, 110.0, 34.0, 22.0 ],
+													"text" : "* 63."
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"hidden" : 1,
+													"id" : "obj-30",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 1,
+													"outlettype" : [ "float" ],
+													"patching_rect" : [ 828.0, 108.0, 33.0, 22.0 ],
+													"text" : "* 10."
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"hidden" : 1,
+													"id" : "obj-18",
+													"maxclass" : "newobj",
+													"numinlets" : 2,
+													"numoutlets" : 1,
+													"outlettype" : [ "float" ],
+													"patching_rect" : [ 828.0, 77.0, 29.5, 22.0 ],
+													"text" : "!/ 1."
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"format" : 6,
+													"id" : "obj-16",
+													"maxclass" : "flonum",
+													"numinlets" : 1,
+													"numoutlets" : 2,
+													"outlettype" : [ "", "bang" ],
+													"parameter_enable" : 0,
+													"patching_rect" : [ 828.0, 48.0, 50.0, 22.0 ]
+												}
+
+											}
+, 											{
+												"box" : 												{
+													"id" : "obj-13",
+													"maxclass" : "message",
+													"numinlets" : 2,
+													"numoutlets" : 1,
+													"outlettype" : [ "" ],
+													"patching_rect" : [ 565.0, 340.0, 32.0, 22.0 ],
+													"text" : "print"
+												}
+
+											}
+, 											{
+												"box" : 												{
 													"id" : "obj-26",
 													"maxclass" : "newobj",
 													"numinlets" : 2,
@@ -5558,7 +5661,7 @@
 												"box" : 												{
 													"id" : "obj-19",
 													"maxclass" : "newobj",
-													"numinlets" : 1,
+													"numinlets" : 2,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patcher" : 													{
@@ -5601,6 +5704,31 @@
 														"subpatcher_template" : "Default Max 7",
 														"assistshowspatchername" : 0,
 														"boxes" : [ 															{
+																"box" : 																{
+																	"id" : "obj-6",
+																	"maxclass" : "message",
+																	"numinlets" : 2,
+																	"numoutlets" : 1,
+																	"outlettype" : [ "" ],
+																	"patching_rect" : [ 192.0, 147.0, 31.0, 22.0 ],
+																	"text" : "stop"
+																}
+
+															}
+, 															{
+																"box" : 																{
+																	"comment" : "",
+																	"id" : "obj-1",
+																	"index" : 2,
+																	"maxclass" : "inlet",
+																	"numinlets" : 0,
+																	"numoutlets" : 1,
+																	"outlettype" : [ "float" ],
+																	"patching_rect" : [ 194.0, 93.0, 30.0, 30.0 ]
+																}
+
+															}
+, 															{
 																"box" : 																{
 																	"id" : "obj-14",
 																	"maxclass" : "newobj",
@@ -5676,6 +5804,13 @@
  ],
 														"lines" : [ 															{
 																"patchline" : 																{
+																	"destination" : [ "obj-13", 2 ],
+																	"source" : [ "obj-1", 0 ]
+																}
+
+															}
+, 															{
+																"patchline" : 																{
 																	"destination" : [ "obj-12", 0 ],
 																	"source" : [ "obj-11", 0 ]
 																}
@@ -5716,6 +5851,13 @@
 																}
 
 															}
+, 															{
+																"patchline" : 																{
+																	"destination" : [ "obj-13", 0 ],
+																	"source" : [ "obj-6", 0 ]
+																}
+
+															}
  ]
 													}
 ,
@@ -5735,7 +5877,7 @@
 												"box" : 												{
 													"id" : "obj-17",
 													"maxclass" : "newobj",
-													"numinlets" : 2,
+													"numinlets" : 3,
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patcher" : 													{
@@ -5778,6 +5920,19 @@
 														"subpatcher_template" : "Default Max 7",
 														"assistshowspatchername" : 0,
 														"boxes" : [ 															{
+																"box" : 																{
+																	"comment" : "",
+																	"id" : "obj-1",
+																	"index" : 3,
+																	"maxclass" : "inlet",
+																	"numinlets" : 0,
+																	"numoutlets" : 1,
+																	"outlettype" : [ "float" ],
+																	"patching_rect" : [ 243.0, 82.0, 30.0, 30.0 ]
+																}
+
+															}
+, 															{
 																"box" : 																{
 																	"id" : "obj-4",
 																	"linecount" : 8,
@@ -5889,6 +6044,13 @@
 															}
  ],
 														"lines" : [ 															{
+																"patchline" : 																{
+																	"destination" : [ "obj-13", 2 ],
+																	"source" : [ "obj-1", 0 ]
+																}
+
+															}
+, 															{
 																"patchline" : 																{
 																	"destination" : [ "obj-12", 0 ],
 																	"source" : [ "obj-11", 0 ]
@@ -6163,6 +6325,13 @@
 											}
 , 											{
 												"patchline" : 												{
+													"destination" : [ "obj-10", 0 ],
+													"source" : [ "obj-13", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
 													"destination" : [ "obj-19", 0 ],
 													"source" : [ "obj-14", 0 ]
 												}
@@ -6170,8 +6339,53 @@
 											}
 , 											{
 												"patchline" : 												{
+													"destination" : [ "obj-18", 0 ],
+													"hidden" : 1,
+													"order" : 1,
+													"source" : [ "obj-16", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-35", 0 ],
+													"hidden" : 1,
+													"order" : 0,
+													"source" : [ "obj-16", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
 													"destination" : [ "obj-20", 0 ],
 													"source" : [ "obj-17", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-30", 0 ],
+													"hidden" : 1,
+													"order" : 0,
+													"source" : [ "obj-18", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-52", 0 ],
+													"hidden" : 1,
+													"order" : 1,
+													"source" : [ "obj-18", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-56", 0 ],
+													"hidden" : 1,
+													"order" : 2,
+													"source" : [ "obj-18", 0 ]
 												}
 
 											}
@@ -6233,6 +6447,14 @@
 											}
 , 											{
 												"patchline" : 												{
+													"destination" : [ "obj-9", 1 ],
+													"hidden" : 1,
+													"source" : [ "obj-30", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
 													"destination" : [ "obj-10", 1 ],
 													"midpoints" : [ 418.0, 401.5, 546.0, 401.5, 546.0, 335.5, 437.5, 335.5 ],
 													"source" : [ "obj-33", 1 ]
@@ -6252,6 +6474,14 @@
 													"destination" : [ "obj-36", 0 ],
 													"order" : 1,
 													"source" : [ "obj-33", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-49", 0 ],
+													"hidden" : 1,
+													"source" : [ "obj-35", 0 ]
 												}
 
 											}
@@ -6294,6 +6524,30 @@
 												"patchline" : 												{
 													"destination" : [ "obj-46", 0 ],
 													"source" : [ "obj-42", 1 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-25", 4 ],
+													"hidden" : 1,
+													"source" : [ "obj-49", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-19", 1 ],
+													"hidden" : 1,
+													"source" : [ "obj-52", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-17", 2 ],
+													"hidden" : 1,
+													"source" : [ "obj-56", 0 ]
 												}
 
 											}
@@ -6353,7 +6607,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 776.0, 368.0, 182.0, 30.0 ],
+									"patching_rect" : [ 776.0, 368.0, 193.0, 33.0 ],
 									"proportion" : 0.5
 								}
 
@@ -6376,8 +6630,8 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 776.0, 367.0, 183.0, 20.0 ],
-									"text" : "[\"notes\", pitch, velocity, realpitch]"
+									"patching_rect" : [ 776.0, 367.0, 193.0, 20.0 ],
+									"text" : "[\"notes\", mpitch, velocity, realpitch]"
 								}
 
 							}
@@ -6385,12 +6639,12 @@
 								"box" : 								{
 									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
 									"id" : "obj-68",
-									"linecount" : 10,
+									"linecount" : 14,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 403.0, 452.0, 141.0 ],
-									"text" : "This will actually set the pitch of the signal generator in the voice and (in most cases) start the ADSR. Depending on the attribute output_mode the realpitch will either be a frequency in Hertz as float or a MIDI note as integer (ignoring scale definitions).\n\nNot every event has the third message. If you release a key while hold or sustain is on, the note off will be ignored. In this case we only send out the \"target\" message and the flags. This type of event is also ignored by our Note Looper. The Note Looper automatically ends all notes after each iteration, so hold / sustain notes that were started but not ended during recording willl be automatically ended anyway.",
+									"patching_rect" : [ 751.0, 403.0, 455.0, 194.0 ],
+									"text" : "Mpitch is only used to match note on/offs in the Note Looper. Realpitch is the actual frequency that was recorded by the Note Looper. In the voice we're not actually using mpitch.\n\nSo this message will actually set the pitch of the signal generator in the voice and (in most cases) start the ADSR. Depending on the attribute output_mode the realpitch will either be a frequency in Hertz as float or a MIDI note as integer (ignoring scale definitions).\n\nNot every event has the third message. If you release a key while hold or sustain is on, the note off will be ignored. In this case we only send out the \"target\" message and the flags. This type of event is also ignored by our Note Looper. The Note Looper automatically ends all notes after each iteration, so hold / sustain notes that were started but not ended during recording willl be automatically ended anyway.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
 
@@ -6795,7 +7049,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -6826,11 +7080,23 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-22",
+									"maxclass" : "number",
+									"numinlets" : 1,
+									"numoutlets" : 2,
+									"outlettype" : [ "", "bang" ],
+									"parameter_enable" : 0,
+									"patching_rect" : [ 672.5, 432.0, 50.0, 22.0 ]
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"id" : "obj-53",
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 685.0, 397.0, 325.0, 20.0 ],
+									"patching_rect" : [ 692.0, 397.0, 325.0, 20.0 ],
 									"text" : "<Note looper will end all notes of it's channel on end of loop"
 								}
 
@@ -6853,9 +7119,9 @@
 									"maxclass" : "newobj",
 									"numinlets" : 2,
 									"numoutlets" : 2,
-									"outlettype" : [ "bang", "" ],
-									"patching_rect" : [ 636.0, 396.0, 47.0, 22.0 ],
-									"text" : "sel end"
+									"outlettype" : [ "", "" ],
+									"patching_rect" : [ 636.0, 396.0, 59.0, 22.0 ],
+									"text" : "route end"
 								}
 
 							}
@@ -8181,7 +8447,16 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-22", 0 ],
+									"order" : 0,
+									"source" : [ "obj-41", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-48", 0 ],
+									"order" : 1,
 									"source" : [ "obj-41", 0 ]
 								}
 
@@ -17208,7 +17483,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -17284,7 +17559,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 35.0, 505.0, 124.0, 24.0 ],
-									"text" : "62 0"
+									"text" : "mono 0"
 								}
 
 							}
@@ -23051,7 +23326,6 @@
 , 															{
 																"box" : 																{
 																	"id" : "obj-31",
-																	"linecount" : 2,
 																	"maxclass" : "newobj",
 																	"numinlets" : 1,
 																	"numoutlets" : 0,
@@ -24129,7 +24403,6 @@
 , 																			{
 																				"box" : 																				{
 																					"id" : "obj-2",
-																					"linecount" : 2,
 																					"maxclass" : "newobj",
 																					"numinlets" : 0,
 																					"numoutlets" : 1,
@@ -24304,7 +24577,7 @@
 																					"numoutlets" : 1,
 																					"outlettype" : [ "" ],
 																					"patching_rect" : [ 51.0, 516.0, 114.0, 22.0 ],
-																					"text" : "notelooper play 0"
+																					"text" : "mono 0"
 																				}
 
 																			}
@@ -24975,7 +25248,6 @@
 , 																			{
 																				"box" : 																				{
 																					"id" : "obj-33",
-																					"linecount" : 2,
 																					"maxclass" : "newobj",
 																					"numinlets" : 1,
 																					"numoutlets" : 0,
@@ -25462,7 +25734,7 @@
 													"presentation" : 1,
 													"presentation_linecount" : 3,
 													"presentation_rect" : [ 505.0, 94.0, 528.0, 53.0 ],
-													"text" : "The player can therefore play an evolving glissando chord. Play the starting note A#, then a second note that will be the glide's target, then first release A#, then the target note. Repeat this for different end pitches.",
+													"text" : "Now the same thing is repeated, only this time left hand notes are recorded into the Note Looper. The Note Looper has a lower priority and can't steal notes from the player, so notes get lost.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -25480,7 +25752,7 @@
 													"presentation" : 1,
 													"presentation_linecount" : 2,
 													"presentation_rect" : [ 502.0, 51.0, 534.0, 38.0 ],
-													"text" : "With glidetime and attack both set to 30 seconds we get long, swelling notes that also glide in pitch. legato_retrigger is set to 0, this prevents a retriggering of the ADSR.",
+													"text" : "Sustained notes have a higher priority with regards to stealing than notes in release. So what we actually hear are shorter notes for the left hand, but all note-ons are still audible..",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -25490,15 +25762,15 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-75",
-													"linecount" : 9,
+													"linecount" : 8,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 580.0, 657.0, 131.0, 147.0 ],
+													"patching_rect" : [ 580.0, 657.0, 131.0, 131.0 ],
 													"presentation" : 1,
 													"presentation_linecount" : 2,
 													"presentation_rect" : [ 505.0, 11.0, 514.0, 38.0 ],
-													"text" : "With a long attack time (30 s) and (hold) turned on, a key that is pressed shorter than the attack+decay time will still trigger the whole ADS part of the ADSR.",
+													"text" : "Demo of note priorities. First use the left hand to play fast and short notes with a relatively long release. Then play sustained notes with the right hand.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -26157,7 +26429,6 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-42",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -26173,7 +26444,6 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.105882352941176, 0.090196078431373, 0.647058823529412, 1.0 ],
-													"hidden" : 1,
 													"id" : "obj-41",
 													"knobcolor" : [ 0.43921568627451, 0.490196078431373, 0.494117647058824, 1.0 ],
 													"knobshape" : 5,
@@ -26479,7 +26749,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.011764705882353, 0.443137254901961, 0.015686274509804, 1.0 ],
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-125",
 													"maxclass" : "number",
 													"maximum" : 3,
@@ -26499,7 +26768,6 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-123",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -26515,7 +26783,6 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-121",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -26531,7 +26798,6 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.694117647058824, 0.0, 0.0, 1.0 ],
-													"hidden" : 1,
 													"id" : "obj-23",
 													"maxclass" : "toggle",
 													"numinlets" : 1,
@@ -27807,7 +28073,7 @@
  ]
 									}
 ,
-									"patching_rect" : [ 177.0, 37.0, 1070.0, 434.0 ],
+									"patching_rect" : [ 177.0, 22.0, 1070.0, 434.0 ],
 									"viewvisibility" : 1
 								}
 

@@ -6,7 +6,7 @@
 
 #pragma once
 
-namespace c74::min::lib {
+namespace alligator {
     
 
     ///	Generate an <a href="https://en.wikipedia.org/wiki/Synthesizer#Attack_Decay_Sustain_Release_.28ADSR.29_envelope">ADSR</a> envelope.
@@ -367,6 +367,7 @@ namespace c74::min::lib {
         int	m_index { 0xFFFFFF };
 
         adsr_stage m_stage { adsr_stage::inactive };
+
         bool	        m_active { false };
         envelope_mode   m_envelope_mode { envelope_mode::adsr };
         sample          m_last_output {};

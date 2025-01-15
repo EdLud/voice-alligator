@@ -40,12 +40,47 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-42",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 685.5, 256.0, 56.0, 20.0 ],
+					"text" : "<velocity"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-26",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 654.0, 255.0, 29.5, 22.0 ],
+					"text" : "$1"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-18",
+					"linecount" : 5,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 24.5, 129.0, 150.0, 74.0 ],
+					"text" : "mpitch gets ignored in this voice. To understand why, read the Tab \"Note Types and Channels\" in the helpfile of voice-alligator"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-4",
 					"maxclass" : "newobj",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 210.0, 514.5, 43.0, 22.0 ],
+					"patching_rect" : [ 208.0, 515.0, 43.0, 22.0 ],
 					"text" : "cycle~"
 				}
 
@@ -57,7 +92,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 194.0, 113.0, 98.0, 22.0 ],
+					"patching_rect" : [ 199.0, 113.0, 98.0, 22.0 ],
 					"text" : "s #0-notes"
 				}
 
@@ -491,7 +526,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 365.0, 95.0, 275.0, 33.0 ],
+									"patching_rect" : [ 365.0, 95.0, 410.0, 33.0 ],
 									"text" : "<glide only on note on. Note that a note-off can be a note on in monophony context"
 								}
 
@@ -537,7 +572,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 349.0, 45.0, 40.0, 20.0 ],
+									"patching_rect" : [ 349.0, 45.0, 32.0, 20.0 ],
 									"text" : "note"
 								}
 
@@ -558,12 +593,11 @@
 								"box" : 								{
 									"color" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 1.0 ],
 									"id" : "obj-69",
-									"linecount" : 3,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 284.0, 67.0, 140.0, 22.0 ],
+									"patching_rect" : [ 284.0, 67.0, 153.0, 22.0 ],
 									"text" : "r #0-legatoSequence"
 								}
 
@@ -955,12 +989,11 @@
 								"box" : 								{
 									"color" : [ 0.16078431372549, 0.682352941176471, 1.0, 1.0 ],
 									"id" : "obj-42",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 452.0, 128.0, 100.0, 22.0 ],
+									"patching_rect" : [ 452.0, 128.0, 107.0, 22.0 ],
 									"text" : "r #0-params"
 								}
 
@@ -1228,7 +1261,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 130.0, 132.0, 55.0, 22.0 ],
+					"patching_rect" : [ 172.0, 145.0, 55.0, 22.0 ],
 					"text" : "zl slice 1"
 				}
 
@@ -1306,7 +1339,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 268.0, 514.0, 39.0, 23.0 ],
+					"patching_rect" : [ 266.0, 514.0, 39.0, 23.0 ],
 					"text" : "saw~"
 				}
 
@@ -1461,7 +1494,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 1030.0, 83.0, 192.0, 74.0 ],
+					"patching_rect" : [ 1031.0, 79.0, 192.0, 74.0 ],
 					"text" : "<the steal flag in combination with the mono flag gives us the information that our note is part of a legato sequence and was not the first note in that sequence"
 				}
 
@@ -1600,14 +1633,61 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-24",
+									"linecount" : 3,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 528.0, 356.0, 136.0, 47.0 ],
+									"text" : "<only pitchbend if we're dealing with a non-hold, non-sequencer note"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-18",
+									"linecount" : 2,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 155.5, 245.0, 189.0, 33.0 ],
+									"presentation_linecount" : 2,
+									"text" : "<on note on, immediatly go to the current position of the pitchwheel"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-14",
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 155.5, 144.0, 49.0, 20.0 ],
+									"text" : "velocity"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-4",
+									"maxclass" : "message",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 124.0, 143.0, 29.5, 22.0 ],
+									"text" : "$2"
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"color" : [ 0.580392156862745, 0.572549019607843, 0.72156862745098, 1.0 ],
 									"id" : "obj-5",
-									"linecount" : 3,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 236.0, 106.0, 59.0, 49.0 ],
+									"patching_rect" : [ 236.0, 80.0, 160.25, 22.0 ],
 									"text" : "r #0-flags"
 								}
 
@@ -1619,7 +1699,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "float" ],
-									"patching_rect" : [ 419.0, 311.0, 29.5, 22.0 ],
+									"patching_rect" : [ 124.0, 244.0, 29.5, 22.0 ],
 									"text" : "f 1."
 								}
 
@@ -1631,21 +1711,8 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 389.0, 413.0, 150.0, 33.0 ],
-									"text" : "< in case of sequencer note, set detune ratio to 1"
-								}
-
-							}
-, 							{
-								"box" : 								{
-									"format" : 6,
-									"id" : "obj-11",
-									"maxclass" : "flonum",
-									"numinlets" : 1,
-									"numoutlets" : 2,
-									"outlettype" : [ "", "bang" ],
-									"parameter_enable" : 0,
-									"patching_rect" : [ 148.0, 178.0, 50.0, 22.0 ]
+									"patching_rect" : [ 383.0, 413.0, 161.0, 33.0 ],
+									"text" : "< in case of sequencer note, set ratio to 1"
 								}
 
 							}
@@ -1691,8 +1758,8 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 64.0, 111.0, 40.0, 20.0 ],
-									"text" : "signal"
+									"patching_rect" : [ 56.0, 111.0, 61.0, 20.0 ],
+									"text" : "frequency"
 								}
 
 							}
@@ -1702,7 +1769,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 152.0, 111.0, 32.0, 20.0 ],
+									"patching_rect" : [ 157.0, 111.0, 32.0, 20.0 ],
 									"text" : "note"
 								}
 
@@ -1768,18 +1835,6 @@
 							}
 , 							{
 								"box" : 								{
-									"id" : "obj-4",
-									"maxclass" : "newobj",
-									"numinlets" : 1,
-									"numoutlets" : 3,
-									"outlettype" : [ "int", "float", "float" ],
-									"patching_rect" : [ 124.0, 140.0, 67.0, 22.0 ],
-									"text" : "unpack i f f"
-								}
-
-							}
-, 							{
-								"box" : 								{
 									"comment" : "note",
 									"id" : "obj-3",
 									"index" : 2,
@@ -1809,8 +1864,8 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 693.0, 256.0, 268.0, 288.0 ],
-									"text" : "Since we have infos regarding diverse attributes of a single note in our note instance we can easily implement the following feature:\n\nWhen the player has turned on hold and releases a note, the note get's it's holdflag set to 1. We use this in this subpatch to lock the state of the pitchwheel for that note.\n\nThis is showcased in the holdAndPitchwheel example.\n\nSequencer Notes are also exempt from pitchwheel.\n\nOne could easily imagine using this to lock the state of all kinds of different parameters for hold and sequencer notes.\n\nOr use a different parameter setting for mono notes, if that's desired."
+									"patching_rect" : [ 698.0, 249.0, 268.0, 288.0 ],
+									"text" : "Since we have infos regarding diverse attributes of a single note in our note instance we can easily implement the following feature:\n\nWhen the player has turned on hold and releases a note, the note gets it's holdflag set to 1. We use this in this subpatch to lock the state of the pitchwheel for that note.\n\nThis is showcased in the holdAndPitchwheel example.\n\nSequencer Notes are also exempt from pitchwheel.\n\nOne could easily imagine using this to lock the state of all kinds of different parameters for hold and sequencer notes.\n\nOr use a different parameter setting for mono notes, if that's desired."
 								}
 
 							}
@@ -1829,12 +1884,11 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-57",
-									"linecount" : 3,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 600.0, 53.0, 85.0, 49.0 ],
+									"patching_rect" : [ 600.0, 53.0, 231.0, 22.0 ],
 									"text" : "r #0-params"
 								}
 
@@ -1869,7 +1923,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 2,
 									"outlettype" : [ "bang", "" ],
-									"patching_rect" : [ 148.0, 239.0, 34.0, 22.0 ],
+									"patching_rect" : [ 124.0, 205.0, 34.0, 22.0 ],
 									"text" : "sel 1"
 								}
 
@@ -1881,7 +1935,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
-									"patching_rect" : [ 148.0, 211.0, 29.5, 22.0 ],
+									"patching_rect" : [ 124.0, 177.0, 29.5, 22.0 ],
 									"text" : "!= 0"
 								}
 
@@ -1905,7 +1959,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "signal" ],
-									"patching_rect" : [ 32.0, 205.0, 34.0, 22.0 ],
+									"patching_rect" : [ 24.0, 205.0, 34.0, 22.0 ],
 									"text" : "*~ 1."
 								}
 
@@ -1979,7 +2033,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "signal" ],
-									"patching_rect" : [ 32.0, 106.0, 30.0, 30.0 ]
+									"patching_rect" : [ 24.0, 106.0, 30.0, 30.0 ]
 								}
 
 							}
@@ -1991,7 +2045,7 @@
 									"maxclass" : "outlet",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 32.0, 240.0, 30.0, 30.0 ]
+									"patching_rect" : [ 24.0, 240.0, 30.0, 30.0 ]
 								}
 
 							}
@@ -2007,13 +2061,6 @@
 								"patchline" : 								{
 									"destination" : [ "obj-10", 0 ],
 									"source" : [ "obj-101", 0 ]
-								}
-
-							}
-, 							{
-								"patchline" : 								{
-									"destination" : [ "obj-66", 0 ],
-									"source" : [ "obj-11", 0 ]
 								}
 
 							}
@@ -2047,8 +2094,8 @@
 							}
 , 							{
 								"patchline" : 								{
-									"destination" : [ "obj-11", 0 ],
-									"source" : [ "obj-4", 1 ]
+									"destination" : [ "obj-66", 0 ],
+									"source" : [ "obj-4", 0 ]
 								}
 
 							}
@@ -2192,7 +2239,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 208.0, 441.0, 102.5, 22.0 ],
+					"patching_rect" : [ 208.0, 441.0, 102.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -2262,10 +2309,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 209.0, 721.0, 42.0, 22.0 ],
-					"saved_object_attributes" : 					{
-						"attr_comment" : ""
-					}
-,
 					"text" : "out~ 1"
 				}
 
@@ -2339,18 +2382,6 @@
 					"outlettype" : [ "float" ],
 					"patching_rect" : [ 522.0, 477.0, 51.0, 22.0 ],
 					"text" : "/ 127."
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-23",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 2,
-					"outlettype" : [ "float", "float" ],
-					"patching_rect" : [ 166.0, 175.0, 61.0, 22.0 ],
-					"text" : "unpack f f"
 				}
 
 			}
@@ -2459,10 +2490,6 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 194.0, 10.0, 47.0, 23.0 ],
-					"saved_object_attributes" : 					{
-						"attr_comment" : ""
-					}
-,
 					"text" : "in 1"
 				}
 
@@ -2555,14 +2582,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-31", 1 ],
-					"midpoints" : [ 175.5, 216.0, 663.5, 216.0 ],
-					"source" : [ "obj-23", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-19", 4 ],
 					"source" : [ "obj-24", 3 ]
 				}
@@ -2593,6 +2612,13 @@
 				"patchline" : 				{
 					"destination" : [ "obj-19", 0 ],
 					"source" : [ "obj-25", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-31", 1 ],
+					"source" : [ "obj-26", 0 ]
 				}
 
 			}
@@ -2848,8 +2874,9 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-23", 0 ],
-					"order" : 1,
+					"destination" : [ "obj-26", 0 ],
+					"midpoints" : [ 217.5, 216.0, 663.5, 216.0 ],
+					"order" : 0,
 					"source" : [ "obj-68", 1 ]
 				}
 
@@ -2857,7 +2884,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-74", 0 ],
-					"order" : 0,
+					"order" : 1,
 					"source" : [ "obj-68", 1 ]
 				}
 
