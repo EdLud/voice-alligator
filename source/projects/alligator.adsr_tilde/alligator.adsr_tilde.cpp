@@ -7,7 +7,7 @@
 
 using namespace c74::min;
 
-class aAdsr : public object<aAdsr>, public lib::adsr, public sample_operator<0,2>{
+class aAdsr : public object<aAdsr>, public sample_operator<0,2>{
 
 public:
     MIN_DESCRIPTION	{ "adsr~ clone for alligator" };
@@ -26,118 +26,111 @@ public:
     outlet<> out1 {this, "(signal) envelope", "signal"};
     outlet<> out2 {this, "(signal) new envelope trigger", "signal"};
     outlet<> out3 {this, "(message) mute outlet"};
-    
-  void perform(signal<vector<double>> output_signal, signal<vector<double>> active_signal) {
-        for (size_t i = 0; i < output_signal.size(); ++i) {
-            // Call lib::adsr::operator() to compute the envelope
-            output_signal[i] = lib::adsr::operator()();
 
-            // Call active() and assign the result to the active_signal
-            active_signal[i] = active() ? 1.0 : 0.0;
-        }
+    c74::min::lib::adsr m_adsr;
+
+	timer <> outputMute1 { this, 
+        MIN_FUNCTION {
+			out3.send("mute",  1);
+			return {};
+		}
+    };
+
+    timer <> outputMute0 { this, 
+        MIN_FUNCTION {
+			out3.send("mute",  0);
+			return {};
+		}
+    };
+
+    samples<2> operator()() {
+    auto adsr_value = m_adsr(); // get from member variable
+    if(m_adsr.active() == 0.0 && m_active){
+        outputMute1.delay(0.0);
+        m_active = false;
     }
-
-    // Audio processing connection
-    message<threadsafe::audio> dspsetup {this, "dspsetup",
-        MIN_FUNCTION {
-            // Ensure DSP setup for two outlets
-            return {};
-        }
-    };
-
-    // DSP processing
-    message<threadsafe::audio> dsp {this, "dsp",
-        MIN_FUNCTION {
-            auto perform_fn = [this](audio_bundle input, audio_bundle output) {
-                // Access the audio outputs
-                auto out1_signal = output.samples(0); // First outlet (envelope signal)
-                auto out2_signal = output.samples(1); // Second outlet (active status)
-
-                // Perform the signal processing
-                perform(out1_signal, out2_signal);
-            };
-
-            // Bind the perform function to the DSP chain
-            return {perform_fn};
-        }
-    };
-};
-
+    return { adsr_value, m_adsr.active() };
+    }
 
 
     argument<number> attack_arg { this, "attack", "Initial frequency in hertz.",
         MIN_ARGUMENT_FUNCTION {
-            attack(arg, samplerate());
+            m_adsr.attack(arg, samplerate());
         }
     };
 
     argument<number> decay_arg { this, "decay", "Initial frequency in hertz.",
         MIN_ARGUMENT_FUNCTION {
-            decay(arg, samplerate());
+            m_adsr.decay(arg, samplerate());
         }
     };
 
     argument<number> sustain_arg { this, "sustain", "Initial frequency in hertz.",
         MIN_ARGUMENT_FUNCTION {
-            sustain(arg);
+            m_adsr.sustain(arg);
         }
     };
 
     argument<number> release_arg { this, "sustain", "Initial frequency in hertz.",
         MIN_ARGUMENT_FUNCTION {
-            release(arg, samplerate());
+            m_adsr.release(arg, samplerate());
         }
     };
 
     attribute<number> decklick_time {this, "declick_time", 5, description{"declick time in ms"}, setter {MIN_FUNCTION{
         int argval = args[0];
-        retrigger(argval, samplerate());
+        m_adsr.retrigger(argval, samplerate());
         return {argval} ;
     }}};
 
     function mainInletFunction = MIN_FUNCTION{
     if (inlet == 0) // notes: mpitch, vel, (channel), (monoflag), (realpitch)
     {
+
             double vel = args[0];
-            peak(vel);
-            if(vel) trigger(true);
-            else trigger(false);
+            m_adsr.peak(vel);
+            if(vel) {
+                out3.send("mute", 0);
+                m_adsr.trigger(true);
+                m_active = true;
+            }
+            else m_adsr.trigger(false);
             return {};
     }
     else if(inlet == 1)
     {
-        attack(args[0], samplerate());
+        m_adsr.attack(args[0], samplerate());
         return {};
     }
     else if(inlet == 2)
     {
-        decay(args[0], samplerate());
+        m_adsr.decay(args[0], samplerate());
         return {};
     }
     else if(inlet == 3)
     {
-        double sustainClamp = std::min((static_cast<double>(args[0])), 1.0);
-        sustain(sustainClamp);
+        double clippedSustain = std::min((static_cast<double>(args[0])), 1.0);
+        m_adsr.sustain(clippedSustain);
         return {};
     }
     else if(inlet == 4)
     {
-        release(args[0], samplerate());
+        m_adsr.release(args[0], samplerate());
         return {};
     }
     else if(inlet == 5)
     {
-        attack_curve(args[0]);
+        m_adsr.attack_curve(args[0]);
         return {};
     }
     else if(inlet == 6)
     {
-        decay_curve(args[0]);
+        m_adsr.decay_curve(args[0]);
         return {};
     }
     else if(inlet == 7)
     {
-        release_curve(args[0]);
+        m_adsr.release_curve(args[0]);
         return {};
     }
     else return {};
@@ -145,6 +138,10 @@ public:
 
     message<threadsafe::yes> number{this, "number", "Midipitch, Velocity, (channel), (monoflag), (realpitch)",
     mainInletFunction};
+
+    private:
+    bool m_active = false;
 };
+
 
 MIN_EXTERNAL(aAdsr);

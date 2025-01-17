@@ -40,6 +40,18 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-12",
+					"linecount" : 4,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 854.0, 279.0, 150.0, 60.0 ],
+					"text" : "channel 0 is the default value, meaning the value if no specific channel value is defined"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-3",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
@@ -208,7 +220,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 766.0, 178.0, 640.0, 480.0 ],
+						"rect" : [ 766.0, 178.0, 491.0, 545.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -237,6 +249,18 @@
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
+								"box" : 								{
+									"id" : "obj-9",
+									"linecount" : 5,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 276.0, 193.0, 150.0, 74.0 ],
+									"text" : "if the dict contains parameter value of our given channel, get it, if not, get value from channel 0"
+								}
+
+							}
+, 							{
 								"box" : 								{
 									"id" : "obj-1",
 									"maxclass" : "newobj",

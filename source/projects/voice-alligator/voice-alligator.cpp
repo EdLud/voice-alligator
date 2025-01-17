@@ -30,13 +30,13 @@ struct Note
     double vel;
     std::vector<double> freq;
     std::vector<int> mpitch;
-    int channel = 1;
+    int channel{1};
     int target;      // voice instance of poly~
-    bool monoflag = false;
-    bool sequencerNoteFlag = false; //if sequencer note: lock mono flag, don't set hold notes, don't be affected by sustain pedal
-    bool sustainflag = false;
-    bool holdflag = false;
-    bool releaseflag = false; // is note in release phase?
+    bool monoflag{false};
+    bool sequencerNoteFlag{false}; //if sequencer note: lock mono flag, don't set hold notes, don't be affected by sustain pedal
+    bool sustainflag{false};
+    bool holdflag{false};
+    bool releaseflag{false}; // is note in release phase?
 
     int return_lowest_mpitch() const {
         return *std::min_element(mpitch.begin(), mpitch.end());
@@ -79,7 +79,7 @@ struct Note
     {
         // Find the iterator pointing to the lowest mpitch
         auto it = std::min_element(mpitch.begin(), mpitch.end());
-        size_t index = it - mpitch.begin(); // Calculate the index (according to chatGPT this )
+        size_t index = it - mpitch.begin(); // Calculate the index
 
         // Erase entries from both mpitch and freq
         mpitch.erase(mpitch.begin() + index);
@@ -368,9 +368,9 @@ setter
 };
 
 function mainInletFunction = MIN_FUNCTION{
+    lock lock{m_mutex};
     if (inlet == 0) // notes: mpitch, vel, (channel), (monoflag), (realpitch)
     {
-        lock lock{m_mutex};
         int mpitch = args[0]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
         double vel = args[1];
         unsigned long argsize = args.size();
@@ -434,7 +434,7 @@ function mainInletFunction = MIN_FUNCTION{
     }
     else //inlet 2, from thispoly~
     {
-        fromPoly(args[0], args[1]);
+        fromPoly(args[0], args[1], lock);
     }
     return {};
 };
@@ -482,7 +482,7 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate)
     return nullptr;
 }
 
-void nonLockOutputFunction(Note &note, bool noteon, bool steal, bool flagsonly = false, bool mononoteon = false)
+void nonLockOutputFunction(const Note &note, bool noteon, bool steal, bool flagsonly = false, bool mononoteon = false)
 {
     // in this context "note on" means something different than in other contexts:
     // a note-off to [voice-alligator] will be a note-on if there is still a key on the same channel pressed in monophony.
@@ -551,7 +551,7 @@ void nonLockOutputFunction(Note &note, bool noteon, bool steal, bool flagsonly =
     }
 }
 
-void outputFunction(Note &note, bool noteon, bool steal, lock &lock, bool flagsonly = false, bool mononoteon = false)
+void outputFunction(const Note &note, bool noteon, bool steal, lock &lock, bool flagsonly = false, bool mononoteon = false)
 {
     //in this context "note on" means something different than in other functions:
     // a mono note-off to [voice-alligator] can be a note-on.
@@ -630,7 +630,7 @@ void setStealcase(){
     else if(respect_channel_priorities_var   == 2  &&  steal_hold_var)  stealCase = 6;  //hold notes are stolen, channels are allowed to steal, but will first try to steal of any higher channel
 }
 
-Note* findNoteToSteal(Note &incomingNote)
+Note* findNoteToSteal(const Note &incomingNote)
 {
     if(debug){cout << "incoming note " << incomingNote.mpitch.back() << " asked for steal" << endl;} 
 
@@ -1066,12 +1066,11 @@ void handleNoteOff(Note &incomingNote, lock &lock)
     }
 }
 
-void fromPoly(int target, int muteflag)
+void fromPoly(const int target, const int muteflag, const lock &lock)
 {
+    // lock lock{m_mutex};
     if(debug){cout << "  Inlet 2 target: " << target << " muteflag: " << muteflag << endl;}
-
     if (!muteflag)return;
-    lock lock{m_mutex};
 
     if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
                                          { return n.target == target; }))

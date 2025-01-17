@@ -705,7 +705,7 @@
 			}
 , 			{
 				"box" : 				{
-					"comment" : "auxilary",
+					"comment" : "Auxilary",
 					"id" : "obj-1",
 					"index" : 2,
 					"maxclass" : "inlet",
@@ -4180,7 +4180,7 @@
 			}
 , 			{
 				"box" : 				{
-					"comment" : "\"Alligator / Commands Input\"",
+					"comment" : "Alligator / Commands Input",
 					"id" : "obj-68",
 					"index" : 1,
 					"maxclass" : "inlet",

@@ -164,8 +164,8 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 290.0, 343.0, 274.0, 20.0 ],
-									"text" : "< if no channel was supplied, set channel to 0 (all)"
+									"patching_rect" : [ 290.0, 343.0, 276.0, 20.0 ],
+									"text" : "< if no channel was provided, set channel to 0 (all)"
 								}
 
 							}
@@ -475,7 +475,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 87.0, 1372.0, 779.0 ],
+						"rect" : [ 35.0, 87.0, 1372.0, 779.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -1022,7 +1022,7 @@
 								"box" : 								{
 									"color" : [ 1.0, 0.0, 0.0, 1.0 ],
 									"id" : "obj-34",
-									"linecount" : 3,
+									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
@@ -1132,7 +1132,6 @@
 								"box" : 								{
 									"color" : [ 0.16078431372549, 0.682352941176471, 1.0, 1.0 ],
 									"id" : "obj-4",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
@@ -1400,7 +1399,7 @@
 								"box" : 								{
 									"color" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 1.0 ],
 									"id" : "obj-69",
-									"linecount" : 3,
+									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
@@ -1767,7 +1766,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 1030.0, 83.0, 192.0, 74.0 ],
+					"patching_rect" : [ 1028.0, 79.0, 192.0, 74.0 ],
 					"text" : "<the steal flag in combination with the mono flag gives us the information that our note is part of a legato sequence and was not the first note in that sequence"
 				}
 
@@ -2516,6 +2515,10 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 209.0, 740.5, 42.0, 22.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "out~ 1"
 				}
 
@@ -2637,6 +2640,10 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 194.0, 10.0, 47.0, 23.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "in 1"
 				}
 

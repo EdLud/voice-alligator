@@ -68,7 +68,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 24.5, 129.0, 150.0, 74.0 ],
+					"patching_rect" : [ 24.5, 129.0, 151.0, 74.0 ],
 					"text" : "mpitch gets ignored in this voice. To understand why, read the Tab \"Note Types and Channels\" in the helpfile of voice-alligator"
 				}
 
@@ -1167,7 +1167,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 208.0, 361.0, 44.0, 22.0 ],
+					"patching_rect" : [ 208.0, 361.0, 85.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -1175,7 +1175,7 @@
 						"tags" : ""
 					}
 ,
-					"text" : "p glide"
+					"text" : "p glide TO DO"
 				}
 
 			}
@@ -1638,7 +1638,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 528.0, 356.0, 136.0, 47.0 ],
+									"patching_rect" : [ 528.0, 356.0, 139.0, 47.0 ],
 									"text" : "<only pitchbend if we're dealing with a non-hold, non-sequencer note"
 								}
 
@@ -1650,8 +1650,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 155.5, 245.0, 189.0, 33.0 ],
-									"presentation_linecount" : 2,
+									"patching_rect" : [ 155.5, 245.0, 190.0, 33.0 ],
 									"text" : "<on note on, immediatly go to the current position of the pitchwheel"
 								}
 
@@ -1711,7 +1710,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 383.0, 413.0, 161.0, 33.0 ],
+									"patching_rect" : [ 383.0, 413.0, 163.0, 33.0 ],
 									"text" : "< in case of sequencer note, set ratio to 1"
 								}
 
@@ -2280,11 +2279,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-24",
+					"linecount" : 2,
 					"maxclass" : "newobj",
 					"numinlets" : 5,
 					"numoutlets" : 5,
 					"outlettype" : [ "", "", "", "", "" ],
-					"patching_rect" : [ 557.0, 536.0, 191.0, 22.0 ],
+					"patching_rect" : [ 557.0, 536.0, 159.0, 35.0 ],
 					"text" : "route attack decay sustain release"
 				}
 
@@ -2297,7 +2297,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 557.0, 502.0, 107.0, 22.0 ],
+					"patching_rect" : [ 557.0, 510.0, 107.0, 22.0 ],
 					"text" : "r #0-params"
 				}
 
@@ -2309,6 +2309,10 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 209.0, 721.0, 42.0, 22.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "out~ 1"
 				}
 
@@ -2389,11 +2393,11 @@
 				"box" : 				{
 					"id" : "obj-19",
 					"maxclass" : "newobj",
-					"numinlets" : 5,
-					"numoutlets" : 4,
-					"outlettype" : [ "signal", "signal", "", "" ],
-					"patching_rect" : [ 522.0, 580.0, 109.0, 22.0 ],
-					"text" : "adsr~ 7 150 0.5 50"
+					"numinlets" : 8,
+					"numoutlets" : 3,
+					"outlettype" : [ "signal", "signal", "" ],
+					"patching_rect" : [ 522.0, 580.0, 154.0, 22.0 ],
+					"text" : "alligator.adsr~ 7 150 0.5 50"
 				}
 
 			}
@@ -2490,6 +2494,10 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 194.0, 10.0, 47.0, 23.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "in 1"
 				}
 
@@ -2561,6 +2569,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-12", 0 ],
+					"midpoints" : [ 666.5, 618.0, 1062.5, 618.0 ],
 					"source" : [ "obj-19", 2 ]
 				}
 
@@ -2576,6 +2585,8 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-19", 0 ],
+					"disabled" : 1,
+					"midpoints" : [ 780.5, 642.0, 506.0, 642.0, 506.0, 576.0, 531.5, 576.0 ],
 					"source" : [ "obj-22", 0 ]
 				}
 
