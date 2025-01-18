@@ -22,7 +22,7 @@ MIN_RELATED{"poly~"};
 
 inlet<> in1{this, "(list) midipitch, velocity, (channel), (monoflag), (realpitch)"};
 inlet<> in2{this, "(list) voice number, muteflag"};
-outlet<thread_check::scheduler, thread_action::fifo> out1{this, "messages to poly~ object"};
+outlet<thread_check::scheduler, thread_action::assert> out1{this, "messages to poly~ object"};
 
 
 struct Note
@@ -143,7 +143,7 @@ attribute<double>                   basefreq_attr{this, "basefreq", 440.0f, desc
 attribute<bool>                     steal{this, "steal", true, description{"Steal on / off (default true)"}};
 
 int stealCase = 1;  //set at different places in the code, used in a switch case in the findNoteToSteal function.
-bool stealWasSet = false; //steal case is set in the constructor when the external loads, and only later set if certain attributes change during runtime
+bool stealWasSet = false; //steal case is set in the constructor when the external loads
 bool steal_hold_var = false;
 attribute<bool>                     steal_hold_attr{this, "steal_hold", false, description{"Steal Hold Notes on / off"}, 
 setter
@@ -492,18 +492,7 @@ void nonLockOutputFunction(const Note &note, bool noteon, bool steal, bool flags
         out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag, note.channel);
         if(!flagsonly) 
         {
-            if(debug)
-            {
-            cout << " Outlet 1: target " << note.target
-                << " " << note.mpitch.back()
-                << " " << note.freq.back()
-                << " " << note.vel
-                << " " << note.monoflag
-                << " " << steal
-                << " " << note.holdflag
-                << " " << note.sustainflag
-                << endl;
-            }        
+            if(debug){cout << " Outlet 1: target " << note.target    << " " << note.mpitch.back()    << " " << note.freq.back()    << " " << note.vel    << " " << note.monoflag    << " " << steal    << " " << note.holdflag    << " " << note.sustainflag    << endl;}        
             if(note.monoflag && !mononoteon) // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
             {
                 switch(mono_note_priority_attr)
@@ -536,18 +525,7 @@ void nonLockOutputFunction(const Note &note, bool noteon, bool steal, bool flags
         out1.send("target", note.target);
         out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag, note.channel);
         if(!flagsonly) out1.send("notes", note.mpitch.back(), 0, note.freq.back());
-        if(debug)
-            {
-            cout << " Outlet 1: target " << note.target
-                << " " << note.mpitch.back()
-                << " " << note.freq.back()
-                << " " << 0
-                << " " << note.monoflag
-                << " " << steal
-                << " " << note.holdflag
-                << " " << note.sustainflag
-                << endl;
-            }
+        if(debug){cout << " Outlet 1: target " << note.target<< " " << note.mpitch.back()<< " " << note.freq.back()<< " " << 0<< " " << note.monoflag<< " " << steal<< " " << note.holdflag<< " " << note.sustainflag<< endl;}
     }
 }
 
@@ -563,17 +541,7 @@ void outputFunction(const Note &note, bool noteon, bool steal, lock &lock, bool 
         out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag, note.channel);
         if(!flagsonly) 
         {
-            if(debug)
-            {
-            cout << " Outlet 1: target " << note.target
-                << " " << note.freq.back()
-                << " " << note.vel
-                << " " << note.monoflag
-                << " " << steal
-                << " " << note.holdflag
-                << " " << note.sustainflag
-                << endl;
-            }        
+if(debug){cout << " Outlet 1: target " << note.target    << " " << note.freq.back()    << " " << note.vel    << " " << note.monoflag    << " " << steal    << " " << note.holdflag    << " " << note.sustainflag    << endl;}        
             if(note.monoflag && !mononoteon) // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
             {
                 switch(mono_note_priority_attr)
@@ -607,17 +575,7 @@ void outputFunction(const Note &note, bool noteon, bool steal, lock &lock, bool 
         out1.send("target", note.target);
         out1.send("flags", note.monoflag, steal, note.holdflag, note.sustainflag, note.sequencerNoteFlag, note.channel);
         if(!flagsonly) out1.send("notes", note.mpitch.back(), 0, note.freq.back());
-        if(debug)
-            {
-            cout << " Outlet 1: target " << note.target
-                << " " << note.freq.back()
-                << " " << 0
-                << " " << note.monoflag
-                << " " << steal
-                << " " << note.holdflag
-                << " " << note.sustainflag
-                << endl;
-            }
+        if(debug){cout << " Outlet 1: target " << note.target<< " " << note.freq.back()<< " " << 0<< " " << note.monoflag<< " " << steal<< " " << note.holdflag<< " " << note.sustainflag<< endl;}
     }
 }
 
