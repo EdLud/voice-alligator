@@ -22,7 +22,8 @@ MIN_RELATED{"poly~"};
 
 inlet<> in1{this, "(list) midipitch, velocity, (channel), (monoflag), (realpitch)"};
 inlet<> in2{this, "(list) voice number, muteflag"};
-outlet<thread_check::scheduler, thread_action::assert> out1{this, "messages to poly~ object"};
+// outlet<thread_check::scheduler, thread_action::assert> out1{this, "messages to poly~ object"};
+outlet<> out1{this, "messages to poly~ object"};
 
 
 struct Note
@@ -130,6 +131,51 @@ private:
     std::vector<std::optional<double>> data;
     int arrsize = 127;
 };
+
+
+// timer delivererFlagsOnly { this, 
+//         MIN_FUNCTION {
+			
+//             int d_target = args[0];
+//             bool d_monoflag = args[1]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+//             bool d_steal = args[2]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+//             bool d_holdflag = args[3]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+//             bool d_sustainflag = args[4]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+//             bool d_sequencerNoteFlag = args[5]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+//             int d_channel = args[6]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+
+//             out1.send("target", d_target);
+//             out1.send("flags", d_monoflag, d_steal, d_holdflag, d_sustainflag, d_sequencerNoteFlag, d_channel);
+            
+// 			return {};
+// 		}
+//     };
+
+
+
+timer <> deliverer { this, 
+        MIN_FUNCTION {
+			
+            int target = args[0];
+            bool monoflag = args[1]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+            bool steal = args[2]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+            bool holdflag = args[3]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+            bool sustainflag = args[4]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+            bool sequencerNoteFlag = args[5]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+            int channel = args[6]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch
+            int mpitch = args[7];
+            double vel = args[8];
+            double realpitch = args[9];
+
+            out1.send("target", target);
+            out1.send("flags", monoflag, steal, holdflag, sustainflag, sequencerNoteFlag, channel);
+            out1.send("notes", mpitch, vel, realpitch);
+            
+			return {};
+		}
+    };
+
+
 
 std::vector<Note> active_voices;
 std::queue<int> inactive_voices;
@@ -529,6 +575,7 @@ void nonLockOutputFunction(const Note &note, bool noteon, bool steal, bool flags
     }
 }
 
+
 void outputFunction(const Note &note, bool noteon, bool steal, lock &lock, bool flagsonly = false, bool mononoteon = false)
 {
     //in this context "note on" means something different than in other functions:
@@ -720,6 +767,7 @@ void handleNoteOnMono(Note &note, lock &lock)
     {
         if (auto *monoTargetNote = findFirstNoteWithPredicate([=](const Note &n)
                                                         {return n.monoflag == 1
+                                                        && !n.holdflag
                                                         && n.channel == incomingNoteChannel
                                                         && !n.releaseflag;}))
         {
@@ -747,7 +795,7 @@ void handleNoteOnMono(Note &note, lock &lock)
         //sequencer Notes only need one mpitch / freq
         {
                 if (auto *monoTargetNote = findFirstNoteWithPredicate([=](const Note &n)
-                                                            {return n.monoflag == 1
+                                                            {return n.monoflag == true
                                                             && n.channel == incomingNoteChannel
                                                             && !n.releaseflag
                                                             ;}))//&& n.mpitch.back() == note.mpitch.back()
@@ -769,6 +817,7 @@ void handleNoteOnMono(Note &note, lock &lock)
         if (auto *monoTargetNote = findFirstNoteWithPredicate([=](const Note &n)
                                             {return n.monoflag == true
                                             && n.channel == incomingNoteChannel
+                                            // && !n.holdflag //??
                                             && n.releaseflag;}))
         {
         if((mono_note_priority_attr == mono_note_priority::LOW && !note.sequencerNoteFlag) && monoTargetNote->return_lowest_mpitch() < note.mpitch.back())// sequencer note doesn't care about mono_note_priority
@@ -796,24 +845,6 @@ void handleNoteOnMono(Note &note, lock &lock)
             return;
             }
         }
-
-    //  if(!mono_steals_release_attr && note.sequencerNoteFlag)
-    // {
-    //     if (auto *monoTargetNote = findFirstNoteWithPredicate([&](const Note &n)
-    //                                         {return n.monoflag
-    //                                         && n.channel == note.channel
-    //                                         && n.releaseflag;}))
-    //     {
-    //         //delete mpitch list, push_back new mpitch, generate note on on old target
-    //         if(debug){cout << "Mono key was pressed, released mono voice of channel " << monoTargetNote->channel<< " found with target " << monoTargetNote->target << endl;}
-    //         monoTargetNote->releaseflag = 0;
-    //         monoTargetNote->freq = note.freq;
-    //         monoTargetNote->mpitch = note.mpitch;
-    //         monoTargetNote->vel = note.vel;
-    //         outputFunction(*monoTargetNote, 1, 1, lock, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
-    //         return;
-    //         }
-    // }
     
 
     // CASE: NO MONO VOICE PLAYING ON channel, FREE VOICE AVAILABLE
@@ -926,7 +957,7 @@ void handleNoteOff(Note &incomingNote, lock &lock)
             {
                 if(debug)cout<<"set note " << note->mpitch.back() << "at target " << note->target << " to hold" << endl;
                 note->holdflag = 1;
-                note->channel = 0;
+                // note->channel = 0;
                 outputFunction(*note, 0, 0, lock, true); //send flags only = true
                 return;
             }
