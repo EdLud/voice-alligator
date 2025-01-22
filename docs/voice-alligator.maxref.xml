@@ -42,8 +42,8 @@
 		</method>
 
 		<method name='printscale'>
-			<digest>Print scalearray to the max console </digest>
-			<description>Print scalearray to the max console </description>
+			<digest>Print scale_array to the max console </digest>
+			<description>Print scale_array to the max console </description>
 		</method>
 
 		<method name='print'>
@@ -62,8 +62,8 @@
 		</method>
 
 		<method name='list'>
-			<digest>Midipitch, Velocity, (channel), (monoflag), (realpitch) </digest>
-			<description>Midipitch, Velocity, (channel), (monoflag), (realpitch) </description>
+			<digest>Midipitch, Velocity, (channel), (mono_flag), (realpitch) </digest>
+			<description>Midipitch, Velocity, (channel), (mono_flag), (realpitch) </description>
 		</method>
 
 		<method name='voices'>
