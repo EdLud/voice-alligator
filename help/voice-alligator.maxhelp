@@ -3689,6 +3689,17 @@
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
 								"box" : 								{
+									"id" : "obj-7",
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 65.0, 565.0, 383.0, 20.0 ],
+									"text" : "By default, if the (channel) argument is omitted, the channel is set to 1."
+								}
+
+							}
+, 							{
+								"box" : 								{
 									"fontface" : 2,
 									"id" : "obj-8",
 									"linecount" : 2,
@@ -3769,7 +3780,7 @@
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patching_rect" : [ 5.0, 390.0, 119.0, 22.0 ],
-													"text" : "82 0 2"
+													"text" : "75 0"
 												}
 
 											}
@@ -6973,12 +6984,12 @@
 								"box" : 								{
 									"bgcolor" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 0.0 ],
 									"id" : "obj-9",
-									"linecount" : 12,
+									"linecount" : 10,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 80.0, 417.0, 564.0, 167.0 ],
-									"text" : "-Player Notes in a simple, MIDI-like format: [pitch, velocity].\n\n    These can optionally include a (channel) argument to indicate higher or lower priority compared to       notes on other channels.\n   \n\n\n-Sequencer Notes in an extended format.\n\n-Pre-recorded Notes in an extended format.\n\nBy default, if the (channel) argument is omitted, the channel is set to 1.",
+									"patching_rect" : [ 80.0, 417.0, 564.0, 141.0 ],
+									"text" : "-Player Notes in a simple, MIDI-like format: [pitch, velocity].\n\n    These can optionally include a (channel) argument to indicate higher or lower priority compared to       notes on other channels.\n   \n\n\n-Sequencer Notes in an extended format.\n\n-Pre-recorded Notes in an extended format.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
 
@@ -7061,6 +7072,18 @@
 						"showontab" : 1,
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
+								"box" : 								{
+									"id" : "obj-38",
+									"maxclass" : "message",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 586.0, 201.0, 53.0, 22.0 ],
+									"text" : "record 0"
+								}
+
+							}
+, 							{
 								"box" : 								{
 									"id" : "obj-22",
 									"maxclass" : "number",
@@ -8429,6 +8452,13 @@
 							}
 , 							{
 								"patchline" : 								{
+									"destination" : [ "obj-72", 0 ],
+									"source" : [ "obj-38", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
 									"destination" : [ "obj-22", 0 ],
 									"order" : 0,
 									"source" : [ "obj-41", 0 ]
@@ -8736,7 +8766,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -13298,7 +13328,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -13349,7 +13379,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 35.0, 505.0, 124.0, 24.0 ],
-									"text" : "end 3"
+									"text" : "endhold all"
 								}
 
 							}
@@ -14255,7 +14285,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.129411764705882, 0.486274509803922, 0.490196078431373, 0.42 ],
 													"fontsize" : 13.0,
-													"hidden" : 1,
 													"id" : "obj-136",
 													"legacytextcolor" : 1,
 													"maxclass" : "textbutton",
@@ -14277,7 +14306,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.129411764705882, 0.486274509803922, 0.490196078431373, 0.42 ],
 													"fontsize" : 13.0,
-													"hidden" : 1,
 													"id" : "obj-132",
 													"legacytextcolor" : 1,
 													"maxclass" : "textbutton",
@@ -14299,7 +14327,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.129411764705882, 0.486274509803922, 0.490196078431373, 0.3 ],
 													"fontsize" : 13.0,
-													"hidden" : 1,
 													"id" : "obj-112",
 													"legacytextcolor" : 1,
 													"maxclass" : "textbutton",
@@ -15975,6 +16002,7 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 18.0,
+													"hidden" : 1,
 													"id" : "obj-109",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -16083,6 +16111,7 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-96",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -16111,6 +16140,7 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-98",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -16127,6 +16157,7 @@
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
 													"checkedcolor" : [ 0.937254901960784, 0.913725490196078, 1.0, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-99",
 													"maxclass" : "toggle",
 													"numinlets" : 1,
@@ -16144,6 +16175,7 @@
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
 													"checkedcolor" : [ 0.937254901960784, 0.913725490196078, 1.0, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-100",
 													"maxclass" : "toggle",
 													"numinlets" : 1,
@@ -20367,7 +20399,7 @@
 																					"numoutlets" : 1,
 																					"outlettype" : [ "" ],
 																					"patching_rect" : [ 51.0, 516.0, 114.0, 22.0 ],
-																					"text" : "notelooper play 0"
+																					"text" : "end"
 																				}
 
 																			}
@@ -21516,12 +21548,14 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-77",
+													"linecount" : 3,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 656.0, 719.0, 221.0, 22.0 ],
+													"patching_rect" : [ 656.0, 719.0, 221.0, 53.0 ],
 													"presentation" : 1,
 													"presentation_rect" : [ 505.0, 94.0, 528.0, 22.0 ],
+													"text" : "The result is 2 legato melodies playing parallely on the same instrument.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -21531,15 +21565,14 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-76",
-													"linecount" : 5,
+													"linecount" : 4,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 618.0, 692.0, 179.0, 84.0 ],
+													"patching_rect" : [ 618.0, 692.0, 179.0, 69.0 ],
 													"presentation" : 1,
-													"presentation_linecount" : 2,
-													"presentation_rect" : [ 502.0, 51.0, 534.0, 38.0 ],
-													"text" : "In this sequence the same thing is shown but in reverse order: Play a legato melody and use the (hold) function to build a chord.",
+													"presentation_rect" : [ 502.0, 51.0, 534.0, 22.0 ],
+													"text" : "First play a low legato melody and record it. Then play in a higher register over the recording.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -21549,15 +21582,14 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-75",
-													"linecount" : 9,
+													"linecount" : 4,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 580.0, 657.0, 131.0, 147.0 ],
+													"patching_rect" : [ 580.0, 657.0, 131.0, 69.0 ],
 													"presentation" : 1,
-													"presentation_linecount" : 2,
-													"presentation_rect" : [ 505.0, 11.0, 514.0, 38.0 ],
-													"text" : "In the previous example, the player first played a chord and then played a legato melody over it. The instrument was polyphonic while maintaining a legato functionality.",
+													"presentation_rect" : [ 505.0, 11.0, 514.0, 22.0 ],
+													"text" : "Note Looper not only remembers the pitch of the note, but also the monophony flag.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -22216,7 +22248,6 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-42",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -22232,7 +22263,6 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.105882352941176, 0.090196078431373, 0.647058823529412, 1.0 ],
-													"hidden" : 1,
 													"id" : "obj-41",
 													"knobcolor" : [ 0.43921568627451, 0.490196078431373, 0.494117647058824, 1.0 ],
 													"knobshape" : 5,
@@ -22607,7 +22637,6 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-17",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -22624,7 +22653,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.189978, 0.702782, 0.709092, 1.0 ],
 													"checkedcolor" : [ 0.937254901960784, 0.976470588235294, 0.980392156862745, 1.0 ],
-													"hidden" : 1,
 													"id" : "obj-14",
 													"maxclass" : "toggle",
 													"numinlets" : 1,

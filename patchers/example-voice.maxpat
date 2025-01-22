@@ -2309,6 +2309,10 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 209.0, 721.0, 42.0, 22.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "out~ 1"
 				}
 
@@ -2389,11 +2393,11 @@
 				"box" : 				{
 					"id" : "obj-19",
 					"maxclass" : "newobj",
-					"numinlets" : 5,
-					"numoutlets" : 4,
-					"outlettype" : [ "signal", "signal", "", "" ],
+					"numinlets" : 11,
+					"numoutlets" : 3,
+					"outlettype" : [ "signal", "signal", "" ],
 					"patching_rect" : [ 522.0, 580.0, 130.0, 22.0 ],
-					"text" : "adsr~ 7 150 0.5 50"
+					"text" : "live.adsr~ 7 150 0.5 50"
 				}
 
 			}
@@ -2490,6 +2494,10 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 194.0, 10.0, 47.0, 23.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "in 1"
 				}
 
@@ -2561,7 +2569,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-12", 0 ],
-					"midpoints" : [ 605.5, 618.0, 1062.5, 618.0 ],
+					"midpoints" : [ 642.5, 618.0, 1062.5, 618.0 ],
 					"source" : [ "obj-19", 2 ]
 				}
 
@@ -2577,6 +2585,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-19", 0 ],
+					"disabled" : 1,
 					"midpoints" : [ 780.5, 642.0, 506.0, 642.0, 506.0, 576.0, 531.5, 576.0 ],
 					"source" : [ "obj-22", 0 ]
 				}
