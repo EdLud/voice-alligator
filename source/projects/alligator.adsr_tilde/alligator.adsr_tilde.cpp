@@ -4,6 +4,7 @@
 ///	@license	Use of this source code is governed by the MIT License found in the License.md file.
 
 #include "c74_min.h"
+#include "alligator_adsr.h"
 
 using namespace c74::min;
 
@@ -27,7 +28,7 @@ public:
     outlet<> out2 {this, "(signal) new envelope trigger", "signal"};
     outlet<> out3 {this, "(message) mute outlet"};
 
-    c74::min::lib::adsr m_adsr;
+    alligator::adsr m_adsr;
 
 	timer <> outputMute1 { this, 
         MIN_FUNCTION {
@@ -65,9 +66,11 @@ public:
         }
     };
 
+    double sustain = 1.0;
     argument<number> sustain_arg { this, "sustain", "Initial frequency in hertz.",
         MIN_ARGUMENT_FUNCTION {
-            m_adsr.sustain(arg);
+            sustain = arg;
+            // m_adsr.sustain(arg);
         }
     };
 
@@ -83,13 +86,22 @@ public:
         return {argval} ;
     }}};
 
+    function legatoFunction = MIN_FUNCTION{
+        if(inlet == 0){
+             m_adsr.return_to_zero(args[0]);
+        }
+        return{};
+    };
+
     function mainInletFunction = MIN_FUNCTION{
     if (inlet == 0) // notes: mpitch, vel, (channel), (monoflag), (realpitch)
     {
-
             double vel = args[0];
-            m_adsr.peak(vel);
             if(vel) {
+                
+                m_adsr.peak(vel);
+                m_adsr.sustain(sustain * vel);
+                // cout << "sustain: " << sustain << " peak: " << vel << endl;
                 out3.send("mute", 0);
                 m_adsr.trigger(true);
                 m_active = true;
@@ -111,6 +123,7 @@ public:
     {
         double clippedSustain = std::min((static_cast<double>(args[0])), 1.0);
         m_adsr.sustain(clippedSustain);
+        sustain = clippedSustain;
         return {};
     }
     else if(inlet == 4)
@@ -136,8 +149,9 @@ public:
     else return {};
     };
 
-    message<threadsafe::yes> number{this, "number", "Midipitch, Velocity, (channel), (monoflag), (realpitch)",
-    mainInletFunction};
+    message<threadsafe::yes> number{this, "number", "Velocity", mainInletFunction};
+    message<threadsafe::yes> return_to_zero{this, "legato", "legato retrigger", legatoFunction};
+
 
     private:
     bool m_active = false;

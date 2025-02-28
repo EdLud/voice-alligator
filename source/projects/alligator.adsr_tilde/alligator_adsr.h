@@ -1,6 +1,6 @@
 /// @file
 ///	@ingroup 	minlib
-/// @author		Timothy Place
+/// @author		copied from Timothy Place and modified slightly by Edis Ludwig
 ///	@copyright	Copyright (c) 2017, Cycling '74
 ///	@license	Usage of this file and its contents is governed by the MIT License
 
@@ -47,7 +47,7 @@ namespace alligator {
             const int k_power_multiplier = 5; // higher number yields more extreme curves
         public:
 
-            void operator = (number percentage) {
+            void operator = ( c74::min::number percentage) {
                 m_is_linear = std::abs(percentage) < 0.001;
                 if (m_is_linear) {
                     m_curve = 0.0;
@@ -62,7 +62,7 @@ namespace alligator {
                 }
             }
 
-            number operator()(number x) {
+             c74::min::number operator()( c74::min::number x) {
                 if (m_is_linear)
                     return x;
                 else if (m_curve > 0.0)
@@ -72,8 +72,8 @@ namespace alligator {
             }
 
         private:
-            number	m_curve		{ 0.0 };
-            number	m_exp		{ 1.0 };
+             c74::min::number  m_curve		{ 0.0 };
+             c74::min::number  m_exp		{ 1.0 };
             bool	m_is_linear	{ true };
         };
 
@@ -93,27 +93,27 @@ namespace alligator {
         }
 
 
-        sample active() {
+        c74::min::sample active() {
             return m_stage != adsr_stage::inactive;
         }
 
 
-        void initial(number initial_value) {
+        void initial( c74::min::number initial_value) {
             m_initial_cached = initial_value;
             recalc();
         }
 
-        void peak(number peak_value) {
+        void peak( c74::min::number peak_value) {
             m_peak_cached = peak_value;
             recalc();
         }
 
-        void sustain(number sustain_value) {
+        void sustain( c74::min::number sustain_value) {
             m_sustain_cached = sustain_value;
             recalc();
         }
 
-        void end(number end_value) {
+        void end( c74::min::number end_value) {
             m_end_cached = end_value;
             recalc();
         }
@@ -123,7 +123,7 @@ namespace alligator {
         /// @param	attack_ms			The attack time in milliseconds.
         /// @param	sampling_frequency	The sampling frequency of the environment in hertz.
 
-        void attack(number attack_ms, number sampling_frequency) {
+        void attack( c74::min::number attack_ms,  c74::min::number sampling_frequency) {
             m_attack_new = static_cast<int>( (attack_ms / 1000.0) * sampling_frequency );
         }
 
@@ -131,7 +131,7 @@ namespace alligator {
         /// Set the attack slope of the envelope generator.
         /// @param	attack_curve		The attack slope as a +/- percentage.
 
-        void attack_curve(number attack_curve) {
+        void attack_curve( c74::min::number attack_curve) {
             m_attack_exp = attack_curve * 100;
         }
 
@@ -140,7 +140,7 @@ namespace alligator {
         /// @param	decay_ms			The decay time in milliseconds.
         /// @param	sampling_frequency	The sampling frequency of the environment in hertz.
 
-        void decay(number decay_ms, number sampling_frequency) {
+        void decay( c74::min::number decay_ms,  c74::min::number sampling_frequency) {
             m_decay_new = static_cast<int>( (decay_ms / 1000.0) * sampling_frequency );
         }
 
@@ -148,7 +148,7 @@ namespace alligator {
         /// Set the decay slope of the envelope generator.
         /// @param	decay_curve			The decay slope as a +/- percentage.
 
-        void decay_curve(number decay_curve) {
+        void decay_curve( c74::min::number decay_curve) {
             m_decay_exp = decay_curve * 100;
         }
 
@@ -157,7 +157,7 @@ namespace alligator {
         /// @param	release_ms			The release time in milliseconds.
         /// @param	sampling_frequency	The sampling frequency of the environment in hertz.
 
-        void release(number release_ms, number sampling_frequency) {
+        void release( c74::min::number release_ms,  c74::min::number sampling_frequency) {
             m_release_new = static_cast<int>( (release_ms / 1000.0) * sampling_frequency );
         }
 
@@ -165,7 +165,7 @@ namespace alligator {
         /// Set the release slope of the envelope generator.
         /// @param	release_curve		The release slope as a +/- percentage.
 
-        void release_curve(number release_curve) {
+        void release_curve( c74::min::number release_curve) {
             m_release_exp = release_curve * 100;
         }
 
@@ -174,7 +174,7 @@ namespace alligator {
         /// @param    retrigger_ms                 The retrigger time in milliseconds.
         /// @param    sampling_frequency    The sampling frequency of the environment in hertz.
 
-        void retrigger(number retrigger_ms, number sampling_frequency) {
+        void retrigger( c74::min::number retrigger_ms,  c74::min::number sampling_frequency) {
             m_retrigger_step_count = static_cast<int>( (retrigger_ms / 1000.0) * sampling_frequency );
         }
 
@@ -225,8 +225,8 @@ namespace alligator {
         /// Calculate one sample.
         ///	@return		Calculated sample
 
-        sample operator()() {
-			sample output {};
+        c74::min::sample operator()() {
+			c74::min::sample output {};
 
             switch (m_stage) {
                 case adsr_stage::attack:
@@ -301,8 +301,8 @@ namespace alligator {
                         else {
                             // we aren't returning to zero -- instead starting in the middle of the attack from the value where we already are
 
-                            number attack_current {};
-                            number attack_curved {};
+                             c74::min::number attack_current {};
+                             c74::min::number attack_curved {};
 
                             bool was_below { false };
                             if (m_peak_cached > m_initial_cached)
@@ -343,35 +343,34 @@ namespace alligator {
     private:
         int     m_attack_new;
         slope	m_attack_exp;
-        number	m_attack_step;
+         c74::min::number  m_attack_step;
         int		m_attack_step_count;
-        sample	m_attack_current;
+        c74::min::sample m_attack_current;
 
         int     m_decay_new;
         slope	m_decay_exp;
-        number	m_decay_step;
+         c74::min::number  m_decay_step;
         int		m_decay_step_count;
-        sample 	m_decay_current;
+        c74::min::sample 	m_decay_current;
 
         int     m_release_new;
         slope	m_release_exp;
-        number	m_release_step;
+        c74::min::number  m_release_step;
         int		m_release_step_count;
-        sample 	m_release_current { 0.0 };
+        c74::min::sample 	m_release_current { 0.0 };
 
-        number	m_initial_cached;
-        number	m_peak_cached;
-        number	m_sustain_cached;
-        number	m_end_cached;
+        c74::min::number  m_initial_cached;
+        c74::min::number  m_peak_cached;
+        c74::min::number  m_sustain_cached;
+        c74::min::number  m_end_cached;
 
         int	m_index { 0xFFFFFF };
 
         adsr_stage m_stage { adsr_stage::inactive };
-
         bool	        m_active { false };
         envelope_mode   m_envelope_mode { envelope_mode::adsr };
-        sample          m_last_output {};
-        sample          m_retrigger_start {};
+        c74::min::sample          m_last_output {};
+        c74::min::sample          m_retrigger_start {};
         int             m_retrigger_step_count {};
         bool            m_return_to_zero { true };
 

@@ -58,7 +58,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -102,15 +102,86 @@
 							}
 , 							{
 								"box" : 								{
-									"fontsize" : 14.0,
-									"id" : "obj-4",
-									"linecount" : 29,
+									"border" : 1.5,
+									"id" : "obj-79",
+									"maxclass" : "live.line",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 439.0, 432.0, 7.0, 154.0 ]
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"border" : 1.5,
+									"id" : "obj-77",
+									"maxclass" : "live.line",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 326.0, 541.0, 255.0, 12.0 ]
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"border" : 1.5,
+									"id" : "obj-75",
+									"maxclass" : "live.line",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 324.0, 474.0, 255.0, 12.0 ]
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-33",
+									"linecount" : 10,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 57.0, 79.0, 813.0, 460.0 ],
-									"presentation_linecount" : 29,
-									"text" : "One of the biggest challenges for this project was eliminating hanging notes—notes that should have received a Note-Off but, for some reason, didn't. There are two chokepoints where this issue can occur: (1) the internal note processing of [voice-alligator], and (2) the ADSR object in our voice. We can check for note entrances in our external by using a \"print\" command to [voice-alligator].\n\nWe conducted a few benchmarks to investigate this issue. We compared [live.adsr~] and [adsr~].\n\n[live.adsr~] works just fine with overdrive off, no hanging notes ever. When overdrive is on max actually crashes. We found out that [adsr~] is able to deliver it's mute message on the scheduler thread while [live.adsr~] will always deliver on main, so there might be some bad behaviour in our external when it get's it's mute messages from the main thread. With Audio Interrupt (SIAA) turned on [live.adsr~] does not crash and also doesn't produce hanging notes.\n\n[adsr~] produces hanging notes with Overdrive on and Overdrive off. But interestingly it doesn't produce hanging notes with SIAA enabled.\n\nWe believe that [adsr~] may occasionally block a Note-Off, maybe during its de-clicking operation. We mainly believe this because our \"print\" command shows us that our external actually sent the correct note-offs and furthermore if we attach a float object right in front of [adsr~] the float actually shows us a zero - so a note-off.\n\nHowever, we continued to use [adsr~] in our example-voice because its de-clicking feature is necessary for us, and during \"normal\" operations with a MIDI keyboard, we have rarely encountered any hanging notes.\n\nAnother potential cause of hanging notes is sending [voice-alligator] notes while editing the patcher. However, this should generally be avoided as it can lead to timing inaccuracies. There is also the possibility to get hanging notes if [poly~] has a lower number of voices than [voice-alligator].\n\nIf you encounter hanging notes, you can send the \"end\" command to [voice-alligator], which will release all notes it is aware of, which always worked during our benchmarks. Alternatively, you can use the \"panic\" command to our example voice, which will immediately terminate all voices with a 7ms de-click."
+									"patching_rect" : [ 439.0, 431.0, 142.0, 141.0 ],
+									"text" : "adsr~\n\n\n-doesn't click\n-legato mode\n\n\n\n-linear only\n-hanging notes very rare."
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-21",
+									"linecount" : 10,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 320.0, 418.0, 217.0, 141.0 ],
+									"text" : "\n                  live.adsr~\n                             \npros:              \n-curved                              \n-never hanging notes\n\n\ncons:                  \n-clicks"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"fontsize" : 14.0,
+									"id" : "obj-4",
+									"linecount" : 20,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 57.0, 79.0, 809.0, 319.0 ],
+									"text" : "One of the biggest challenges for this project was eliminating hanging notes—notes that should have received a Note-Off but, for some reason, didn't. There are two chokepoints where this issue can occur: (1) the internal note processing of [voice-alligator], and (2) the ADSR object in our voice. We can check for note entrances in our external by using a \"print\" command to [voice-alligator].\n\nWe conducted two types of benchmarks to investigate this issue. The first test used [live.adsr~] in the voice, which resulted in no hanging notes. The second test used [adsr~], where we encountered 1–5 hanging notes under the same conditions. Both benchmarks involved a 1024-voice synth processing 30,000 notes in 30 seconds, with and without Overdrive/SIAA.\n\nThe results suggest that [live.adsr~] handles Note-Off events more reliably. We believe that [adsr~] may occasionally block a Note-Off during its de-clicking operation. However, we continued to use [adsr~] in our example-voice because its de-clicking feature is necessary for us, and during \"normal\" operations with a MIDI keyboard, we haven't encountered any hanging notes.\n\nAnother potential cause of hanging notes is sending [voice-alligator] notes while editing the patcher. However, this should generally be avoided as it can lead to timing inaccuracies. There is also the possibility to get hanging notes if [poly~] has a lower number of voices than [voice-alligator].\n\nIf you encounter hanging notes, you can send the \"end\" command to [voice-alligator], which will release all notes it is aware of. Alternatively, you can use the \"panic\" command to our example voice, which will immediately terminate all voices with a 7ms de-click."
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"angle" : 270.0,
+									"background" : 1,
+									"bgcolor" : [ 0.905882352941176, 0.713725490196078, 0.713725490196078, 1.0 ],
+									"id" : "obj-1",
+									"maxclass" : "panel",
+									"mode" : 0,
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 318.0, 432.0, 263.0, 154.0 ],
+									"proportion" : 0.5
 								}
 
 							}
@@ -196,7 +267,8 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 590.0, 375.0, 105.0, 22.0 ]
+									"patching_rect" : [ 590.0, 375.0, 105.0, 22.0 ],
+									"text" : "ffreq ch4 2274."
 								}
 
 							}
@@ -9017,18 +9089,17 @@
 													}
 ,
 													"id" : "obj-20",
-													"linecount" : 2,
 													"maxclass" : "newobj",
 													"numinlets" : 1,
 													"numoutlets" : 4,
 													"outlettype" : [ "", "", "", "" ],
-													"patching_rect" : [ 277.0, 292.0, 77.0, 35.0 ],
+													"patching_rect" : [ 277.0, 292.0, 77.0, 22.0 ],
 													"saved_object_attributes" : 													{
 														"embed" : 1,
 														"precision" : 6
 													}
 ,
-													"text" : "coll #0-major @embed 1"
+													"text" : "coll #0-major"
 												}
 
 											}
@@ -9100,7 +9171,7 @@
 													"numinlets" : 1,
 													"numoutlets" : 4,
 													"outlettype" : [ "", "", "", "" ],
-													"patching_rect" : [ 374.0, 124.0, 77.0, 22.0 ],
+													"patching_rect" : [ 374.0, 88.0, 77.0, 22.0 ],
 													"saved_object_attributes" : 													{
 														"embed" : 1,
 														"precision" : 6
@@ -9262,6 +9333,13 @@
 												"patchline" : 												{
 													"destination" : [ "obj-8", 0 ],
 													"source" : [ "obj-11", 0 ]
+												}
+
+											}
+, 											{
+												"patchline" : 												{
+													"destination" : [ "obj-13", 0 ],
+													"source" : [ "obj-12", 0 ]
 												}
 
 											}
@@ -13283,7 +13361,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -13343,7 +13421,8 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 35.0, 505.0, 124.0, 24.0 ]
+									"patching_rect" : [ 35.0, 505.0, 124.0, 24.0 ],
+									"text" : "end"
 								}
 
 							}
@@ -21515,12 +21594,15 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-77",
+													"linecount" : 4,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 656.0, 719.0, 221.0, 22.0 ],
+													"patching_rect" : [ 656.0, 719.0, 221.0, 69.0 ],
 													"presentation" : 1,
-													"presentation_rect" : [ 505.0, 94.0, 528.0, 22.0 ],
+													"presentation_linecount" : 2,
+													"presentation_rect" : [ 505.0, 94.0, 528.0, 38.0 ],
+													"text" : "Now play a short melody in scale 0 (12-TET) with monophony. Pitchwheel and monophony don't affect the Note Looper's sequence.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -21530,12 +21612,15 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-76",
+													"linecount" : 5,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 618.0, 692.0, 179.0, 22.0 ],
+													"patching_rect" : [ 618.0, 692.0, 179.0, 84.0 ],
 													"presentation" : 1,
-													"presentation_rect" : [ 502.0, 51.0, 534.0, 22.0 ],
+													"presentation_linecount" : 2,
+													"presentation_rect" : [ 502.0, 51.0, 534.0, 38.0 ],
+													"text" : "Set Note Looper to record and play an ostinato in scale 1 (Harmonics of C2). Stop record, Note Looper plays the recorded sequence.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -21545,12 +21630,14 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-75",
+													"linecount" : 5,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 580.0, 657.0, 131.0, 22.0 ],
+													"patching_rect" : [ 580.0, 657.0, 131.0, 84.0 ],
 													"presentation" : 1,
 													"presentation_rect" : [ 505.0, 11.0, 514.0, 22.0 ],
+													"text" : "Note Looper records and plays back sequences of the [voice alligator]'s output.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -24167,6 +24254,13 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "advanced-example-voice.maxpat",
+				"bootpath" : "~/Documents/Max 9/Packages/voice-alligator-package/patchers",
+				"patcherrelativepath" : "../patchers",
+				"type" : "JSON",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "advanced-example-voice_backup.maxpat",
 				"bootpath" : "~/Documents/Max 9/Packages/voice-alligator-package/patchers",
 				"patcherrelativepath" : "../patchers",
 				"type" : "JSON",

@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 87.0, 1372.0, 779.0 ],
+		"rect" : [ 34.0, 87.0, 845.0, 779.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -982,7 +982,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 339.0, 587.0, 125.0, 22.0 ],
-					"text" : "target 0, panic"
+					"text" : "endhold"
 				}
 
 			}
@@ -993,8 +993,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 339.0, 546.0, 66.0, 22.0 ],
-					"text" : "voices 120"
+					"patching_rect" : [ 339.0, 546.0, 73.0, 22.0 ],
+					"text" : "voices 1024"
 				}
 
 			}
@@ -1012,7 +1012,7 @@
 			}
 , 			{
 				"box" : 				{
-					"attr" : "mono_note_priority",
+					"attr" : "debug",
 					"id" : "obj-14",
 					"maxclass" : "attrui",
 					"numinlets" : 1,
@@ -3647,8 +3647,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 84.0, 547.0, 165.0, 22.0 ],
-					"text" : "voice-alligator 120 @debug 1"
+					"patching_rect" : [ 84.0, 547.0, 106.0, 22.0 ],
+					"text" : "voice-alligator 120"
 				}
 
 			}
@@ -3765,6 +3765,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-102", 0 ],
+					"disabled" : 1,
 					"source" : [ "obj-111", 0 ]
 				}
 
@@ -3938,6 +3939,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-27", 0 ],
+					"disabled" : 1,
 					"source" : [ "obj-3", 0 ]
 				}
 
@@ -3961,7 +3963,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-6", 1 ],
-					"midpoints" : [ 158.0, 607.0, 296.5, 607.0, 296.5, 536.0, 239.5, 536.0 ],
+					"midpoints" : [ 158.0, 607.0, 296.5, 607.0, 296.5, 536.0, 180.5, 536.0 ],
 					"source" : [ "obj-33", 1 ]
 				}
 
@@ -4018,6 +4020,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-43", 0 ],
+					"disabled" : 1,
 					"source" : [ "obj-42", 0 ]
 				}
 
@@ -4438,15 +4441,15 @@
 ,
 		"dependency_cache" : [ 			{
 				"name" : "alligatorNoteLooper.maxpat",
-				"bootpath" : "~/Documents/Max 9/Packages/voice-alligator-package",
-				"patcherrelativepath" : ".",
+				"bootpath" : "~/Documents/Max 9/Packages/voice-alligator-package/patchers",
+				"patcherrelativepath" : "./patchers",
 				"type" : "JSON",
 				"implicit" : 1
 			}
 , 			{
 				"name" : "example-voice.maxpat",
-				"bootpath" : "~/Documents/Max 9/Packages/voice-alligator-package",
-				"patcherrelativepath" : ".",
+				"bootpath" : "~/Documents/Max 9/Packages/voice-alligator-package/patchers",
+				"patcherrelativepath" : "./patchers",
 				"type" : "JSON",
 				"implicit" : 1
 			}

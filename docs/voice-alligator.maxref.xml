@@ -6,8 +6,8 @@
 
 <c74object name='voice-alligator' category='velocities,  pitches,  etc.'>
 
-	<digest>voice allocator for poly~ object </digest>
-	<description>voice allocator for poly~ object </description>
+	<digest>voice alligator for poly~ object </digest>
+	<description>voice alligator for poly~ object </description>
 
 
 	<!--METADATA-->
@@ -78,11 +78,6 @@
 
 	<attributelist>
 
-		<attribute name='active' get='1' set='1' type='long' size='1' >
-			<digest>Activates Note-On Processing (default true) </digest>
-			<description>Activates Note-On Processing (default true) </description>
-		</attribute>
-
 		<attribute name='basefreq' get='1' set='1' type='float64' size='1' >
 			<digest>Standard A, (default 440</digest>
 			<description>Standard A, (default 440.0 hz) </description>
@@ -111,6 +106,11 @@
 		<attribute name='mono_steals_release' get='1' set='1' type='long' size='1' >
 			<digest>If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default true) </digest>
 			<description>If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default true) </description>
+		</attribute>
+
+		<attribute name='on' get='1' set='1' type='long' size='1' >
+			<digest>Activates Note-On Processing (default true) </digest>
+			<description>Activates Note-On Processing (default true) </description>
 		</attribute>
 
 		<attribute name='output_mode' get='1' set='1' type='long' size='1' >

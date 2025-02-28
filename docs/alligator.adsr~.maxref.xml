@@ -50,9 +50,14 @@
 
 	<methodlist>
 
+		<method name='legato'>
+			<digest>legato retrigger </digest>
+			<description>legato retrigger </description>
+		</method>
+
 		<method name='float'>
-			<digest>Midipitch, Velocity, (channel), (monoflag), (realpitch) </digest>
-			<description>Midipitch, Velocity, (channel), (monoflag), (realpitch) </description>
+			<digest>Velocity </digest>
+			<description>Velocity </description>
 		</method>
 
 	</methodlist>

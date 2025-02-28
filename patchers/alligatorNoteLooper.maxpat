@@ -68,7 +68,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 290.0, 306.0, 753.0, 531.0 ],
+						"rect" : [ 353.0, 183.0, 753.0, 496.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -3306,7 +3306,7 @@
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 303.0, 47.0, 112.0, 22.0 ],
+									"patching_rect" : [ 303.0, 47.0, 104.0, 35.0 ],
 									"text" : "r #0-commands",
 									"textcolor" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 1.0 ]
 								}
@@ -3962,7 +3962,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 473.0, 209.0, 29.5, 22.0 ],
-									"text" : "$5"
+									"text" : "$4"
 								}
 
 							}
@@ -3997,7 +3997,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 283.0, 41.0, 384.0, 60.0 ],
-									"text" : "< every event consists of either 2 or 3 messages in the following order:\nfirst message is the target, second flags, third the actual note. \nFlags are: [mono, steal, hold, sustain, sequencerNote, channel] \nand note consists of [mpitch, velocity, realpitch]."
+									"text" : "< every event consists of either 2 or 3 messages in the following order:\nfirst message is the target, second flags, third the actual note. \nFlags are: [glide, hold, sustain, sequencerNote, mono, steal, channel] \nand note consists of [mpitch, velocity, realpitch]."
 								}
 
 							}
@@ -4021,7 +4021,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"patching_rect" : [ 335.0, 209.0, 29.5, 22.0 ],
-									"text" : "$1"
+									"text" : "$5"
 								}
 
 							}
