@@ -15,7 +15,7 @@ using namespace c74::min::lib;
 class voice_alligator : public object<voice_alligator>
 {
 public:
-MIN_DESCRIPTION{"voice alligator for poly~ object"};
+MIN_DESCRIPTION{"voice allocator for poly~ object"};
 MIN_TAGS{"velocities, pitches, etc."};
 MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
 MIN_RELATED{"poly~"};
@@ -54,7 +54,7 @@ struct Note
         return *std::max_element(freq.begin(), freq.end());
     }
 
-    void remove_mpitch_entry(int mpitchToRemove) {
+    void remove_mpitch_entry(int mpitchToRemove){
         for (auto it = mpitch.begin(); it != mpitch.end(); ++it){
             if (*it == mpitchToRemove) {
                 size_t index = it - mpitch.begin(); // Pointer arithmetic to get the index
@@ -65,7 +65,7 @@ struct Note
         }
     }
 
-    void remove_highest_mpitch_entry() {
+    void remove_highest_mpitch_entry(){
         // Find the iterator pointing to the highest mpitch
         auto it = std::max_element(mpitch.begin(), mpitch.end());
         size_t index = it - mpitch.begin(); // Calculate the index
@@ -94,7 +94,7 @@ struct WrappedNote{
 };
 
 private:
-fifo<WrappedNote> notes_fifo{4096};
+fifo<WrappedNote> notes_fifo{15000};
 //fifo<int> finished_notes_fifo{1024};
 
 public:
@@ -387,7 +387,7 @@ function mainInletFunction = MIN_FUNCTION{
 
     // lock lock { m_mutex };
 
-    if (inlet == 0){ // notes: mpitch, vel, (channel), (mono flag), (real pitch)
+    if (inlet == 0){ //notes: mpitch, vel, (channel), (mono flag), (real pitch)
         int mpitch = args[0]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch (see further down)
         double vel = args[1];
         unsigned long argsize = args.size();

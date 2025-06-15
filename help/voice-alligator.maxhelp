@@ -58,7 +58,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -94,7 +94,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 359.0, 35.0, 167.0, 33.0 ],
+									"patching_rect" : [ 359.0, 23.0, 167.0, 33.0 ],
 									"text" : "Hanging Notes",
 									"underline" : 1
 								}
@@ -108,9 +108,8 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 57.0, 79.0, 813.0, 460.0 ],
-									"presentation_linecount" : 29,
-									"text" : "One of the biggest challenges for this project was eliminating hanging notes—notes that should have received a Note-Off but, for some reason, didn't. There are two chokepoints where this issue can occur: (1) the internal note processing of [voice-alligator], and (2) the ADSR object in our voice. We can check for note entrances in our external by using a \"print\" command to [voice-alligator].\n\nWe conducted a few benchmarks to investigate this issue. We compared [live.adsr~] and [adsr~].\n\n[live.adsr~] works just fine with overdrive off, no hanging notes ever. When overdrive is on max actually crashes. We found out that [adsr~] is able to deliver it's mute message on the scheduler thread while [live.adsr~] will always deliver on main, so there might be some bad behaviour in our external when it get's it's mute messages from the main thread. With Audio Interrupt (SIAA) turned on [live.adsr~] does not crash and also doesn't produce hanging notes.\n\n[adsr~] produces hanging notes with Overdrive on and Overdrive off. But interestingly it doesn't produce hanging notes with SIAA enabled.\n\nWe believe that [adsr~] may occasionally block a Note-Off, maybe during its de-clicking operation. We mainly believe this because our \"print\" command shows us that our external actually sent the correct note-offs and furthermore if we attach a float object right in front of [adsr~] the float actually shows us a zero - so a note-off.\n\nHowever, we continued to use [adsr~] in our example-voice because its de-clicking feature is necessary for us, and during \"normal\" operations with a MIDI keyboard, we have rarely encountered any hanging notes.\n\nAnother potential cause of hanging notes is sending [voice-alligator] notes while editing the patcher. However, this should generally be avoided as it can lead to timing inaccuracies. There is also the possibility to get hanging notes if [poly~] has a lower number of voices than [voice-alligator].\n\nIf you encounter hanging notes, you can send the \"end\" command to [voice-alligator], which will release all notes it is aware of, which always worked during our benchmarks. Alternatively, you can use the \"panic\" command to our example voice, which will immediately terminate all voices with a 7ms de-click."
+									"patching_rect" : [ 57.0, 67.0, 822.0, 460.0 ],
+									"text" : "One of the biggest challenges for this project was eliminating hanging notes—notes that should have received a Note-Off but, for some reason, didn't. There are two chokepoints where this issue can occur: (1) the internal note processing of [voice-alligator], and (2) the ADSR object in our voice. We can check for note entrances in our external by using a \"print\" command to [voice-alligator].\n\nWe conducted a few benchmarks to investigate this issue. We compared [live.adsr~] and [adsr~], each time using the \"alligator_benchmark.maxpatch\" patcher.\n\n[live.adsr~] works good with overdrive off, no hanging notes. When overdrive is on and we process notes, max crashes. We found out that [adsr~] is able to deliver it's mute message on the scheduler thread while [live.adsr~] will always deliver on main, so there might be some bad behaviour in our external when it get's it's mute messages from the main thread. With Audio Interrupt (SIAA) turned on [live.adsr~] does not crash and also does not produce hanging notes.\n\n[adsr~] produces hanging notes with Overdrive on and Overdrive off. But interestingly it doesn't produce hanging notes with SIAA enabled.\n\nWe believe that [adsr~] may occasionally block a Note-Off, maybe during its de-clicking operation. We mainly believe this because our \"print\" command shows us that our external actually sent the correct note-offs, and furthermore if we attach a float object right in front of [adsr~], the float actually shows us a zero - so a note-off.\n\nAnother potential cause of hanging notes is sending [voice-alligator] notes while editing the patcher. However, this should generally be avoided as it can lead to timing inaccuracies. There is also the possibility to get hanging notes if [poly~] has a lower number of voices than [voice-alligator].\n\nDuring \"normal\" operations with a MIDI keyboard and SIAA turned off we have rarely encountered any hanging notes. So the external is usable with SIAA and also without it, but only with some risk of hanging notes.\n\nIf you encounter hanging notes, you can send the \"end\" command to [voice-alligator], which will release all notes it is aware of, which always terminated all hanging notes during our benchmarks. Alternatively, you can use the \"panic\" command to our example voice, which will immediately terminate all voices with a 7ms de-click. "
 								}
 
 							}
@@ -177,6 +176,17 @@
 						"showontab" : 1,
 						"assistshowspatchername" : 0,
 						"boxes" : [ 							{
+								"box" : 								{
+									"id" : "obj-17",
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 41.0, 119.0, 97.0, 20.0 ],
+									"text" : "work in progress"
+								}
+
+							}
+, 							{
 								"box" : 								{
 									"id" : "obj-26",
 									"linecount" : 3,
@@ -2224,7 +2234,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"bglocked" : 0,
 						"openinpresentation" : 0,
 						"default_fontsize" : 12.0,
@@ -2473,7 +2483,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 760.5, 343.0, 353.0, 60.0 ],
+									"patching_rect" : [ 754.0, 343.0, 353.0, 60.0 ],
 									"text" : "output_mode determines if voice-alligator will output MIDI pitches or frequencies to the voice. This can be useful for samplers. All microtonal scale definitions as well as the basefreq attribute will be ignored if ouput_mode is MIDI pitch.",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -2486,7 +2496,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 784.5, 536.0, 307.0, 20.0 ],
+									"patching_rect" : [ 778.0, 536.0, 307.0, 20.0 ],
 									"text" : "Settings for scale_def messages, see tab \"Microtonality\"",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -2511,7 +2521,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 826.5, 647.0, 55.0, 27.0 ],
+									"patching_rect" : [ 820.0, 647.0, 55.0, 27.0 ],
 									"text" : "scale_def"
 								}
 
@@ -2524,7 +2534,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 852.5, 317.0, 147.0, 22.0 ],
+									"patching_rect" : [ 846.0, 317.0, 147.0, 22.0 ],
 									"text" : "Tuning / Output_mode",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -2536,7 +2546,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 836.0, 226.0, 155.0, 20.0 ],
+									"patching_rect" : [ 829.0, 226.0, 155.0, 20.0 ],
 									"text" : "Enables / Disables Stealing",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -2550,7 +2560,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 878.0, 82.0, 97.0, 22.0 ],
+									"patching_rect" : [ 871.0, 82.0, 97.0, 22.0 ],
 									"text" : "Voice Stealing",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -2637,7 +2647,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 763.0, 106.0, 351.0, 74.0 ],
+									"patching_rect" : [ 756.0, 106.0, 351.0, 74.0 ],
 									"text" : "0: don't respect channels at all, always steal oldest note\n1: respect channels, notes of channel n can't steal notes of channel <n\n2: notes of channel n can steal notes of channel <n, but will first try to steal of higher channel.",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -2848,7 +2858,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 895.5, 461.0, 95.0, 20.0 ],
+									"patching_rect" : [ 889.0, 461.0, 95.0, 20.0 ],
 									"text" : "Sets Standard A",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -2901,7 +2911,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 797.0, 249.0, 233.0, 27.0 ]
+									"patching_rect" : [ 790.0, 249.0, 233.0, 27.0 ]
 								}
 
 							}
@@ -2918,7 +2928,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 763.0, 182.0, 346.0, 27.0 ],
+									"patching_rect" : [ 756.0, 182.0, 346.0, 27.0 ],
 									"text_width" : 161.0
 								}
 
@@ -2936,7 +2946,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 826.5, 618.0, 232.0, 27.0 ],
+									"patching_rect" : [ 820.0, 618.0, 232.0, 27.0 ],
 									"text_width" : 117.0
 								}
 
@@ -2954,7 +2964,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 826.5, 589.0, 233.0, 27.0 ],
+									"patching_rect" : [ 820.0, 589.0, 233.0, 27.0 ],
 									"text_width" : 117.0
 								}
 
@@ -2972,7 +2982,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 826.5, 558.0, 233.0, 27.0 ],
+									"patching_rect" : [ 820.0, 558.0, 233.0, 27.0 ],
 									"text_width" : 117.0
 								}
 
@@ -2990,7 +3000,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 809.5, 408.0, 233.0, 27.0 ]
+									"patching_rect" : [ 803.0, 408.0, 233.0, 27.0 ]
 								}
 
 							}
@@ -3059,7 +3069,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 826.5, 486.0, 232.0, 27.0 ]
+									"patching_rect" : [ 820.0, 486.0, 232.0, 27.0 ]
 								}
 
 							}
@@ -3124,7 +3134,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 782.5, 531.0, 313.0, 148.0 ],
+									"patching_rect" : [ 776.0, 531.0, 313.0, 148.0 ],
 									"proportion" : 0.5
 								}
 
@@ -3141,7 +3151,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 784.0, 223.0, 258.0, 62.0 ],
+									"patching_rect" : [ 777.0, 223.0, 258.0, 62.0 ],
 									"proportion" : 0.5
 								}
 
@@ -3175,7 +3185,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 813.5, 461.0, 258.0, 62.0 ],
+									"patching_rect" : [ 807.0, 461.0, 258.0, 62.0 ],
 									"proportion" : 0.5
 								}
 
@@ -3192,7 +3202,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 757.5, 339.0, 356.0, 103.0 ],
+									"patching_rect" : [ 751.0, 339.0, 356.0, 103.0 ],
 									"proportion" : 0.5
 								}
 
@@ -3207,7 +3217,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 753.5, 315.0, 360.0, 370.0 ],
+									"patching_rect" : [ 747.0, 315.0, 360.0, 370.0 ],
 									"proportion" : 0.5
 								}
 
@@ -3241,7 +3251,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 758.0, 101.0, 351.0, 113.0 ],
+									"patching_rect" : [ 751.0, 101.0, 351.0, 113.0 ],
 									"proportion" : 0.5
 								}
 
@@ -3256,7 +3266,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 754.0, 77.0, 355.0, 220.0 ],
+									"patching_rect" : [ 747.0, 77.0, 355.0, 220.0 ],
 									"proportion" : 0.5
 								}
 
@@ -3381,7 +3391,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 819.0, 447.0, 732.0, 447.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 812.5, 447.0, 732.0, 447.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-10", 0 ]
 								}
 
@@ -3417,7 +3427,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 806.5, 300.0, 732.0, 300.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 799.5, 300.0, 732.0, 300.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-15", 0 ]
 								}
 
@@ -3426,7 +3436,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 772.5, 210.0, 732.0, 210.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 765.5, 210.0, 732.0, 210.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-16", 0 ]
 								}
 
@@ -3435,7 +3445,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 836.0, 648.0, 726.0, 648.0, 726.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 829.5, 648.0, 726.0, 648.0, 726.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-17", 0 ]
 								}
 
@@ -3444,7 +3454,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 836.0, 618.0, 726.0, 618.0, 726.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 829.5, 618.0, 726.0, 618.0, 726.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-18", 0 ]
 								}
 
@@ -3453,7 +3463,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 836.0, 585.0, 726.0, 585.0, 726.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 829.5, 585.0, 726.0, 585.0, 726.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-19", 0 ]
 								}
 
@@ -3462,7 +3472,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 836.0, 516.0, 732.0, 516.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 829.5, 516.0, 732.0, 516.0, 732.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-2", 0 ]
 								}
 
@@ -3497,7 +3507,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 836.0, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
+									"midpoints" : [ 829.5, 738.0, 159.0, 738.0, 159.0, 672.0, 27.5, 672.0 ],
 									"source" : [ "obj-24", 0 ]
 								}
 
@@ -9720,7 +9730,7 @@
 																	"numoutlets" : 1,
 																	"outlettype" : [ "" ],
 																	"patching_rect" : [ 15.0, 660.0, 4205.0, 23.0 ],
-																	"text" : "scale_def 59 50. 60 100. 61 150. 62 200. 63 250. 64 300. 65 350. 66 400. 67 450. 68 500. 69 550. 70 600. 71 650. 72 700. 73 750. 74 800. 75 850. 76 900. 77 950. 78 1000. 79 1050. 80 1100. 81 1150. 82 1200. 83 1250. 84 1300. 85 1350. 86 1400. 87 1450. 88 1500. 89 1550. 90 1600. 91 1650. 92 1700. 93 1750. 94 1800. 95 1850. 96 1900. 97 1950. 98 2000. 99 2050. 100 2100. 101 2150. 102 2200. 103 2250.",
+																	"text" : "scale_def 59 55. 60 110. 61 165. 62 220. 63 275. 64 330. 65 385. 66 440. 67 495. 68 550. 69 605. 70 660. 71 715. 72 770. 73 825. 74 880. 75 935. 76 990. 77 1045. 78 1100. 79 1155. 80 1210. 81 1265. 82 1320. 83 1375. 84 1430. 85 1485. 86 1540. 87 1595. 88 1650. 89 1705. 90 1760. 91 1815. 92 1870. 93 1925. 94 1980. 95 2035. 96 2090. 97 2145. 98 2200. 99 2255. 100 2310. 101 2365. 102 2420. 103 2475.",
 																	"textcolor" : [ 0.396078431372549, 0.0, 0.0, 1.0 ]
 																}
 
@@ -12393,7 +12403,7 @@
 													"numoutlets" : 1,
 													"outlettype" : [ "" ],
 													"patching_rect" : [ 11.0, 574.0, 1342.0, 37.0 ],
-													"text" : "scale_def 59 50. 60 100. 61 150. 62 200. 63 250. 64 300. 65 350. 66 400. 67 450. 68 500. 69 550. 70 600. 71 650. 72 700. 73 750. 74 800. 75 850. 76 900. 77 950. 78 1000. 79 1050. 80 1100. 81 1150. 82 1200. 83 1250. 84 1300. 85 1350. 86 1400. 87 1450. 88 1500. 89 1550. 90 1600. 91 1650. 92 1700. 93 1750. 94 1800. 95 1850. 96 1900. 97 1950. 98 2000. 99 2050. 100 2100. 101 2150. 102 2200. 103 2250.",
+													"text" : "scale_def 59 55. 60 110. 61 165. 62 220. 63 275. 64 330. 65 385. 66 440. 67 495. 68 550. 69 605. 70 660. 71 715. 72 770. 73 825. 74 880. 75 935. 76 990. 77 1045. 78 1100. 79 1155. 80 1210. 81 1265. 82 1320. 83 1375. 84 1430. 85 1485. 86 1540. 87 1595. 88 1650. 89 1705. 90 1760. 91 1815. 92 1870. 93 1925. 94 1980. 95 2035. 96 2090. 97 2145. 98 2200. 99 2255. 100 2310. 101 2365. 102 2420. 103 2475.",
 													"textcolor" : [ 0.396078431372549, 0.0, 0.0, 1.0 ]
 												}
 
@@ -13343,7 +13353,8 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 35.0, 505.0, 124.0, 24.0 ]
+									"patching_rect" : [ 35.0, 505.0, 124.0, 24.0 ],
+									"text" : "endhold all"
 								}
 
 							}
@@ -14249,7 +14260,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.129411764705882, 0.486274509803922, 0.490196078431373, 0.42 ],
 													"fontsize" : 13.0,
-													"hidden" : 1,
 													"id" : "obj-136",
 													"legacytextcolor" : 1,
 													"maxclass" : "textbutton",
@@ -14271,7 +14281,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.129411764705882, 0.486274509803922, 0.490196078431373, 0.42 ],
 													"fontsize" : 13.0,
-													"hidden" : 1,
 													"id" : "obj-132",
 													"legacytextcolor" : 1,
 													"maxclass" : "textbutton",
@@ -14293,7 +14302,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.129411764705882, 0.486274509803922, 0.490196078431373, 0.3 ],
 													"fontsize" : 13.0,
-													"hidden" : 1,
 													"id" : "obj-112",
 													"legacytextcolor" : 1,
 													"maxclass" : "textbutton",
@@ -20366,7 +20374,7 @@
 																					"numoutlets" : 1,
 																					"outlettype" : [ "" ],
 																					"patching_rect" : [ 51.0, 516.0, 114.0, 22.0 ],
-																					"text" : "note 61 0"
+																					"text" : "end"
 																				}
 
 																			}
@@ -21530,12 +21538,15 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-76",
+													"linecount" : 5,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 618.0, 692.0, 179.0, 22.0 ],
+													"patching_rect" : [ 618.0, 692.0, 179.0, 84.0 ],
 													"presentation" : 1,
-													"presentation_rect" : [ 502.0, 51.0, 534.0, 22.0 ],
+													"presentation_linecount" : 2,
+													"presentation_rect" : [ 502.0, 51.0, 534.0, 38.0 ],
+													"text" : "In this sequence the same thing is shown but in reverse order: Play a legato melody and use the (hold) function to build a chord.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -21545,12 +21556,15 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-75",
+													"linecount" : 9,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 580.0, 657.0, 131.0, 22.0 ],
+													"patching_rect" : [ 580.0, 657.0, 131.0, 147.0 ],
 													"presentation" : 1,
-													"presentation_rect" : [ 505.0, 11.0, 514.0, 22.0 ],
+													"presentation_linecount" : 2,
+													"presentation_rect" : [ 505.0, 11.0, 514.0, 38.0 ],
+													"text" : "In the previous example, the player first played a chord and then played a legato melody over it. The instrument was polyphonic while maintaining a legato functionality.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -22567,7 +22581,6 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-121",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -22583,7 +22596,6 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.694117647058824, 0.0, 0.0, 1.0 ],
-													"hidden" : 1,
 													"id" : "obj-23",
 													"maxclass" : "toggle",
 													"numinlets" : 1,
@@ -22600,7 +22612,6 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
-													"hidden" : 1,
 													"id" : "obj-17",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -22617,7 +22628,6 @@
 												"box" : 												{
 													"bgcolor" : [ 0.189978, 0.702782, 0.709092, 1.0 ],
 													"checkedcolor" : [ 0.937254901960784, 0.976470588235294, 0.980392156862745, 1.0 ],
-													"hidden" : 1,
 													"id" : "obj-14",
 													"maxclass" : "toggle",
 													"numinlets" : 1,
