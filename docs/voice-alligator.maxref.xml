@@ -6,8 +6,8 @@
 
 <c74object name='voice-alligator' category='velocities,  pitches,  etc.'>
 
-	<digest>voice alligator for poly~ object </digest>
-	<description>voice alligator for poly~ object </description>
+	<digest>voice allocator for poly~ object </digest>
+	<description>voice allocator for poly~ object </description>
 
 
 	<!--METADATA-->
@@ -123,6 +123,11 @@
 			<description>0 Don't respect, 1 Respect, 2 Respect but steal (default 1) </description>
 		</attribute>
 
+		<attribute name='scale_array_maxsize' get='1' set='1' type='long' size='1' >
+			<digest>Set maximum number of entries in scale array (default 128) </digest>
+			<description>Set maximum number of entries in scale array (default 128) </description>
+		</attribute>
+
 		<attribute name='scale_def_mode' get='1' set='1' type='long' size='1' >
 			<digest>Define Scale by Midi Note or by Frequency (default frequency) </digest>
 			<description>Define Scale by Midi Note or by Frequency (default frequency) </description>
@@ -131,11 +136,6 @@
 		<attribute name='scale_fill' get='1' set='1' type='long' size='1' >
 			<digest>Fill notes that are non-defined in scale_def message with MTOF (default true) </digest>
 			<description>Fill notes that are non-defined in scale_def message with MTOF (default true) </description>
-		</attribute>
-
-		<attribute name='scalearray_maxsize' get='1' set='1' type='long' size='1' >
-			<digest>Set maximum number of entries in scale array (default 128) </digest>
-			<description>Set maximum number of entries in scale array (default 128) </description>
 		</attribute>
 
 		<attribute name='steal' get='1' set='1' type='long' size='1' >

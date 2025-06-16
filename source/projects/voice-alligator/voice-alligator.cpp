@@ -371,7 +371,7 @@ attribute<bool, threadsafe::yes> sustain_attr{this, "sustain", false, descriptio
 
 attribute<int> scale_array_maxsize_attr{ 
 //actually a vector but we called it scale array because max users know this term.
-this, "scalearray_maxsize", 128,
+this, "scale_array_maxsize", 128,
 description{"Set maximum number of entries in scale array (default 128)"},
     setter{
         MIN_FUNCTION{
@@ -443,7 +443,6 @@ function mainInletFunction = MIN_FUNCTION{
             handleNoteOff(current_note);
         }
     }
-
     else{ //inlet 2, from thispoly~
         fromPoly(args[0], args[1]);
     }
@@ -665,7 +664,7 @@ void handleNoteOff(Note &incoming_note){
                                                 && !n.sustain_flag 
                                                 && n.channel == incoming_note_channel;})){
                 if(debug)cout<<"set note " << note->mpitch.back() << "at target " << note->target << " to sustain" << endl;
-                note->sustain_flag = 1;
+                note->sustain_flag = true;
                 // note->channel = 0;
                 queueNote(*note, 0, 0, true); //send flags only = true
                 return;
@@ -1156,8 +1155,8 @@ message<> printscale{this, "printscale", "Print scale_array to the max console",
         MIN_FUNCTION{
             int scale_arraylength = scale_array.length();
             cout << "scale array length: " << scale_arraylength << endl;
-            for (int i = 0; i < scale_arraylength; ++i) {
-                    if (scale_array.get_value(i)) {
+            for (int i = 0; i < scale_arraylength; ++i){
+                    if (scale_array.get_value(i)){
                         cout << "Index " << i << ": " << *scale_array.get_value(i) << endl;
                     } 
                 }

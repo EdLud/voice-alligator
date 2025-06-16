@@ -42,8 +42,8 @@
 		</method>
 
 		<method name='printscale'>
-			<digest>Print scalearray to the max console </digest>
-			<description>Print scalearray to the max console </description>
+			<digest>Print scale_array to the max console </digest>
+			<description>Print scale_array to the max console </description>
 		</method>
 
 		<method name='print'>
@@ -62,8 +62,8 @@
 		</method>
 
 		<method name='list'>
-			<digest>Midipitch, Velocity, (channel), (monoflag), (realpitch) </digest>
-			<description>Midipitch, Velocity, (channel), (monoflag), (realpitch) </description>
+			<digest>Midipitch, Velocity, (channel), (mono_flag), (realpitch) </digest>
+			<description>Midipitch, Velocity, (channel), (mono_flag), (realpitch) </description>
 		</method>
 
 		<method name='voices'>
@@ -77,11 +77,6 @@
 	<!--ATTRIBUTES-->
 
 	<attributelist>
-
-		<attribute name='active' get='1' set='1' type='long' size='1' >
-			<digest>Activates Note-On Processing (default true) </digest>
-			<description>Activates Note-On Processing (default true) </description>
-		</attribute>
 
 		<attribute name='basefreq' get='1' set='1' type='float64' size='1' >
 			<digest>Standard A, (default 440</digest>
@@ -113,6 +108,11 @@
 			<description>If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default true) </description>
 		</attribute>
 
+		<attribute name='on' get='1' set='1' type='long' size='1' >
+			<digest>Activates Note-On Processing (default true) </digest>
+			<description>Activates Note-On Processing (default true) </description>
+		</attribute>
+
 		<attribute name='output_mode' get='1' set='1' type='long' size='1' >
 			<digest>Output Midi Notes or Frequencies (default frequency) </digest>
 			<description>Output Midi Notes or Frequencies (default frequency) </description>
@@ -123,6 +123,11 @@
 			<description>0 Don't respect, 1 Respect, 2 Respect but steal (default 1) </description>
 		</attribute>
 
+		<attribute name='scale_array_maxsize' get='1' set='1' type='long' size='1' >
+			<digest>Set maximum number of entries in scale array (default 128) </digest>
+			<description>Set maximum number of entries in scale array (default 128) </description>
+		</attribute>
+
 		<attribute name='scale_def_mode' get='1' set='1' type='long' size='1' >
 			<digest>Define Scale by Midi Note or by Frequency (default frequency) </digest>
 			<description>Define Scale by Midi Note or by Frequency (default frequency) </description>
@@ -131,11 +136,6 @@
 		<attribute name='scale_fill' get='1' set='1' type='long' size='1' >
 			<digest>Fill notes that are non-defined in scale_def message with MTOF (default true) </digest>
 			<description>Fill notes that are non-defined in scale_def message with MTOF (default true) </description>
-		</attribute>
-
-		<attribute name='scalearray_maxsize' get='1' set='1' type='long' size='1' >
-			<digest>Set maximum number of entries in scale array (default 128) </digest>
-			<description>Set maximum number of entries in scale array (default 128) </description>
 		</attribute>
 
 		<attribute name='steal' get='1' set='1' type='long' size='1' >
