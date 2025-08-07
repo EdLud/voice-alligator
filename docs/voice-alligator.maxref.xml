@@ -41,6 +41,11 @@
 			<description>Sends Notes into release. If an argument was provided, send notes of channel (argument) into release, else send all notes into release. </description>
 		</method>
 
+		<method name='panic'>
+			<digest>sends out the message *panic* to the voice </digest>
+			<description>sends out the message *panic* to the voice </description>
+		</method>
+
 		<method name='printscale'>
 			<digest>Print scale_array to the max console </digest>
 			<description>Print scale_array to the max console </description>

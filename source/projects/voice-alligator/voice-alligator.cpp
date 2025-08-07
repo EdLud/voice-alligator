@@ -12,8 +12,7 @@
 using namespace c74::min;
 using namespace c74::min::lib;
 
-class voice_alligator : public object<voice_alligator>
-{
+class voice_alligator : public object<voice_alligator>{
 public:
 MIN_DESCRIPTION{"voice allocator for poly~ object"};
 MIN_TAGS{"velocities, pitches, etc."};
@@ -22,7 +21,8 @@ MIN_RELATED{"poly~"};
 
 inlet<> in1{this, "(list) midipitch, velocity, (channel), (mono_flag), (realpitch)"};
 inlet<> in2{this, "(list) voice number, muteflag"};
-outlet<thread_check::scheduler, thread_action::fifo> out1{this, "messages to poly~ object"};
+outlet<> out1{this, "messages to poly~ object"};
+// outlet<thread_check::scheduler, thread_action::fifo> out1{this, "messages to poly~ object"};
 
 struct Note
 {
@@ -87,11 +87,11 @@ class ScaleArray
 {
     public:
 
-    void setSize(int size) {
+    void set_size(int size) {
         arrsize = size;
     }
 
-    void fillContainer(int size) {
+    void fill_container(int size) {
         data.resize(size); 
         for (int i = 0; i < size; ++i) {
             data[i] = static_cast<double>(440 * (exp(0.057762265 * (i - 69)))); // Fill with MTOF
@@ -231,7 +231,7 @@ argument<int> voices_arg{
     }
 };
 
-voice_alligator(const atoms& args = {}) {
+voice_alligator(const atoms& args = {}){
             //constructor
             setStealcase();
             int voicenr = voices;
@@ -329,8 +329,8 @@ description{"Set maximum number of entries in scale array (default 128)"},
 setter{
         MIN_FUNCTION{
             int maxsize = args[0];
-            scale_array.setSize(maxsize);
-            scale_array.fillContainer(maxsize);
+            scale_array.set_size(maxsize);
+            scale_array.fill_container(maxsize);
             return {maxsize};
         }
     }
@@ -951,6 +951,12 @@ void fromPoly(const int target, const int muteflag, const lock &lock){
     }
 }
 
+function panicFunction = MIN_FUNCTION{
+        out1.send("target", 0);
+        out1.send("panic");
+    return{};
+};
+
 function endHold = MIN_FUNCTION{
     if (inlet == 0){
         atom end_argument = "all"; // Default to "all" if no argument was provided
@@ -998,7 +1004,7 @@ function scaleDefineFunction = MIN_FUNCTION{
         unsigned long size = args.size();
         if(scale_fill_attr || !size){ //if a scale_def message without args was send, we default to MTOF
             if(debug){cout << "filled the scale array" << endl;}
-            scale_array.fillContainer(scale_array_maxsize_attr);
+            scale_array.fill_container(scale_array_maxsize_attr);
         }
         else{
             if(debug){cout << "cleared the scale array" << endl;}
@@ -1129,9 +1135,11 @@ message<> printscale{this, "printscale", "Print scale_array to the max console",
         MIN_FUNCTION{
         int scale_arraylength = scale_array.length();
         cout << "scale array length: " << scale_arraylength << endl;
-        for (int i = 0; i < scale_arraylength; ++i){
+        for (int i = 1; i < scale_arraylength; ++i){
                 if (scale_array.get_value(i)) {
-                    cout << "Index " << i << ": " << *scale_array.get_value(i) << endl;
+                    // cout << "Index " << i << ": " << *scale_array.get_value(i) << endl;
+                    cout << "Index " << i << ": " << (12 * std::log10(*scale_array.get_value(i) / 440.) / std::log10(2) + 69) << endl; //FTOM
+
                 } 
             }
 
@@ -1142,6 +1150,7 @@ message<> printscale{this, "printscale", "Print scale_array to the max console",
 message<threadsafe::yes> list{this, "list", "Midipitch, Velocity, (channel), (mono_flag), (realpitch)", mainInletFunction};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
 message<threadsafe::yes> end_hold{this, "endhold", "End hold notes: all (default, can be ommitted), last, first", endHold};
+message<threadsafe::no> panic{this, "panic", "sends out the message *panic* to the voice", panicFunction};
 message<threadsafe::yes> end{this, "end", "Sends Notes into release. If an argument was provided, send notes of channel (argument) into release, else send all notes into release.", endFunction};
 
 private:
