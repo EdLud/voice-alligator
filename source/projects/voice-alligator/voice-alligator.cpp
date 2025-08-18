@@ -688,6 +688,8 @@ void handleNoteOff(Note &incoming_note, lock &lock){
                     } 
                 }
                 break;
+
+            default: break;
         } 
         //if all of the above fails, we remove the mpitch of the incoming depress and don't send out anything
         note->remove_mpitch_entry(incoming_note_mpitch_back);
@@ -834,7 +836,7 @@ void nonLockOutputFunction(const Note note, bool note_on, bool steal, bool flags
         // glide, hold, sustain, sequencerNote, mono, steal, channel
 
         out1.send("target", note.target);
-        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, steal, note.channel);
+        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.channel);
         if(!flags_only) {
             if(debug){cout << " Outlet 1: target " << note.target    << " " << note.mpitch.back()    << " " << note.freq.back()    << " " << note.vel    << " " << note.mono_flag    << " " << steal    << " " << note.hold_flag    << " " << note.sustain_flag    << endl;}        
             if(note.mono_flag && !glide_note){ // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
@@ -851,6 +853,7 @@ void nonLockOutputFunction(const Note note, bool note_on, bool steal, bool flags
                 case mono_note_priority::LOW:
                 out1.send("notes", note.return_lowest_freq(), note.vel);
                 break;
+                default: break;
                 }
             }
                 else{
@@ -860,7 +863,7 @@ void nonLockOutputFunction(const Note note, bool note_on, bool steal, bool flags
     }
     else{
         out1.send("target", note.target);
-        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, steal, note.channel);
+        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.channel);
         if(!flags_only) out1.send("notes", note.freq.back(), 0);
         if(debug){cout << " Outlet 1: target " << note.target<< " " << note.mpitch.back()<< " " << note.freq.back()<< " " << 0<< " " << note.mono_flag<< " " << steal<< " " << note.hold_flag<< " " << note.sustain_flag<< endl;}
     }
@@ -870,13 +873,12 @@ void nonLockOutputFunction(const Note note, bool note_on, bool steal, bool flags
 void outputFunction(const Note note, bool note_on, bool steal, lock &lock, bool flags_only = false, bool glide_note = false){
     //in this context "note on" means something different than in other functions:
     // a mono note-off to [voice-alligator] can be a note-on.
-        // out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, steal, note.channel);
 
     if (note_on)
     {
         lock.unlock();
         out1.send("target", note.target);
-        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, steal, note.channel);
+        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.channel);
         if(!flags_only) 
         {
             if(debug)
@@ -905,6 +907,7 @@ void outputFunction(const Note note, bool note_on, bool steal, lock &lock, bool 
                 out1.send("notes", note.return_lowest_freq(), note.vel);
                 break;
 
+                default: break;
                 }
             }
             else{
@@ -915,7 +918,7 @@ void outputFunction(const Note note, bool note_on, bool steal, lock &lock, bool 
     else{ //note off
         lock.unlock();
         out1.send("target", note.target);
-        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, steal, note.channel);
+        out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.channel);
         if(!flags_only) out1.send("notes", note.freq.back(), 0);
         if(debug){cout << " Outlet 1: target " << note.target << " " << note.freq.back() << " " << 0 << " " << note.mono_flag << " " << steal << " " << note.hold_flag << " " << note.sustain_flag << endl;}
     }

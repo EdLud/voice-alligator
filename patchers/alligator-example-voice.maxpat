@@ -38,25 +38,13 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-18",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 2,
-					"outlettype" : [ "float", "float" ],
-					"patching_rect" : [ 194.0, 177.0, 61.0, 22.0 ],
-					"text" : "unpack f f"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-6",
 					"maxclass" : "newobj",
 					"numinlets" : 2,
 					"numoutlets" : 2,
-					"outlettype" : [ "", "" ],
+					"outlettype" : [ "int", "int" ],
 					"patching_rect" : [ 194.0, 140.0, 37.0, 22.0 ],
-					"text" : "zl rev"
+					"text" : "swap"
 				}
 
 			}
@@ -140,8 +128,8 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 503.0, 71.0, 338.0, 18.0 ],
-					"text" : "1            2         3                    4                       5           6            7"
+					"patching_rect" : [ 503.0, 71.0, 261.0, 18.0 ],
+					"text" : "1            2         3                    4                       5              6 "
 				}
 
 			}
@@ -175,7 +163,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 59.0, 106.0, 776.0, 480.0 ],
+						"rect" : [ 59.0, 106.0, 840.0, 480.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"boxes" : [ 							{
 								"box" : 								{
@@ -184,7 +172,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 302.0, 69.0, 410.0, 33.0 ],
+									"patching_rect" : [ 375.0, 74.0, 410.0, 33.0 ],
 									"text" : "<glide only on note on. Note that a note-off can be a note on in monophony context"
 								}
 
@@ -195,7 +183,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 210.0, 354.0, 82.0, 20.0 ],
+									"patching_rect" : [ 283.0, 359.0, 82.0, 20.0 ],
 									"text" : "< freq (signal)"
 								}
 
@@ -206,7 +194,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 349.0, 18.0, 32.0, 20.0 ],
+									"patching_rect" : [ 422.0, 23.0, 32.0, 20.0 ],
 									"text" : "note"
 								}
 
@@ -218,7 +206,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
-									"patching_rect" : [ 225.0, 102.0, 29.5, 22.0 ],
+									"patching_rect" : [ 298.0, 107.0, 29.5, 22.0 ],
 									"text" : "+ 1"
 								}
 
@@ -227,12 +215,11 @@
 								"box" : 								{
 									"color" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 1.0 ],
 									"id" : "obj-69",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 225.0, 64.0, 72.0, 22.0 ],
+									"patching_rect" : [ 298.0, 69.0, 79.0, 22.0 ],
 									"text" : "r #0-glide"
 								}
 
@@ -244,7 +231,7 @@
 									"numinlets" : 3,
 									"numoutlets" : 1,
 									"outlettype" : [ "signal" ],
-									"patching_rect" : [ 175.0, 263.0, 78.0, 22.0 ],
+									"patching_rect" : [ 248.0, 268.0, 78.0, 22.0 ],
 									"text" : "selector~ 2 1"
 								}
 
@@ -256,7 +243,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
-									"patching_rect" : [ 510.0, 193.0, 29.5, 22.0 ],
+									"patching_rect" : [ 583.0, 198.0, 29.5, 22.0 ],
 									"text" : "+ 1"
 								}
 
@@ -500,7 +487,7 @@
  ]
 									}
 ,
-									"patching_rect" : [ 89.0, 201.0, 63.0, 22.0 ],
+									"patching_rect" : [ 162.0, 206.0, 63.0, 22.0 ],
 									"text" : "p logGlide"
 								}
 
@@ -512,7 +499,7 @@
 									"numinlets" : 3,
 									"numoutlets" : 2,
 									"outlettype" : [ "signal", "bang" ],
-									"patching_rect" : [ 89.0, 258.0, 45.0, 22.0 ],
+									"patching_rect" : [ 162.0, 263.0, 45.0, 22.0 ],
 									"text" : "curve~"
 								}
 
@@ -524,7 +511,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 343.0, 193.0, 57.0, 22.0 ],
+									"patching_rect" : [ 416.0, 198.0, 57.0, 22.0 ],
 									"text" : "pack f 50"
 								}
 
@@ -536,7 +523,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 2,
 									"outlettype" : [ "", "" ],
-									"patching_rect" : [ 225.0, 138.0, 52.0, 22.0 ],
+									"patching_rect" : [ 298.0, 143.0, 52.0, 22.0 ],
 									"text" : "gate 2 1"
 								}
 
@@ -548,7 +535,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 2,
 									"outlettype" : [ "signal", "bang" ],
-									"patching_rect" : [ 343.0, 240.0, 34.0, 22.0 ],
+									"patching_rect" : [ 416.0, 245.0, 34.0, 22.0 ],
 									"text" : "line~"
 								}
 
@@ -559,7 +546,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 387.0, 241.0, 209.0, 20.0 ],
+									"patching_rect" : [ 475.5, 246.0, 209.0, 20.0 ],
 									"text" : "don't glide linearly, but logarithmically!"
 								}
 
@@ -567,11 +554,10 @@
 , 							{
 								"box" : 								{
 									"id" : "obj-13",
-									"linecount" : 2,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ -32.0, 139.0, 258.0, 33.0 ],
+									"patching_rect" : [ 7.0, 144.0, 286.0, 20.0 ],
 									"text" : "if the note is part of a portamento sequence: glide ->"
 								}
 
@@ -583,7 +569,7 @@
 									"numinlets" : 3,
 									"numoutlets" : 3,
 									"outlettype" : [ "", "", "" ],
-									"patching_rect" : [ 452.0, 158.0, 135.0, 22.0 ],
+									"patching_rect" : [ 525.0, 163.0, 135.0, 22.0 ],
 									"text" : "route glidetime logGlide"
 								}
 
@@ -592,12 +578,11 @@
 								"box" : 								{
 									"color" : [ 0.16078431372549, 0.682352941176471, 1.0, 1.0 ],
 									"id" : "obj-42",
-									"linecount" : 3,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 452.0, 128.0, 73.0, 22.0 ],
+									"patching_rect" : [ 525.0, 133.0, 161.0, 22.0 ],
 									"text" : "r #1-params"
 								}
 
@@ -610,8 +595,8 @@
 									"maxclass" : "inlet",
 									"numinlets" : 0,
 									"numoutlets" : 1,
-									"outlettype" : [ "float" ],
-									"patching_rect" : [ 317.0, 13.0, 30.0, 30.0 ]
+									"outlettype" : [ "int" ],
+									"patching_rect" : [ 390.0, 18.0, 30.0, 30.0 ]
 								}
 
 							}
@@ -623,7 +608,7 @@
 									"maxclass" : "outlet",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 175.0, 349.0, 30.0, 30.0 ]
+									"patching_rect" : [ 248.0, 354.0, 30.0, 30.0 ]
 								}
 
 							}
@@ -720,7 +705,7 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-54", 0 ],
-									"midpoints" : [ 234.5, 231.25, 352.5, 231.25 ],
+									"midpoints" : [ 307.5, 236.25, 425.5, 236.25 ],
 									"order" : 0,
 									"source" : [ "obj-49", 0 ]
 								}
@@ -1016,8 +1001,8 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 456.0, 59.0, 385.0, 34.0 ],
-					"text" : "< flags: glide, hold, sustain, sequencerNote, mono, steal, channel\n"
+					"patching_rect" : [ 456.0, 59.0, 324.0, 34.0 ],
+					"text" : "< flags: glide, hold, sustain, sequencerNote, mono, channel\n"
 				}
 
 			}
@@ -1355,7 +1340,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 137.0, 27.0, 345.0, 34.0 ],
-									"text" : "flags: glide, hold, sustain, sequencerNote, mono, steal, channel\n"
+									"text" : "flags: glide, hold, sustain, sequencerNote, mono, channel\n"
 								}
 
 							}
@@ -1787,6 +1772,10 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 164.0, 685.0, 42.0, 22.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "out~ 1"
 				}
 
@@ -1956,6 +1945,10 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 194.0, 10.0, 47.0, 23.0 ],
+					"saved_object_attributes" : 					{
+						"attr_comment" : ""
+					}
+,
 					"text" : "in 1"
 				}
 
@@ -2014,20 +2007,6 @@
 				"patchline" : 				{
 					"destination" : [ "obj-29", 0 ],
 					"source" : [ "obj-17", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-31", 1 ],
-					"source" : [ "obj-18", 0 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-74", 0 ],
-					"source" : [ "obj-18", 1 ]
 				}
 
 			}
@@ -2313,8 +2292,15 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-18", 0 ],
+					"destination" : [ "obj-31", 1 ],
 					"source" : [ "obj-6", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-74", 0 ],
+					"source" : [ "obj-6", 1 ]
 				}
 
 			}
