@@ -8,7 +8,7 @@ tovoice decay 150
 tovoice sustain 0.7
 tovoice release 500
 tovoice glidetime 50
-tovoice legato_retrigger 1
+tovoice glide_retrigger 1
 mono 0
 pitchwheel 0
 hold 1

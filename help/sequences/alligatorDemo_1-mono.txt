@@ -1,5 +1,5 @@
 descr 1 "This demonstrates the monophony functionality of [voice-alligator]"
-descr 2 "Press a C-major chord then turn on (mono) and play a short, monophonic legato melody over the chord."
+descr 2 "Press a C-major chord then turn on (mono) and play a short, monophonic portamento melody over the chord."
 descr 3 "The Instrument is monophonic and polyphonic at the same time."
 show mono
 tovoice attack 7
@@ -7,7 +7,7 @@ tovoice decay 150
 tovoice sustain 0.7
 tovoice release 150
 tovoice glidetime 50
-tovoice legato_retrigger 1
+tovoice glide_retrigger 1
 pitchwheel 0
 mono 0
 hold 0

@@ -1,5 +1,5 @@
-descr 1 "In the previous example, the player first played a chord and then played a legato melody over it. The instrument was polyphonic while maintaining a legato functionality."
-descr 2 "In this sequence the same thing is shown but in reverse order: Play a legato melody and use the (hold) function to build a chord."
+descr 1 "In the previous example, the player first played a chord and then played a portamento melody over it. The instrument was polyphonic while maintaining a glide functionality."
+descr 2 "In this sequence the same thing is shown but in reverse order: Play a portamento melody and use the (hold) function to build a chord."
 descr 3 ""
 show mono
 show hold
@@ -8,7 +8,7 @@ tovoice decay 150
 tovoice sustain 0.7
 tovoice release 50
 tovoice glidetime 50
-tovoice legato_retrigger 1
+tovoice glide_retrigger 1
 pitchwheel 0
 hold 0
 mono 1

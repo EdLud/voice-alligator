@@ -9,7 +9,7 @@ tovoice decay 150
 tovoice sustain 0.7
 tovoice release 50
 tovoice glidetime 15
-tovoice legato_retrigger 1
+tovoice glide_retrigger 1
 note 65 60
 500 scale 1
 500 note 67 60 

@@ -17,4 +17,7 @@ tmp
 .vs
 package-info.json
 .vscode/
-
+other/
+adsrTry/
+newCommand.txt
+*.zip

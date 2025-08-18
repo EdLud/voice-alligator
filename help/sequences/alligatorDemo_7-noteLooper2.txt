@@ -1,6 +1,6 @@
 descr 1 "Note Looper not only remembers the pitch of the note, but also the monophony flag."
-descr 2 "First play a low legato melody and record it. Then play in a higher register over the recording."
-descr 3 "The result is 2 legato melodies playing parallely on the same instrument."
+descr 2 "First play a low portamento melody and record it. Then play in a higher register over the recording."
+descr 3 "The result is 2 gliding melodies playing parallely on the same instrument."
 show mono
 mono 1
 show notelooper
@@ -9,7 +9,7 @@ tovoice decay 150
 tovoice sustain 0.7
 tovoice release 3500
 tovoice glidetime 50
-tovoice legato_retrigger 0
+tovoice glide_retrigger 0
 scale 2
 metroRandomOffset 60
 metroRandomLength 300
