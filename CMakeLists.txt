@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
-project(Min-DevKit)
+project(voice-alligator VERSION 1.0.0)
+
+set(PACKAGE_VERSION ${PROJECT_VERSION})
+
 
 enable_testing()
 
