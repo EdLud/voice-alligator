@@ -155,4 +155,4 @@ jobs:
         artifacts: ${{ github.event.repository.name }}-package-for-max-${{ steps.get_version.outputs.version }}.zip
         body: "Max Package for all supported platforms"
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: v${{ steps.get_version.outputs.version }}
+        tag: ${{ steps.get_version.outputs.version }}
