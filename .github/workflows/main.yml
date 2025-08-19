@@ -48,6 +48,13 @@ jobs:
       if: matrix.config == 'release'
       run: cmake --build build --config 'Release'
 
+    - name: codesign macOS external
+      if: matrix.os == 'macos-latest'
+      run: |
+        # Find the built .mxo bundle inside build output
+        find build -name "voice-alligator.mxo" -exec codesign --force --deep -s - {} \;
+
+
     - name: test
       run: cd build && ctest -C ${{ matrix.config }} . -V
 
