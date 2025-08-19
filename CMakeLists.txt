@@ -5,6 +5,14 @@ project(Min-Starter VERSION 1.0.0)
 # Ensure PACKAGE_VERSION is available for max-package.cmake
 set(PACKAGE_VERSION ${PROJECT_VERSION})
 
+
+# ✅ Require C++17 for std::clamp
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+enable_testing()
+
 enable_testing()
 
 string(REGEX REPLACE "(.*)/" "" THIS_PACKAGE_NAME "${CMAKE_CURRENT_SOURCE_DIR}")
