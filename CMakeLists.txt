@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
-project(Min-Starter)
+# Define project name and version
+project(Min-Starter VERSION 1.0.0)
+
+# Ensure PACKAGE_VERSION is available for max-package.cmake
+set(PACKAGE_VERSION ${PROJECT_VERSION})
 
 enable_testing()
 
