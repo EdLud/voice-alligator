@@ -14,3 +14,8 @@ Features:
     -Remember pitches during scale changes (see demo scale).
     -Lock parameter changes for notes of a certain kind (see demo holdAndPitchwheel).
     -Record pitches instead of MIDI notes for playback after a scale change.
+
+
+Written by 
+Edis Ludwig (https://edisludwig.com/)
+Jan Godde (https://www.jangodde.com/)
