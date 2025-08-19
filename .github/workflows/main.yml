@@ -127,8 +127,6 @@ jobs:
 
     - uses: actions/download-artifact@v4.1.7
       with:
-        # ✅ Must match upload name (includes version + sha + config + os)
-        name: ${{ github.event.repository.name }}-${{ steps.get_version.outputs.version }}-${{ steps.short-sha.outputs.sha }}-release
         path: ${{ github.event.repository.name }}
 
     - name: Display structure of downloaded files
