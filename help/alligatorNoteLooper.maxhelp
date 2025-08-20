@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 87.0, 1372.0, 779.0 ],
+		"rect" : [ 34.0, 87.0, 997.0, 779.0 ],
 		"gridsize" : [ 15.0, 15.0 ],
 		"showrootpatcherontab" : 0,
 		"showontab" : 0,
@@ -31,7 +31,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 997.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -2629,7 +2629,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 997.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -2906,7 +2906,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 598.0, 309.0, 31.0, 20.0 ],
+									"patching_rect" : [ 590.5, 311.0, 31.0, 20.0 ],
 									"text" : "play"
 								}
 
@@ -2968,7 +2968,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 401.0, 49.0, 289.0, 181.0 ],
-									"text" : "methods:\nrecord         1/0\nplay             1/0\n\nattributes:\nvol               (percent) (default 100)\nvolJitter       (percent) (default 0)\ntranspose    (semitones) (default 0.)\npitchJitter    (semitones) (default 0.)\nrecordPressed (bool) (default true)\nspeed (ratio) (default 1.)\n\nAll other messages to the object get passed to MTR"
+									"text" : "methods:\nrecord         1/0\nplay             1/0\n\nattributes:\nvol               (percent) (default 100)\nvolJitter       (percent) (default 0)\ntranspose    (semitones) (default 0.)\npitchJitter    (semitones) (default 0.)\nrecordPressed (bool) (default 1)\nspeed (ratio) (default 1.)\n\nAll other messages to the object get passed to MTR"
 								}
 
 							}
@@ -3171,7 +3171,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 997.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -3183,7 +3183,7 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 371.0, 588.0, 118.0, 22.0 ],
+									"patching_rect" : [ 631.0, 508.0, 118.0, 22.0 ],
 									"text" : "s example-4-params"
 								}
 
@@ -3589,7 +3589,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 371.0, 551.0, 121.0, 22.0 ],
+									"patching_rect" : [ 631.0, 471.0, 121.0, 22.0 ],
 									"text" : "loadmess wform saw"
 								}
 
@@ -3963,7 +3963,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 667.0, 152.0, 31.0, 20.0 ],
+									"patching_rect" : [ 659.5, 154.0, 31.0, 20.0 ],
 									"text" : "play"
 								}
 
