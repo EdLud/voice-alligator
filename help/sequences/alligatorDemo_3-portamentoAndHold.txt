@@ -38,5 +38,5 @@ hold 1
 0 note 70 0
 6000 mono 0
 0 hold 0
-30000 endhold 0
+26000 endhold 0
 0 end
