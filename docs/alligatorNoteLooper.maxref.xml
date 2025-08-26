@@ -27,7 +27,7 @@
         <inlet id="1" type="list">
             <digest>auxilary input for parameter recording</digest>
             <description>
-                auxilary input for parameter recording, The parameters that are recorded here will get the channel number prepended
+                auxilary input for parameter recording, The parameters that are recorded here will get the stream number prepended
             </description>
         </inlet>
 
@@ -40,14 +40,14 @@
         <outlet id="0" type="list">
             <digest>sends recorded data back to voice-alligator</digest>
 			<description>
-                sends recorded data back to voice-alligator and append a channel number and a recorded frequency
+                sends recorded data back to voice-alligator and append a stream number and a recorded frequency
             </description>
         </outlet>
 
 		<outlet id="1" type="list">
             <digest>auxilary output for parameter playback</digest>
 			<description>
-                sends recorded parameter data back out and prepends the channel number
+                sends recorded parameter data back out and prepends the stream number
             </description>
         </outlet>
 
@@ -63,9 +63,9 @@
 
 	<objarglist>
 
-		<objarg name='channel' optional='1' type='int'>
-			<digest>channel to ouput to (default 2) </digest>
-			<description>sets which channel the looper will output to (default 2)</description>
+		<objarg name='stream' optional='1' type='int'>
+			<digest>stream to output to (default 2) </digest>
+			<description>sets which stream the looper will output to (default 2)</description>
 		</objarg>
 
 	</objarglist>

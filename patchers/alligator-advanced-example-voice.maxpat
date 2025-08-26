@@ -112,7 +112,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 69.0, 438.0, 247.0, 20.0 ],
-									"text" : "[param name, channel number, param value]"
+									"text" : "[param name, stream number, param value]"
 								}
 
 							}
@@ -124,7 +124,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 102.0, 11.0, 261.0, 33.0 ],
-									"text" : "either [param name, param value]\nor [channel number, param name, param value]"
+									"text" : "either [param name, param value]\nor [stream number, param name, param value]"
 								}
 
 							}
@@ -135,7 +135,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 273.0, 315.0, 274.0, 20.0 ],
-									"text" : "< if no channel was supplied, set channel to 0 (all)"
+									"text" : "< if no stream was supplied, set stream to 0 (all)"
 								}
 
 							}
@@ -973,7 +973,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 462.0, 59.0, 324.0, 34.0 ],
-					"text" : "< flags: glide, hold, sustain, sequencerNote, mono, channel\n"
+					"text" : "< flags: glide, hold, sustain, sequencerNote, mono, stream\n"
 				}
 
 			}
@@ -2129,7 +2129,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 105.0, 15.0, 313.0, 34.0 ],
-									"text" : "flags: glide, hold, sustain, sequencerNote, mono, channel\n"
+									"text" : "flags: glide, hold, sustain, sequencerNote, mono, stream\n"
 								}
 
 							}

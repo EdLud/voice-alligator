@@ -85,6 +85,7 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "shared_mutex": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "unordered_set": "cpp"
     }
 }

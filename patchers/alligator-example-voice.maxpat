@@ -1469,7 +1469,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 456.0, 59.0, 324.0, 34.0 ],
-					"text" : "< flags: glide, hold, sustain, sequencerNote, mono, channel\n"
+					"text" : "< flags: glide, hold, sustain, sequencerNote, mono, stream\n"
 				}
 
 			}
@@ -1795,7 +1795,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 137.0, 27.0, 345.0, 34.0 ],
-									"text" : "flags: glide, hold, sustain, sequencerNote, mono, channel\n"
+									"text" : "flags: glide, hold, sustain, sequencerNote, mono, stream\n"
 								}
 
 							}

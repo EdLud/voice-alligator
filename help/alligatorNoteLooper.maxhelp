@@ -56,7 +56,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 635.0, 327.0, 154.0, 20.0 ],
-									"text" : "<noteLooper has channel 4"
+									"text" : "<noteLooper has stream 4"
 								}
 
 							}
@@ -103,7 +103,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 785.0, 244.0, 190.0, 74.0 ],
-									"text" : "<we can loop parameter changes by recording them to the auxilary in of our looper, noteLooper will then insert it's channel (argument 1) to the parameter message"
+									"text" : "<we can loop parameter changes by recording them to the auxilary in of our looper, noteLooper will then insert it's stream (argument 1) to the parameter message"
 								}
 
 							}
@@ -115,7 +115,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 1145.0, 211.0, 150.0, 60.0 ],
-									"text" : "<we need some sort of storage to remember parameter changes per channel"
+									"text" : "<we need some sort of storage to remember parameter changes per stream"
 								}
 
 							}
@@ -385,7 +385,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 406.0, 421.0, 104.0, 20.0 ],
-									"text" : "<channel 3 notes"
+									"text" : "<stream 3 notes"
 								}
 
 							}
@@ -397,7 +397,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 113.0, 421.0, 104.0, 20.0 ],
-									"text" : "channel 2 notes >"
+									"text" : "stream 2 notes >"
 								}
 
 							}
@@ -1611,7 +1611,7 @@
 													"numinlets" : 1,
 													"numoutlets" : 0,
 													"patching_rect" : [ 83.0, 17.5, 261.0, 33.0 ],
-													"text" : "either [param name, param value]\nor [channel number, param name, param value]"
+													"text" : "either [param name, param value]\nor [stream number, param name, param value]"
 												}
 
 											}
@@ -1741,7 +1741,7 @@
 																	"numinlets" : 1,
 																	"numoutlets" : 0,
 																	"patching_rect" : [ 327.0, 265.0, 195.0, 33.0 ],
-																	"text" : "< if no channel was supplied, delete param infos for all channels"
+																	"text" : "< if no stream was supplied, delete param infos for all streams"
 																}
 
 															}
@@ -1836,7 +1836,7 @@
 																	"numinlets" : 1,
 																	"numoutlets" : 0,
 																	"patching_rect" : [ 82.0, 466.0, 247.0, 20.0 ],
-																	"text" : "[param name, channel number, param value]"
+																	"text" : "[param name, stream number, param value]"
 																}
 
 															}
@@ -1848,7 +1848,7 @@
 																	"numinlets" : 1,
 																	"numoutlets" : 0,
 																	"patching_rect" : [ 82.0, 38.5, 261.0, 33.0 ],
-																	"text" : "either [param name, param value]\nor [channel number, param name, param value]"
+																	"text" : "either [param name, param value]\nor [stream number, param name, param value]"
 																}
 
 															}
@@ -1859,7 +1859,7 @@
 																	"numinlets" : 1,
 																	"numoutlets" : 0,
 																	"patching_rect" : [ 286.0, 342.0, 274.0, 20.0 ],
-																	"text" : "<set channel to 0 (all)"
+																	"text" : "<set stream to 0 (all)"
 																}
 
 															}
@@ -2247,7 +2247,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 469.5, 48.0, 220.0, 40.0 ],
-									"text" : "set waveform for all channels to saw"
+									"text" : "set waveform for all streams to saw"
 								}
 
 							}
@@ -2263,7 +2263,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 966.0, 48.0, 188.0, 40.0 ],
-									"text" : "set attack for channel 2 to 7ms"
+									"text" : "set attack for stream 2 to 7ms"
 								}
 
 							}
@@ -2279,7 +2279,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 725.0, 48.0, 220.0, 40.0 ],
-									"text" : "set waveform for channel 2 to sine"
+									"text" : "set waveform for stream 2 to sine"
 								}
 
 							}
@@ -2295,7 +2295,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 200.0, 48.0, 214.0, 40.0 ],
-									"text" : "set attack for all channels to 700ms"
+									"text" : "set attack for all streams to 700ms"
 								}
 
 							}
@@ -2741,7 +2741,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 30.0, 49.0, 271.0, 301.0 ],
-									"text" : "This note looper is designed to record and play back the output of voice-alligator.\n\n\nIt will remember the exact pitches and portamento / glide settings of a musical sequence that was played using voice-alligator.\n\nAfter recording it will start playback automatically and play the loops on the set channel to voice-alligator (for a detailed description of channels see the help-file of voice-alligator).\n\nIf the note looper is set to a higher channel than an input going into voice-alligator, it will not steal notes from that input.\n\nvoice-alligator also recognizes pre-recorded notes, gives them a special flag, and will output that information to the voice, so that we can customize our voice patch to ignore the pitch-wheel for recorded sequences for example."
+									"text" : "This note looper is designed to record and play back the output of voice-alligator.\n\n\nIt will remember the exact pitches and portamento / glide settings of a musical sequence that was played using voice-alligator.\n\nAfter recording it will start playback automatically and play the loops on the set stream to voice-alligator (for a detailed description of streams see the help-file of voice-alligator).\n\nIf the note looper is set to a higher stream than an input going into voice-alligator, it will not steal notes from that input.\n\nvoice-alligator also recognizes pre-recorded notes, gives them a special flag, and will output that information to the voice, so that we can customize our voice patch to ignore the pitch-wheel for recorded sequences for example."
 								}
 
 							}
@@ -2824,7 +2824,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 623.0, 516.0, 325.0, 20.0 ],
-									"text" : "<Note looper will end all notes of it's channel on end of loop"
+									"text" : "<Note looper will end all notes of it's stream on end of loop"
 								}
 
 							}
@@ -2859,7 +2859,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 691.0, 386.0, 297.0, 20.0 ],
-									"text" : "argument 1= channel of the looper instance (default 2)"
+									"text" : "argument 1= stream of the looper instance (default 2)"
 								}
 
 							}

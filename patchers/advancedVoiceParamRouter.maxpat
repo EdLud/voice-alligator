@@ -382,7 +382,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 221.0, 147.0, 130.0, 74.0 ],
-									"text" : "if the dict contains parameter value of our given channel, get it, if not, get value from channel 0"
+									"text" : "if the dict contains parameter value of our given stream, get it, if not, get value from stream 0"
 								}
 
 							}
@@ -743,7 +743,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 458.0, 232.0, 58.0, 20.0 ],
-					"text" : "<channel"
+					"text" : "<stream"
 				}
 
 			}
@@ -754,7 +754,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 25.0, 248.0, 310.0, 20.0 ],
-					"text" : "0 means param targets all voices regardless of channel>"
+					"text" : "0 means param targets all voices regardless of stream>"
 				}
 
 			}

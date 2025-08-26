@@ -31,7 +31,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -170,7 +170,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 152.0, 61.0, 814.0, 257.0 ],
-									"text" : "[voice-alligator] is an external that manages voice allocation. It is designed to work with the [poly~] object and offers several additional features compared to the built-in voice allocation system.\n\nThe primary focus is to allow all settings of [voice-alligator] to be adjustable on the fly while maintaining coherent and intuitive behavior. The differences from [poly~]'s voice allocation are best demonstrated through musical examples, which can be found in the \"Demo Sequences\" tab.\n\nFeatures:\n\n    - Switch between monophony and polyphony while playing (see demos 1-mono and 2-monoAndHold).\n    - Fast and easy scale definition format for alternative scales/microtonal tunings.\n    - Differentiate between notes of higher and lower priority on different \"channels\". (see demo 8-notePriorities)\n    - \"Hold\" notes: notes that stay sustained after key de-press, end/release them at a later time. (see demo 3-portamentoAndHold)\n    - Remember pitches during scale changes (see demo 5-scale).\n    - Treat notes of different kinds or channels differently, e.g. regarding parameter changes (see demo 4-holdAndPitchwheel)\n    - Record pitches instead of MIDI notes for playback after scale changes. (see demo 6-noteLooper and 7-noteLooper2)"
+									"text" : "[voice-alligator] is an external that manages voice allocation. It is designed to work with the [poly~] object and offers several additional features compared to the built-in voice allocation system.\n\nThe primary focus is to allow all settings of [voice-alligator] to be adjustable on the fly while maintaining coherent and intuitive behavior. The differences from [poly~]'s voice allocation are best demonstrated through musical examples, which can be found in the \"Demo Sequences\" tab.\n\nFeatures:\n\n    - Switch between monophony and polyphony while playing (see demos 1-mono and 2-monoAndHold).\n    - Fast and easy scale definition format for alternative scales/microtonal tunings.\n    - Differentiate between notes of higher and lower priority on different \"streams\". (see demo 8-notePriorities)\n    - \"Hold\" notes: notes that stay sustained after key de-press, end/release them at a later time. (see demo 3-portamentoAndHold)\n    - Remember pitches during scale changes (see demo 5-scale).\n    - Treat notes of different kinds or streams differently, e.g. regarding parameter changes (see demo 4-holdAndPitchwheel)\n    - Record pitches instead of MIDI notes for playback after scale changes. (see demo 6-noteLooper and 7-noteLooper2)"
 								}
 
 							}
@@ -228,7 +228,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -249,13 +249,11 @@
 									"gradient" : 1,
 									"id" : "obj-4",
 									"ignoreclick" : 1,
-									"linecount" : 2,
 									"maxclass" : "message",
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 34.0, 571.0, 124.0, 40.0 ],
-									"text" : "notes 391.995436 0 flags 0 0 0 0 1 1",
+									"patching_rect" : [ 34.0, 571.0, 124.0, 24.0 ],
 									"textcolor" : [ 0.850980392156863, 0.803921568627451, 1.0, 1.0 ]
 								}
 
@@ -303,8 +301,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 34.0, 513.0, 124.0, 24.0 ],
-									"text" : "mono 0"
+									"patching_rect" : [ 34.0, 513.0, 124.0, 24.0 ]
 								}
 
 							}
@@ -4467,6 +4464,7 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 18.0,
+													"hidden" : 1,
 													"id" : "obj-109",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -4575,6 +4573,7 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-96",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -4603,6 +4602,7 @@
 , 											{
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-98",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -4619,6 +4619,7 @@
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
 													"checkedcolor" : [ 0.937254901960784, 0.913725490196078, 1.0, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-99",
 													"maxclass" : "toggle",
 													"numinlets" : 1,
@@ -4636,6 +4637,7 @@
 												"box" : 												{
 													"bgcolor" : [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
 													"checkedcolor" : [ 0.937254901960784, 0.913725490196078, 1.0, 1.0 ],
+													"hidden" : 1,
 													"id" : "obj-100",
 													"maxclass" : "toggle",
 													"numinlets" : 1,
@@ -8414,7 +8416,7 @@
 																					"numoutlets" : 1,
 																					"outlettype" : [ "" ],
 																					"patching_rect" : [ 51.0, 516.0, 114.0, 22.0 ],
-																					"text" : "mono 0"
+																					"text" : "end"
 																				}
 
 																			}
@@ -9502,15 +9504,14 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-77",
-													"linecount" : 6,
+													"linecount" : 2,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 763.25, 619.0, 221.0, 100.0 ],
+													"patching_rect" : [ 763.25, 619.0, 221.0, 38.0 ],
 													"presentation" : 1,
-													"presentation_linecount" : 3,
-													"presentation_rect" : [ 505.0, 94.0, 528.0, 53.0 ],
-													"text" : "Now the same thing is repeated, only this time left hand notes are recorded into the Note Looper. The Note Looper has a lower priority and can't steal notes from the player, so notes get lost.",
+													"presentation_rect" : [ 505.0, 94.0, 528.0, 22.0 ],
+													"text" : "The Instrument is monophonic and polyphonic at the same time.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -9520,15 +9521,15 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-76",
-													"linecount" : 7,
+													"linecount" : 5,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 725.25, 592.0, 179.0, 116.0 ],
+													"patching_rect" : [ 725.25, 592.0, 179.0, 84.0 ],
 													"presentation" : 1,
 													"presentation_linecount" : 2,
 													"presentation_rect" : [ 502.0, 51.0, 534.0, 38.0 ],
-													"text" : "Sustained notes have a higher priority with regards to stealing than notes in release. So what we actually hear are shorter notes for the left hand, but all note-ons are still audible..",
+													"text" : "Press a C-major chord then turn on (mono) and play a short, monophonic portamento melody over the chord.",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -9538,15 +9539,14 @@
 													"fontname" : "Lato",
 													"fontsize" : 13.0,
 													"id" : "obj-75",
-													"linecount" : 8,
+													"linecount" : 4,
 													"maxclass" : "comment",
 													"numinlets" : 1,
 													"numoutlets" : 0,
-													"patching_rect" : [ 687.25, 557.0, 131.0, 131.0 ],
+													"patching_rect" : [ 687.25, 557.0, 131.0, 69.0 ],
 													"presentation" : 1,
-													"presentation_linecount" : 2,
-													"presentation_rect" : [ 505.0, 11.0, 514.0, 38.0 ],
-													"text" : "Demo of note priorities. First use the left hand to play fast and short notes with a relatively long release. Then play sustained notes with the right hand.",
+													"presentation_rect" : [ 505.0, 11.0, 514.0, 22.0 ],
+													"text" : "This demonstrates the monophony functionality of [voice-alligator]",
 													"textcolor" : [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
 												}
 
@@ -10172,6 +10172,7 @@
 , 											{
 												"box" : 												{
 													"fontsize" : 30.0,
+													"hidden" : 1,
 													"id" : "obj-42",
 													"maxclass" : "comment",
 													"numinlets" : 1,
@@ -10188,6 +10189,7 @@
 												"box" : 												{
 													"bgcolor" : [ 0.105882352941176, 0.090196078431373, 0.647058823529412, 1.0 ],
 													"drawoffcolor" : 1,
+													"hidden" : 1,
 													"id" : "obj-41",
 													"knobcolor" : [ 0.43921568627451, 0.490196078431373, 0.494117647058824, 1.0 ],
 													"knobshape" : 5,

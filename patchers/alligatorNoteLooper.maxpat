@@ -293,7 +293,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 53.0, 153.0, 282.0, 20.0 ],
-									"text" : "then: [channel number, param name, param value]"
+									"text" : "then: [stream number, param name, param value]"
 								}
 
 							}
@@ -599,7 +599,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 84.0, 247.0, 282.0, 20.0 ],
-									"text" : "end format: target, vel, channel, realpitch, monoflag"
+									"text" : "end format: target, vel, stream, realpitch, monoflag"
 								}
 
 							}
@@ -2257,7 +2257,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 405.0, 192.0, 467.0, 20.0 ],
-									"text" : "message format: midi pitch, vel, channel, realpitch, monoflag, sequencerNote, channel"
+									"text" : "message format: midi pitch, vel, stream, realpitch, monoflag, sequencerNote, stream"
 								}
 
 							}
@@ -2847,7 +2847,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 79.0, 291.0, 248.0, 20.0 ],
-					"text" : "on end of loop: release all notes on channel>"
+					"text" : "on end of loop: release all notes on stream>"
 				}
 
 			}
@@ -2859,7 +2859,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 51.0, 47.0, 125.0, 33.0 ],
-					"text" : "argument 1: channel  (default 2)"
+					"text" : "argument 1: stream  (default 2)"
 				}
 
 			}
@@ -3937,7 +3937,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 151.0, 427.0, 282.0, 20.0 ],
-									"text" : "end format: target, vel, channel, monoflag, realpitch"
+									"text" : "end format: target, vel, stream, monoflag, realpitch"
 								}
 
 							}
@@ -3949,7 +3949,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 163.0, 32.0, 384.0, 100.0 ],
-									"text" : "< every event consists of either 2 or 3 messages in the following order:\nfirst message is the target, second flags, third the actual note. We use the target message to match note on/offs. This has some complicated implications if you decide to play back a sequence that you recorded and the voice count is different than at the time of the recording.\nFlags are: [glide, hold, sustain, sequencerNote, mono, steal, channel] \nand note consists of [pitch, velocity]."
+									"text" : "< every event consists of either 2 or 3 messages in the following order:\nfirst message is the target, second flags, third the actual note. We use the target message to match note on/offs. This has some complicated implications if you decide to play back a sequence that you recorded and the voice count is different than at the time of the recording.\nFlags are: [glide, hold, sustain, sequencerNote, mono, steal, stream] \nand note consists of [pitch, velocity]."
 								}
 
 							}

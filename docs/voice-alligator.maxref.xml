@@ -38,7 +38,7 @@
 
 		<method name='end'>
 			<digest>Sends Notes into release</digest>
-			<description>Sends Notes into release. If an argument was provided, send notes of channel (argument) into release, else send all notes into release. </description>
+			<description>Sends Notes into release. If an argument was provided, send notes of stream (argument) into release, else send all notes into release. </description>
 		</method>
 
 		<method name='printscale'>
@@ -62,8 +62,8 @@
 		</method>
 
 		<method name='list'>
-			<digest>Midipitch, Velocity, (channel), (mono_flag), (realpitch) </digest>
-			<description>Midipitch, Velocity, (channel), (mono_flag), (realpitch) </description>
+			<digest>Midipitch, Velocity, (stream), (mono_flag), (realpitch) </digest>
+			<description>Midipitch, Velocity, (stream), (mono_flag), (realpitch) </description>
 		</method>
 
 		<method name='voices'>
@@ -78,14 +78,14 @@
 
 	<attributelist>
 
+		<attribute name='active' get='1' set='1' type='long' size='1' >
+			<digest>Activates Note-On Processing (default true) </digest>
+			<description>Activates Note-On Processing (default true) </description>
+		</attribute>
+
 		<attribute name='basefreq' get='1' set='1' type='float64' size='1' >
 			<digest>Standard A, (default 440</digest>
 			<description>Standard A, (default 440.0 hz) </description>
-		</attribute>
-
-		<attribute name='debug' get='1' set='1' type='long' size='1' >
-			<digest>Debug on / off </digest>
-			<description>Debug on / off </description>
 		</attribute>
 
 		<attribute name='hold' get='1' set='1' type='long' size='1' >
@@ -106,11 +106,6 @@
 		<attribute name='mono_steals_release' get='1' set='1' type='long' size='1' >
 			<digest>If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default true) </digest>
 			<description>If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default true) </description>
-		</attribute>
-
-		<attribute name='on' get='1' set='1' type='long' size='1' >
-			<digest>Activates Note-On Processing (default true) </digest>
-			<description>Activates Note-On Processing (default true) </description>
 		</attribute>
 
 		<attribute name='output_mode' get='1' set='1' type='long' size='1' >
