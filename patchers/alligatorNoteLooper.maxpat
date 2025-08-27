@@ -205,7 +205,7 @@
  ]
 					}
 ,
-					"patching_rect" : [ 153.0, 437.0, 19.0, 22.0 ],
+					"patching_rect" : [ 319.0, 81.0, 19.0, 22.0 ],
 					"text" : "p"
 				}
 
@@ -218,7 +218,7 @@
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "int" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 122.0, 403.0, 81.0, 27.0 ],
+					"patching_rect" : [ 288.0, 47.0, 81.0, 27.0 ],
 					"presentation" : 1,
 					"presentation_rect" : [ 100.5, 169.0, 144.0, 27.0 ],
 					"rounded" : 5.0,
@@ -266,6 +266,7 @@
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-24",
+									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
@@ -572,6 +573,7 @@
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-24",
+									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
@@ -915,6 +917,7 @@
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-24",
+									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
@@ -1506,11 +1509,11 @@
 								"box" : 								{
 									"id" : "obj-39",
 									"maxclass" : "newobj",
-									"numinlets" : 8,
-									"numoutlets" : 8,
-									"outlettype" : [ "", "", "", "", "", "", "", "" ],
-									"patching_rect" : [ 5.0, 489.0, 354.0, 22.0 ],
-									"text" : "route record play vol pitchJitter transpose volJitter recordPressed"
+									"numinlets" : 9,
+									"numoutlets" : 9,
+									"outlettype" : [ "", "", "", "", "", "", "", "", "" ],
+									"patching_rect" : [ 5.0, 489.0, 391.0, 22.0 ],
+									"text" : "route record play vol pitchJitter transpose volJitter recordPressed voices"
 								}
 
 							}
@@ -2602,7 +2605,7 @@
 , 							{
 								"patchline" : 								{
 									"destination" : [ "obj-20", 0 ],
-									"source" : [ "obj-39", 7 ]
+									"source" : [ "obj-39", 8 ]
 								}
 
 							}

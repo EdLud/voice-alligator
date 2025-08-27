@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 87.0, 1372.0, 779.0 ],
+		"rect" : [ 34.0, 87.0, 997.0, 779.0 ],
 		"gridsize" : [ 15.0, 15.0 ],
 		"statusbarvisible" : 1,
 		"showrootpatcherontab" : 0,
@@ -33,7 +33,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 997.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -818,7 +818,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 756.0, 106.0, 353.0, 74.0 ],
+									"patching_rect" : [ 756.0, 106.0, 355.0, 74.0 ],
 									"text" : "0: don't respect streams at all, always steal oldest note\n1: respect streams, notes of stream n can't steal notes of stream <n\n2: notes of stream n can steal notes of stream <n, but will first try to steal of higher stream.",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -1795,7 +1795,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 997.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -1807,8 +1807,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 757.5, 437.0, 438.0, 47.0 ],
-									"presentation_linecount" : 3,
+									"patching_rect" : [ 757.5, 437.0, 441.0, 47.0 ],
 									"text" : "This type of event is also ignored by our Note Looper. The Note Looper automatically ends all notes after each iteration, so hold / sustain notes that were started but not ended during recording willl be automatically ended anyway.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5491,7 +5490,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 749.0, 325.0, 455.0, 74.0 ],
+									"patching_rect" : [ 749.0, 325.0, 457.0, 74.0 ],
 									"text" : "Depending on the attribute output_mode the pitch will either be a frequency in Hertz as float or a MIDI note as integer (ignoring scale definitions).\n\nNot every event has the note part of the message. If you release a key while hold or sustain is on, the note off will be ignored. In this case the message will look like this: ",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5712,11 +5711,11 @@
 								"box" : 								{
 									"bgcolor" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 0.44 ],
 									"id" : "obj-14",
-									"linecount" : 17,
+									"linecount" : 16,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 65.0, 136.0, 562.0, 234.0 ],
+									"patching_rect" : [ 65.0, 136.0, 563.0, 221.0 ],
 									"text" : "The first two arguments are mandatory, while the remaining arguments are optional.\n\n    The third argument (stream): This specifies the priority of the note. By default, notes on stream n cannot steal notes from a stream <n. Monophony is applied to one stream at a time, so we can play two portamento melodies on different streams simultaneously. If no stream was provided stream 1 is chosen.\n\n    The fourth argument (monoflag): When set, this treats the incoming note as a \"Sequencer Note.\" Sequencer Notes could originate from note-generating sources, such as the Note Looper or a sequencer, and are designed to allow the player to play over them. They ignore mono, hold, sustain, and mono_note_priority settings but are still affected by mono_steals_release.\n\n    The fifth argument (realpitch): When provided, this treats the incoming note as a \"Pre-recorded Sequencer Note.\" Pre-recorded Notes are notes that were previously recorded after being processed by voice-alligator. Since they have a predefined pitch, they bypass the frequency lookup in voice-alligator. Like Sequencer Notes, they ignore mono, hold, sustain, and mono_note_priority settings but are still affected by mono_steals_release.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5829,7 +5828,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 80.0, 417.0, 536.0, 114.0 ],
+									"patching_rect" : [ 80.0, 417.0, 559.0, 114.0 ],
 									"text" : "-Player Notes in a simple, MIDI-like format: [pitch, velocity].\n\n    These can optionally include a (stream) argument to indicate higher or lower priority compared to       notes on other streams.\n\n-Sequencer Notes in an extended format.\n\n-Pre-recorded Sequencer Notes in an extended format.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5876,11 +5875,48 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 997.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
 						"boxes" : [ 							{
+								"box" : 								{
+									"id" : "obj-14",
+									"linecount" : 2,
+									"maxclass" : "comment",
+									"numinlets" : 1,
+									"numoutlets" : 0,
+									"patching_rect" : [ 1204.0, 339.0, 140.0, 33.0 ],
+									"text" : "< print the current scale \nas midinote or frequency"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-11",
+									"maxclass" : "message",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 1115.0, 367.0, 85.0, 22.0 ],
+									"presentation_linecount" : 2,
+									"text" : "printscale midi"
+								}
+
+							}
+, 							{
+								"box" : 								{
+									"id" : "obj-10",
+									"maxclass" : "message",
+									"numinlets" : 2,
+									"numoutlets" : 1,
+									"outlettype" : [ "" ],
+									"patching_rect" : [ 1115.0, 335.0, 84.0, 22.0 ],
+									"text" : "printscale freq"
+								}
+
+							}
+, 							{
 								"box" : 								{
 									"id" : "obj-4",
 									"maxclass" : "newobj",
@@ -6008,7 +6044,7 @@
 									"maxclass" : "newobj",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 1116.0, 387.0, 118.0, 22.0 ],
+									"patching_rect" : [ 906.5, 440.5, 118.0, 22.0 ],
 									"text" : "s example-3-params"
 								}
 
@@ -6116,7 +6152,7 @@
  ]
 									}
 ,
-									"patching_rect" : [ 1116.0, 356.0, 75.0, 22.0 ],
+									"patching_rect" : [ 906.5, 409.5, 75.0, 22.0 ],
 									"text" : "p initsettings"
 								}
 
@@ -10635,6 +10671,22 @@
 							}
  ],
 						"lines" : [ 							{
+								"patchline" : 								{
+									"destination" : [ "obj-6", 0 ],
+									"midpoints" : [ 1124.5, 360.0, 1092.0, 360.0, 1092.0, 315.0, 817.5, 315.0 ],
+									"source" : [ "obj-10", 0 ]
+								}
+
+							}
+, 							{
+								"patchline" : 								{
+									"destination" : [ "obj-6", 0 ],
+									"midpoints" : [ 1124.5, 390.0, 774.0, 390.0, 774.0, 306.0, 817.5, 306.0 ],
+									"source" : [ "obj-11", 0 ]
+								}
+
+							}
+, 							{
 								"patchline" : 								{
 									"destination" : [ "obj-6", 0 ],
 									"source" : [ "obj-17", 0 ]

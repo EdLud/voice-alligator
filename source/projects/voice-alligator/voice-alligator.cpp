@@ -110,6 +110,16 @@ class ScaleArray
         return static_cast<int>(data.size());
     }
 
+    int value_count(){
+            int count = 0;
+            for (const auto& val : data) {
+                if (val.has_value()) {
+                    ++count;
+                }
+            }
+            return count;
+    }
+
     void clear(){
         data.clear();
         data.resize(arrsize, std::nullopt);
@@ -132,8 +142,7 @@ std::vector<Note> active_voices;
 std::queue<int> inactive_voices;
 ScaleArray scale_array;
 
-std::unordered_set<int> inactive_channels; // if empty, all streams are active. if not empty, only streams in here are active.
-
+std::unordered_set<int> inactive_channels; 
 
 bool prev_active_attr = true;
 
@@ -1113,19 +1122,34 @@ message<> print{this, "print", "Print info to the max console",
     }
 };
 
-message<> printscale{this, "printscale", "Print scale_array to the max console",
+message<> printscale{this, "printscale", "Print contents of scale_array to the max console as midi or freq (default midi)",
         MIN_FUNCTION{
-        int scale_arraylength = scale_array.length();
-        cout << "scale array length: " << scale_arraylength << endl;
-        for (int i = 1; i < scale_arraylength; ++i){
-                if (scale_array.get_value(i)) {
-                    // cout << "Index " << i << ": " << *scale_array.get_value(i) << endl;
-                    cout << "Index " << i << ": " << (12 * std::log10(*scale_array.get_value(i) / 440.) / std::log10(2) + 69) << endl; //FTOM
 
-                } 
+        atom modeselect = "midi"; // Default to "midi" if no argument was provided
+        unsigned long size = args.size();
+        if (size > 0) modeselect = args[0];
+
+        int scale_arraylength = scale_array.length();
+        int count_of_defined_values = scale_array.value_count();
+        cout << "count of defined values: " << count_of_defined_values << endl;
+
+            if(modeselect == "midi" || modeselect == "midinote"){
+            for (int i = 0; i <= scale_arraylength; ++i){
+                    if (scale_array.get_value(i)) {
+                        cout << i << ": " << (12 * std::log10(*scale_array.get_value(i) / 440.) / std::log10(2) + 69) << endl; //FTOM
+                    } 
+                }
+            return {};
             }
 
+            if(modeselect == "freq" || modeselect == "frequency"){
+            for (int i = 0; i <= scale_arraylength; ++i){
+                    if (scale_array.get_value(i)) {
+                        cout << i << ": " << *scale_array.get_value(i)<< endl; //frequency
+                    } 
+                }
             return {};
+            }
         }
 };
 

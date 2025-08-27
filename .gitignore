@@ -21,3 +21,10 @@ other/
 adsrTry/
 newCommand.txt
 *.zip
+*.log
+*.dmp
+DiagnosticReports/
+Logs/
+# Ignore macOS Finder aliases
+* alias
+* alias copy 
