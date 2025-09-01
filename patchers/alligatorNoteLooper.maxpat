@@ -237,8 +237,8 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 51.0, 201.0, 125.0, 22.0 ],
-					"text" : "s #0-channelNr"
+					"patching_rect" : [ 51.0, 201.0, 97.0, 22.0 ],
+					"text" : "s #0-streamNr"
 				}
 
 			}
@@ -266,13 +266,12 @@
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-24",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 186.0, 45.0, 101.0, 22.0 ],
-									"text" : "r #0-channelNr"
+									"patching_rect" : [ 186.0, 45.0, 95.0, 22.0 ],
+									"text" : "r #0-streamNr"
 								}
 
 							}
@@ -379,8 +378,8 @@
  ]
 					}
 ,
-					"patching_rect" : [ 708.0, 329.0, 83.0, 22.0 ],
-					"text" : "p addChannel"
+					"patching_rect" : [ 708.0, 329.0, 77.0, 22.0 ],
+					"text" : "p addStream"
 				}
 
 			}
@@ -573,13 +572,12 @@
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-24",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 218.0, 91.0, 101.0, 22.0 ],
-									"text" : "r #0-channelNr"
+									"patching_rect" : [ 218.0, 91.0, 95.0, 22.0 ],
+									"text" : "r #0-streamNr"
 								}
 
 							}
@@ -731,8 +729,8 @@
  ]
 					}
 ,
-					"patching_rect" : [ 517.0, 329.0, 83.0, 22.0 ],
-					"text" : "p addChannel"
+					"patching_rect" : [ 517.0, 329.0, 77.0, 22.0 ],
+					"text" : "p addStream"
 				}
 
 			}
@@ -917,13 +915,12 @@
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-24",
-									"linecount" : 2,
 									"maxclass" : "newobj",
 									"numinlets" : 0,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 70.0, 98.0, 101.0, 22.0 ],
-									"text" : "r #0-channelNr"
+									"patching_rect" : [ 70.0, 98.0, 95.0, 22.0 ],
+									"text" : "r #0-streamNr"
 								}
 
 							}
@@ -3496,8 +3493,8 @@
  ]
 					}
 ,
-					"patching_rect" : [ 517.0, 295.0, 118.0, 22.0 ],
-					"text" : "p manipulate stream"
+					"patching_rect" : [ 517.0, 295.0, 104.0, 22.0 ],
+					"text" : "p manipulate data"
 				}
 
 			}

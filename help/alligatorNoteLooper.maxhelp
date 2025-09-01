@@ -31,7 +31,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -91,8 +91,7 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
-									"patching_rect" : [ 508.0, 375.0, 105.0, 22.0 ],
-									"text" : "4 ffreq 6349."
+									"patching_rect" : [ 508.0, 375.0, 105.0, 22.0 ]
 								}
 
 							}
@@ -2630,7 +2629,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -2742,7 +2741,7 @@
 									"numinlets" : 1,
 									"numoutlets" : 0,
 									"patching_rect" : [ 30.0, 49.0, 271.0, 301.0 ],
-									"text" : "This note looper is designed to record and play back the output of voice-alligator.\n\n\nIt will remember the exact pitches and portamento / glide settings of a musical sequence that was played using voice-alligator.\n\nAfter recording it will start playback automatically and play the loops on the set stream to voice-alligator (for a detailed description of streams see the help-file of voice-alligator).\n\nIf the note looper is set to a higher stream than an input going into voice-alligator, it will not steal notes from that input.\n\nvoice-alligator also recognizes pre-recorded notes, gives them a special flag, and will output that information to the voice, so that we can customize our voice patch to ignore the pitch-wheel for recorded sequences for example."
+									"text" : "This note looper is designed to record and play back the output of voice-alligator.\n\n\nIt will remember the exact pitches and portamento / glide settings of a musical sequence that was played using voice-alligator.\n\nAfter recording it will start playback automatically and play the loops on the set stream to voice-alligator (for a detailed description of streams see the help-file of voice-alligator).\n\nIf the note looper is set to a higher stream than an input going into voice-alligator, it will by default not steal notes from that input.\n\nvoice-alligator also recognizes pre-recorded notes, gives them a special flag, and will output that information to the voice, so that we can customize our voice patch to ignore the pitch-wheel for recorded sequences for example."
 								}
 
 							}

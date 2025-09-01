@@ -22,7 +22,7 @@ MIN_RELATED{"poly~"};
 
 inlet<> in1{this, "(list) midipitch, velocity, (stream), (mono_flag), (realpitch)"};
 inlet<> in2{this, "(list) voice number, muteflag"};
-outlet<> out1{this, "messages to poly~ object"};
+outlet<> out1{this, "messages to poly~ object, [(notes), freq, velocity, (flags), glide, hold, sustain, sequencer, mono, stream]"};
 // outlet<thread_check::scheduler, thread_action::fifo> out1{this, "messages to poly~ object"};
 
 
@@ -481,14 +481,14 @@ void handleNoteOn(Note &note, lock &lock){
 
 void handleNoteOnMono(Note &note, lock &lock){
     int free_voice = 0;
-    int incoming_note_channel = note.stream;
+    int incoming_note_stream = note.stream;
 
     // Case: We have a pressed monophony note of the same stream: generate note on to same target and push_back the new mpitch
     if(!note.sequencer_note_flag){
         if (auto *mono_target_note = findFirstNoteWithPredicate([=](const Note &n)
                                                         {return n.mono_flag == 1
                                                         && !n.hold_flag
-                                                        && n.stream == incoming_note_channel
+                                                        && n.stream == incoming_note_stream
                                                         && !n.release_flag;})){
             if((mono_note_priority_attr == mono_note_priority::LOW) && mono_target_note->return_lowest_mpitch() < note.mpitch.back()){
                 // we need a new NOTEON only if a lower note than our lowest note was pressed, this is not the case so we return
@@ -513,7 +513,7 @@ void handleNoteOnMono(Note &note, lock &lock){
         //sequencer Notes only need one mpitch / freq
                 if (auto *mono_target_note = findFirstNoteWithPredicate([=](const Note &n)
                                                             {return n.mono_flag == true
-                                                            && n.stream == incoming_note_channel
+                                                            && n.stream == incoming_note_stream
                                                             && !n.release_flag
                                                             ;})){//&& n.mpitch.back() == note.mpitch.back()
                     if(debug){cout << "Mono key was pressed, Sequencer mono voice of stream " << mono_target_note->stream<< " found with target " << mono_target_note->target << endl;}
@@ -532,7 +532,7 @@ void handleNoteOnMono(Note &note, lock &lock){
 
         if (auto *mono_target_note = findFirstNoteWithPredicate([=](const Note &n)
                                             {return n.mono_flag == true
-                                            && n.stream == incoming_note_channel
+                                            && n.stream == incoming_note_stream
                                             && n.release_flag;})){
         if((mono_note_priority_attr == mono_note_priority::LOW && !note.sequencer_note_flag) && mono_target_note->return_lowest_mpitch() < note.mpitch.back()){// sequencer note doesn't care about mono_note_priority
             // we need a new NOTEON only if a lower note than our lowest note was pressed, this is not the case so we return
@@ -649,7 +649,7 @@ void handleNoteOnPoly(Note &note, lock &lock){
 
 void handleNoteOff(Note &incoming_note, lock &lock){
     if(debug) cout << "Called Handle Note Off" << endl;
-    int incoming_note_channel = incoming_note.stream; // we copy these variables for the lambdas below for safety reasons 
+    int incoming_note_stream = incoming_note.stream; // we copy these variables for the lambdas below for safety reasons 
     int incoming_note_mpitch_back = incoming_note.mpitch.back();
     // Set hold / sustain case: On note off, set the the note to hold or sustain and return
     if(!incoming_note.sequencer_note_flag){ //but only if the note didn't come from a sequencer
@@ -657,7 +657,7 @@ void handleNoteOff(Note &incoming_note, lock &lock){
             if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
                                                 {return n.mpitch.back() == incoming_note_mpitch_back 
                                                 && !n.hold_flag //?
-                                                && n.stream == incoming_note_channel;})){
+                                                && n.stream == incoming_note_stream;})){
                 if(debug)cout<<"set note " << note->mpitch.back() << "at target " << note->target << " to hold" << endl;
                 note->hold_flag = true;
                 lock.unlock();
@@ -670,10 +670,9 @@ void handleNoteOff(Note &incoming_note, lock &lock){
             if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
                                                 {return n.mpitch.back() == incoming_note_mpitch_back
                                                 && !n.sustain_flag 
-                                                && n.stream == incoming_note_channel;})){
+                                                && n.stream == incoming_note_stream;})){
                 if(debug)cout<<"set note " << note->mpitch.back() << "at target " << note->target << " to sustain" << endl;
                 note->sustain_flag = true;
-                // note->stream = 0;
                 lock.unlock();
                 outputFunction(*note, 0, 0, true); //send flags only = true
                 return;
@@ -685,7 +684,7 @@ void handleNoteOff(Note &incoming_note, lock &lock){
     //Normal note off case: we check that our note off doesn't belong to a portamento note by checking the size of the vector of mpitches. 
     //if the note only has one mpitch, we release it and return.
     if (auto *note = findFirstNoteWithPredicate([=](const Note &n) 
-                                        {return n.stream == incoming_note_channel 
+                                        {return n.stream == incoming_note_stream 
                                         && n.mpitch.size() == 1 
                                         && n.mpitch.back() == incoming_note_mpitch_back
                                         && !n.hold_flag
@@ -700,7 +699,7 @@ void handleNoteOff(Note &incoming_note, lock &lock){
     else{ // CASE: MONOPHONY
         // if there is a mono note in our vector, which has not been released and is not in hold
         if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
-                                             { return n.stream == incoming_note_channel 
+                                             { return n.stream == incoming_note_stream 
                                                && n.mono_flag 
                                                && !n.hold_flag 
                                                && !n.release_flag
