@@ -86,7 +86,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: package-artifacts
+        name: package-artifacts-${{ matrix.os }}
         path: ${{ github.event.repository.name }}
 
   release:
@@ -104,7 +104,12 @@ jobs:
 
     - uses: actions/download-artifact@v4.1.7
       with:
-        name: package-artifacts
+        name: package-artifacts-macos-latest
+        path: voice-alligator-package
+
+    - uses: actions/download-artifact@v4.1.7
+      with:
+        name: package-artifacts-windows-latest
         path: voice-alligator-package
 
     - name: Copy package-info.json
