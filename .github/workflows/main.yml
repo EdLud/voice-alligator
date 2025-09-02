@@ -65,6 +65,7 @@ jobs:
         if [ -e CMakeLists.txt ]; then cp CMakeLists.txt $PACKAGE_NAME; fi
         if [ -d extensions ]; then cp -r extensions $PACKAGE_NAME; fi
         # copy only .mxo files from mac build (recursive)
+        if [ -d externals ]; then cp -v externals/*.mxo $PACKAGE_NAME/externals/ || true; fi
         find build -type f -name "*.mxo" -exec cp -v {} $PACKAGE_NAME/externals/ \;
         if [ -d support ]; then cp -r support $PACKAGE_NAME; fi
         if [ -d docs ]; then cp -r docs $PACKAGE_NAME; fi
@@ -82,9 +83,9 @@ jobs:
         mkdir %PACKAGE_NAME%\externals
         if exist extensions xcopy extensions %PACKAGE_NAME%\extensions /E /I /Y
         rem copy only .mxe64 files from windows build (recursive)
-        for /R build %%f in (*.mxe64) do (
-          echo Copying %%f
-          copy "%%f" %PACKAGE_NAME%\externals\
+        if exist externals (
+          echo Copying Windows externals...
+          xcopy externals\\*.mxe64 %PACKAGE_NAME%\\externals\\ /Y
         )
         if exist support xcopy support %PACKAGE_NAME%\support /E /I /Y
         if exist patchers xcopy patchers %PACKAGE_NAME%\patchers /E /I /Y
