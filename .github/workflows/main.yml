@@ -67,7 +67,7 @@ jobs:
         # copy only .mxo files from mac build (recursive)
         if [ -d externals ]; then
         mkdir -p $PACKAGE_NAME/externals
-        find externals -type f -name "*.mxo" -exec cp -vr {} $PACKAGE_NAME/externals/ \;
+        find externals -type f -name "*.mxo" -exec cp -R {} $PACKAGE_NAME/externals/ \;
         fi
         if [ -d support ]; then cp -r support $PACKAGE_NAME; fi
         if [ -d docs ]; then cp -r docs $PACKAGE_NAME; fi
