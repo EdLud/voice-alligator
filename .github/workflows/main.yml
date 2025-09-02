@@ -64,8 +64,8 @@ jobs:
         if [ -e icon.png ]; then cp icon.png $PACKAGE_NAME; fi
         if [ -e CMakeLists.txt ]; then cp CMakeLists.txt $PACKAGE_NAME; fi
         if [ -d extensions ]; then cp -r extensions $PACKAGE_NAME; fi
-        # copy only .mxo files from mac build
-        find build -name "*.mxo" -exec cp -r {} $PACKAGE_NAME/externals/ \;
+        # copy only .mxo files from mac build (recursive)
+        find build -type f -name "*.mxo" -exec cp -v {} $PACKAGE_NAME/externals/ \;
         if [ -d support ]; then cp -r support $PACKAGE_NAME; fi
         if [ -d docs ]; then cp -r docs $PACKAGE_NAME; fi
         if [ -d examples ]; then cp -r examples $PACKAGE_NAME; fi
@@ -81,8 +81,11 @@ jobs:
         set PACKAGE_NAME=%GITHUB_REPOSITORY_NAME%
         mkdir %PACKAGE_NAME%\externals
         if exist extensions xcopy extensions %PACKAGE_NAME%\extensions /E /I /Y
-        rem copy only .mxe64 files from windows build
-        for /R build %%f in (*.mxe64) do copy "%%f" %PACKAGE_NAME%\externals\
+        rem copy only .mxe64 files from windows build (recursive)
+        for /R build %%f in (*.mxe64) do (
+          echo Copying %%f
+          copy "%%f" %PACKAGE_NAME%\externals\
+        )
         if exist support xcopy support %PACKAGE_NAME%\support /E /I /Y
         if exist patchers xcopy patchers %PACKAGE_NAME%\patchers /E /I /Y
         if exist help xcopy help %PACKAGE_NAME%\help /E /I /Y
