@@ -65,8 +65,10 @@ jobs:
         if [ -e CMakeLists.txt ]; then cp CMakeLists.txt $PACKAGE_NAME; fi
         if [ -d extensions ]; then cp -r extensions $PACKAGE_NAME; fi
         # copy only .mxo files from mac build (recursive)
-        if [ -d externals ]; then cp -v externals/*.mxo $PACKAGE_NAME/externals/ || true; fi
-        find build -type f -name "*.mxo" -exec cp -v {} $PACKAGE_NAME/externals/ \;
+        if [ -d externals ]; then
+        mkdir -p $PACKAGE_NAME/externals
+        find externals -type f -name "*.mxo" -exec cp -vr {} $PACKAGE_NAME/externals/ \;
+        fi
         if [ -d support ]; then cp -r support $PACKAGE_NAME; fi
         if [ -d docs ]; then cp -r docs $PACKAGE_NAME; fi
         if [ -d examples ]; then cp -r examples $PACKAGE_NAME; fi
