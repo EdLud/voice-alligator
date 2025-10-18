@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 87.0, 997.0, 779.0 ],
+		"rect" : [ 34.0, 87.0, 1372.0, 779.0 ],
 		"gridsize" : [ 15.0, 15.0 ],
 		"statusbarvisible" : 1,
 		"showrootpatcherontab" : 0,
@@ -33,7 +33,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 997.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
@@ -818,7 +818,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 756.0, 106.0, 355.0, 74.0 ],
+									"patching_rect" : [ 756.0, 106.0, 338.0, 74.0 ],
 									"text" : "0: don't respect streams at all, always steal oldest note\n1: respect streams, notes of stream n can't steal notes of stream <n\n2: notes of stream n can steal notes of stream <n, but will first try to steal of higher stream.",
 									"textcolor" : [ 0.054901960784314, 0.007843137254902, 0.007843137254902, 1.0 ]
 								}
@@ -1081,7 +1081,7 @@
 									"numoutlets" : 1,
 									"outlettype" : [ "" ],
 									"parameter_enable" : 0,
-									"patching_rect" : [ 790.0, 249.0, 233.0, 27.0 ]
+									"patching_rect" : [ 790.0, 249.5, 233.0, 27.0 ]
 								}
 
 							}
@@ -1247,7 +1247,7 @@
 								"box" : 								{
 									"angle" : 270.0,
 									"background" : 1,
-									"bgcolor" : [ 0.32156862745098, 0.556862745098039, 0.313725490196078, 1.0 ],
+									"bgcolor" : [ 0.827450980392157, 0.850980392156863, 0.827450980392157, 1.0 ],
 									"id" : "obj-71",
 									"maxclass" : "panel",
 									"mode" : 0,
@@ -1270,7 +1270,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 35.0, 510.0, 290.5, 72.0 ],
+									"patching_rect" : [ 23.0, 510.0, 308.0, 72.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1287,7 +1287,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 28.0, 595.0, 293.0, 69.0 ],
+									"patching_rect" : [ 23.0, 595.0, 308.0, 69.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1304,7 +1304,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 776.0, 531.0, 313.0, 148.0 ],
+									"patching_rect" : [ 751.5, 528.5, 351.0, 148.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1321,7 +1321,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 777.0, 223.0, 258.0, 62.0 ],
+									"patching_rect" : [ 751.0, 221.0, 351.0, 62.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1338,7 +1338,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 36.0, 422.0, 289.0, 83.0 ],
+									"patching_rect" : [ 23.0, 422.0, 308.0, 83.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1355,7 +1355,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 807.0, 461.0, 258.0, 62.0 ],
+									"patching_rect" : [ 751.5, 461.0, 351.0, 62.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1372,7 +1372,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 339.0, 356.0, 103.0 ],
+									"patching_rect" : [ 751.0, 339.0, 351.0, 103.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1404,7 +1404,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 26.0, 345.0, 302.0, 70.0 ],
+									"patching_rect" : [ 23.0, 347.0, 308.0, 72.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1413,7 +1413,7 @@
 								"box" : 								{
 									"angle" : 270.0,
 									"background" : 1,
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.23 ],
+									"bgcolor" : [ 1.0, 0.0, 0.0, 0.08 ],
 									"border" : 1,
 									"bordercolor" : [ 0.0, 0.156862745098039, 1.0, 1.0 ],
 									"id" : "obj-53",
@@ -1453,7 +1453,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 60.0, 215.0, 261.0, 128.0 ],
+									"patching_rect" : [ 23.0, 213.0, 308.0, 130.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1470,7 +1470,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 23.0, 104.0, 308.5, 107.0 ],
+									"patching_rect" : [ 23.0, 104.0, 308.0, 107.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1487,7 +1487,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 368.0, 361.0, 344.0, 121.0 ],
+									"patching_rect" : [ 368.0, 361.0, 349.0, 121.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1521,7 +1521,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 399.0, 106.0, 293.0, 111.0 ],
+									"patching_rect" : [ 367.0, 106.0, 349.0, 108.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1551,7 +1551,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 18.0, 77.0, 320.0, 516.0 ],
+									"patching_rect" : [ 1125.0, 78.5, 320.0, 516.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1754,7 +1754,7 @@
 								"patchline" : 								{
 									"destination" : [ "obj-13", 0 ],
 									"hidden" : 1,
-									"midpoints" : [ 435.0, 207.0, 348.0, 207.0, 348.0, 696.0, 27.5, 696.0 ],
+									"midpoints" : [ 435.0, 207.0, 347.78515625, 207.0, 347.78515625, 696.0, 27.5, 696.0 ],
 									"source" : [ "obj-9", 0 ]
 								}
 
@@ -1795,19 +1795,19 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 0.0, 26.0, 997.0, 753.0 ],
+						"rect" : [ 0.0, 26.0, 1372.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
+									"bgcolor" : [ 1.0, 0.690196078431373, 0.690196078431373, 1.0 ],
 									"id" : "obj-19",
 									"linecount" : 3,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 757.5, 437.0, 441.0, 47.0 ],
+									"patching_rect" : [ 749.0, 437.0, 441.0, 47.0 ],
 									"text" : "This type of event is also ignored by our Note Looper. The Note Looper automatically ends all notes after each iteration, so hold / sustain notes that were started but not ended during recording willl be automatically ended anyway.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -1824,7 +1824,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 815.0, 401.0, 323.0, 34.0 ],
+									"patching_rect" : [ 749.0, 401.0, 323.0, 34.0 ],
 									"proportion" : 0.5
 								}
 
@@ -1836,7 +1836,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 865.0, 418.0, 258.0, 17.0 ],
+									"patching_rect" : [ 799.0, 418.0, 258.0, 17.0 ],
 									"text" : "bool     bool        bool                    bool                   bool          int"
 								}
 
@@ -1847,7 +1847,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 815.0, 401.0, 323.0, 20.0 ],
+									"patching_rect" : [ 749.0, 401.0, 323.0, 20.0 ],
 									"text" : "[\"flags\", glide, hold, sustain, sequencerNote, mono, stream]"
 								}
 
@@ -1858,20 +1858,20 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 145.0, 537.0, 383.0, 20.0 ],
+									"patching_rect" : [ 146.0, 508.0, 383.0, 20.0 ],
 									"text" : "By default, if the (stream) argument is omitted, the stream is set to 1."
 								}
 
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 0.0, 0.313725490196078, 0.094117647058824, 0.250980392156863 ],
+									"bgcolor" : [ 0.698039215686274, 1.0, 0.788235294117647, 1.0 ],
 									"id" : "obj-2",
 									"linecount" : 3,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 295.0, 687.0, 565.0, 47.0 ],
+									"patching_rect" : [ 65.0, 631.0, 565.0, 47.0 ],
 									"text" : "This message is generated by a single voice instance of [poly~] and informs our system that the release phase of the ADSR in that voice has ended and that the voice is now mute (muteflag 1) and therefore available for any new, incoming note.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -1880,7 +1880,7 @@
 , 							{
 								"box" : 								{
 									"color" : [ 0.454901960784314, 1.0, 0.0, 0.45 ],
-									"fontsize" : 13.0,
+									"fontsize" : 18.997476708074533,
 									"id" : "obj-54",
 									"maxclass" : "newobj",
 									"numinlets" : 0,
@@ -4157,7 +4157,7 @@
  ]
 									}
 ,
-									"patching_rect" : [ 206.0, 595.0, 261.0, 23.0 ],
+									"patching_rect" : [ 790.0, 518.0, 369.0, 30.0 ],
 									"text" : "p \"stream example 1 - 2 times portamento\""
 								}
 
@@ -4165,7 +4165,7 @@
 , 							{
 								"box" : 								{
 									"color" : [ 0.498039215686275, 0.490196078431373, 0.776470588235294, 1.0 ],
-									"fontsize" : 13.0,
+									"fontsize" : 18.291061877743918,
 									"id" : "obj-49",
 									"maxclass" : "newobj",
 									"numinlets" : 0,
@@ -5477,14 +5477,14 @@
  ]
 									}
 ,
-									"patching_rect" : [ 228.5, 628.5, 216.0, 23.0 ],
+									"patching_rect" : [ 818.0, 571.0, 313.0, 29.0 ],
 									"text" : "p \"stream example 2 - overloading\""
 								}
 
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
+									"bgcolor" : [ 1.0, 0.690196078431373, 0.690196078431373, 1.0 ],
 									"id" : "obj-68",
 									"linecount" : 5,
 									"maxclass" : "comment",
@@ -5507,7 +5507,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 224.0, 451.0, 34.0 ],
+									"patching_rect" : [ 749.0, 223.0, 451.0, 34.0 ],
 									"proportion" : 0.5
 								}
 
@@ -5519,7 +5519,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 801.0, 241.0, 379.0, 17.0 ],
+									"patching_rect" : [ 799.0, 240.0, 379.0, 17.0 ],
 									"text" : "int/float     float                         bool     bool        bool                    bool                   bool          int"
 								}
 
@@ -5530,20 +5530,20 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 224.0, 452.0, 20.0 ],
+									"patching_rect" : [ 749.0, 223.0, 452.0, 20.0 ],
 									"text" : "[\"notes\", pitch, velocity, \"flags\", glide, hold, sustain, sequencerNote, mono, stream]"
 								}
 
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
+									"bgcolor" : [ 1.0, 0.690196078431373, 0.690196078431373, 1.0 ],
 									"id" : "obj-57",
 									"linecount" : 4,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 260.0, 451.0, 60.0 ],
+									"patching_rect" : [ 749.0, 260.0, 451.0, 60.0 ],
 									"text" : "We use the flag informations for different purposes in the voice (see comments in alligator-example-voice) and you could get really creative with these i.e. having different parameter settings per stream, or glide notes not retriggering a pitch envelope etc. ",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5551,12 +5551,12 @@
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
+									"bgcolor" : [ 1.0, 0.690196078431373, 0.690196078431373, 1.0 ],
 									"id" : "obj-58",
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 204.0, 105.0, 20.0 ],
+									"patching_rect" : [ 749.0, 201.0, 105.0, 20.0 ],
 									"text" : "Second message:",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ],
 									"underline" : 1
@@ -5565,13 +5565,13 @@
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
+									"bgcolor" : [ 1.0, 0.690196078431373, 0.690196078431373, 1.0 ],
 									"id" : "obj-56",
 									"linecount" : 2,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 163.0, 447.0, 33.0 ],
+									"patching_rect" : [ 749.0, 163.0, 447.0, 33.0 ],
 									"text" : "This will tell [poly~] to what instance of a voice the next messages will be directed, until a new target is set.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5579,12 +5579,12 @@
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
+									"bgcolor" : [ 1.0, 0.690196078431373, 0.690196078431373, 1.0 ],
 									"id" : "obj-52",
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 110.0, 87.0, 20.0 ],
+									"patching_rect" : [ 750.0, 110.0, 87.0, 20.0 ],
 									"text" : "First message:",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ],
 									"underline" : 1
@@ -5593,13 +5593,13 @@
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 1.0, 0.0, 0.0, 0.27 ],
+									"bgcolor" : [ 1.0, 0.690196078431373, 0.690196078431373, 1.0 ],
 									"id" : "obj-43",
 									"linecount" : 2,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 75.0, 408.0, 33.0 ],
+									"patching_rect" : [ 750.0, 75.0, 408.0, 33.0 ],
 									"text" : "For each event, voice-alligator will output 2 seperate messages. The order of these messages is always the same.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5616,7 +5616,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 775.0, 132.0, 92.0, 29.0 ],
+									"patching_rect" : [ 750.0, 132.0, 92.0, 29.0 ],
 									"proportion" : 0.5
 								}
 
@@ -5628,7 +5628,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 835.0, 145.0, 21.0, 17.0 ],
+									"patching_rect" : [ 810.0, 145.0, 21.0, 17.0 ],
 									"text" : "int "
 								}
 
@@ -5639,7 +5639,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 776.0, 132.0, 92.0, 34.0 ],
+									"patching_rect" : [ 751.0, 132.0, 92.0, 34.0 ],
 									"text" : "[\"target\", target]\n"
 								}
 
@@ -5651,7 +5651,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 759.0, 41.0, 56.0, 24.0 ],
+									"patching_rect" : [ 750.0, 49.0, 56.0, 24.0 ],
 									"text" : "outlet:"
 								}
 
@@ -5663,7 +5663,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 751.0, 8.0, 280.0, 29.0 ],
+									"patching_rect" : [ 750.0, 14.0, 280.0, 29.0 ],
 									"text" : "Messages from voice-alligator:"
 								}
 
@@ -5679,7 +5679,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 526.0, 652.0, 101.0, 30.0 ],
+									"patching_rect" : [ 65.0, 598.0, 101.0, 30.0 ],
 									"proportion" : 0.5
 								}
 
@@ -5691,7 +5691,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 542.0, 665.0, 90.0, 17.0 ],
+									"patching_rect" : [ 81.0, 611.0, 90.0, 17.0 ],
 									"text" : "int            bool          "
 								}
 
@@ -5702,20 +5702,20 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 528.0, 651.0, 99.0, 34.0 ],
+									"patching_rect" : [ 67.0, 597.0, 99.0, 34.0 ],
 									"text" : "[target, muteflag]\n"
 								}
 
 							}
 , 							{
 								"box" : 								{
-									"bgcolor" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 0.44 ],
+									"bgcolor" : [ 1.0, 1.0, 0.686274509803922, 1.0 ],
 									"id" : "obj-14",
 									"linecount" : 16,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 65.0, 136.0, 566.0, 221.0 ],
+									"patching_rect" : [ 65.0, 129.5, 570.0, 221.0 ],
 									"text" : "The first two arguments are mandatory, while the remaining arguments are optional.\n\n    The third argument (stream): This specifies the priority of the note. By default, notes on stream n cannot steal notes from a stream <n. Monophony is applied to one stream at a time, so we can play two portamento melodies on different streams simultaneously. If no stream was provided stream 1 is chosen.\n\n    The fourth argument (monoflag): When set, this treats the incoming note as a \"Sequencer Note.\" Sequencer Notes could originate from note-generating sources, such as the Note Looper or a sequencer, and are designed to allow the player to play over them. They ignore mono, hold, sustain, and mono_note_priority settings but are still affected by mono_steals_release.\n\n    The fifth argument (realpitch): When provided, this treats the incoming note as a \"Pre-recorded Sequencer Note.\" Pre-recorded Notes are notes that were previously recorded after being processed by voice-alligator. Since they have a predefined pitch, they bypass the frequency lookup in voice-alligator. Like Sequencer Notes, they ignore mono, hold, sustain, and mono_note_priority settings but are still affected by mono_steals_release.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5727,7 +5727,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 484.0, 630.0, 190.0, 20.0 ],
+									"patching_rect" : [ 65.0, 576.0, 190.0, 20.0 ],
 									"text" : "\"fromPoly\" message consisting of "
 								}
 
@@ -5739,7 +5739,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 511.0, 610.0, 56.0, 24.0 ],
+									"patching_rect" : [ 65.0, 550.0, 56.0, 24.0 ],
 									"text" : "inlet 2:"
 								}
 
@@ -5751,7 +5751,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 38.0, 75.0, 392.0, 20.0 ],
+									"patching_rect" : [ 65.0, 75.0, 392.0, 20.0 ],
 									"text" : "The full message syntax for sending a single note to inlet 1 is as follows:",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5768,7 +5768,7 @@
 									"mode" : 0,
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 80.0, 97.0, 296.5, 29.0 ],
+									"patching_rect" : [ 65.0, 97.0, 296.5, 29.0 ],
 									"proportion" : 0.5
 								}
 
@@ -5780,7 +5780,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 98.0, 111.0, 279.0, 17.0 ],
+									"patching_rect" : [ 83.0, 111.0, 279.0, 17.0 ],
 									"text" : "int                float                 int                   bool                float/int  "
 								}
 
@@ -5791,7 +5791,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 80.0, 97.0, 293.0, 34.0 ],
+									"patching_rect" : [ 65.0, 97.0, 293.0, 34.0 ],
 									"text" : "[midipitch, velocity , (stream), (monoflag), (realpitch)]\n"
 								}
 
@@ -5803,7 +5803,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 58.0, 41.0, 56.0, 24.0 ],
+									"patching_rect" : [ 65.0, 49.0, 56.0, 24.0 ],
 									"text" : "inlet 1:"
 								}
 
@@ -5815,7 +5815,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 50.0, 8.0, 256.0, 29.0 ],
+									"patching_rect" : [ 65.0, 14.0, 256.0, 29.0 ],
 									"text" : "Messages to voice-alligator:"
 								}
 
@@ -5828,7 +5828,7 @@
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 80.0, 417.0, 559.0, 114.0 ],
+									"patching_rect" : [ 81.0, 388.0, 559.0, 114.0 ],
 									"text" : "-Player Notes in a simple, MIDI-like format: [pitch, velocity].\n\n    These can optionally include a (stream) argument to indicate higher or lower priority compared to       notes on other streams.\n\n-Sequencer Notes in an extended format.\n\n-Pre-recorded Sequencer Notes in an extended format.",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5837,13 +5837,13 @@
 , 							{
 								"box" : 								{
 									"background" : 1,
-									"bgcolor" : [ 0.929411764705882, 0.929411764705882, 0.352941176470588, 0.44 ],
+									"bgcolor" : [ 1.0, 1.0, 0.67843137254902, 1.0 ],
 									"id" : "obj-1",
 									"linecount" : 12,
 									"maxclass" : "comment",
 									"numinlets" : 1,
 									"numoutlets" : 0,
-									"patching_rect" : [ 64.0, 383.0, 563.0, 181.0 ],
+									"patching_rect" : [ 65.0, 354.0, 567.0, 181.0 ],
 									"text" : "So there are essentially three types of messages:\n\n\n\n\n\n\n\n\n\n\n\n",
 									"textcolor" : [ 0.003921568627451, 0.003921568627451, 0.058823529411765, 1.0 ]
 								}
@@ -5875,7 +5875,7 @@
 						}
 ,
 						"classnamespace" : "box",
-						"rect" : [ 34.0, 113.0, 997.0, 753.0 ],
+						"rect" : [ 34.0, 113.0, 1372.0, 753.0 ],
 						"gridsize" : [ 15.0, 15.0 ],
 						"subpatcher_template" : "Default Max 7",
 						"showontab" : 1,
