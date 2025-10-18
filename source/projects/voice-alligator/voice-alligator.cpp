@@ -31,6 +31,9 @@ struct Note
     number vel{80};
     std::vector<number> freq; // this is the actual pitch, by default gets converted to frequency with midi-to-frequency formula
     std::vector<int> mpitch; // this is the midi pitch (for short mpitch) that is used to match note on / offs
+    // number aftertouch{0.0}; //for mpe
+    // number pitchbend{0.0};  //for mpe
+    // number timbre{0.0};     //for mpe
     int stream{1};      // steams are used for two purposes: a) having 2 or more seperate portamento notes b) having different priorities in regards to note stealing
     int target{1};      // voice instance of poly~
     bool mono_flag{false};
@@ -688,6 +691,7 @@ void handleNoteOff(Note &incoming_note, lock &lock){
                                         && n.mpitch.size() == 1 
                                         && n.mpitch.back() == incoming_note_mpitch_back
                                         && !n.hold_flag
+                                        && !n.sustain_flag
                                         && !n.release_flag;})){
         if(debug)cout<<"released incoming note with mpitch " << incoming_note_mpitch_back << " matching it to note " << note->mpitch.back() << " at target " << note->target << endl;
         
@@ -701,7 +705,8 @@ void handleNoteOff(Note &incoming_note, lock &lock){
         if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
                                              { return n.stream == incoming_note_stream 
                                                && n.mono_flag 
-                                               && !n.hold_flag 
+                                               && !n.hold_flag
+                                               && !n.sustain_flag
                                                && !n.release_flag
                                                ;})){
         // check the mpitch of the incoming_note depending on different cases
@@ -1151,6 +1156,56 @@ message<> printscale{this, "printscale", "Print contents of scale_array to the m
             }
         }
 };
+
+// message<threadsafe::yes> mpe{this, "mpe",
+//     "Handle MPE-style per-note messages: [midinote type value]",
+//     MIN_FUNCTION {
+//         lock lock{m_mutex};
+
+//         if (args.size() < 2) {
+//             cerr << "MPE message must be [midinote type value]" << endl;
+//             return {};
+//         }
+
+//         number mpitch = args[0];
+//         symbol type = args[1];
+//         number value = 0.0;
+//         if (args.size() >= 3)
+//             value = static_cast<number>(args[2]);
+
+//         // find the note currently playing this exact midinote
+//         Note* note = findFirstNoteWithPredicate([=](const Note &n) {
+//             for (auto m : n.mpitch) {
+//                 if (m == mpitch)
+//                     return true;
+//             }
+//             return false;
+//         });
+
+//         if (!note)
+//             return {}; // ignore messages for inactive notes
+
+//         out1.send("target", note->target);
+
+//         if (type == "aftertouch") {
+//             note->aftertouch = value;
+//             out1.send("aftertouch", value);
+//         }
+//         else if (type == "pitchbend") {
+//             note->pitchbend = value;
+//             out1.send("pitchbend", value);
+//         }
+//         else if (type == "timbre") {
+//             note->timbre = value;
+//             out1.send("timbre", value);
+//         }
+//         else {
+//             cerr << "Unknown MPE control type: " << type << endl;
+//         }
+
+//         return {};
+//     }
+// };
 
 message<threadsafe::yes> list{this, "list", "Midipitch, Velocity, (stream), (mono_flag), (realpitch)", mainInletFunction};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
