@@ -12,7 +12,7 @@ tovoice glide_retrigger 1
 mono 0
 pitchwheel 0
 hold 1
-note 74 60
+5 note 74 60
 400 pitchwheel 32 1000
 1600 note 74 0
 200 pitchwheel 0 50

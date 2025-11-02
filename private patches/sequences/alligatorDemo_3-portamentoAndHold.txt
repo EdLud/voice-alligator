@@ -12,7 +12,7 @@ tovoice glide_retrigger 0
 tovoice wform saw
 mono 1
 hold 1
-50 note 70 60
+15 note 70 60
 5000 note 69 60
 100 note 69 0
 0 note 70 0

@@ -9,7 +9,7 @@ tovoice release 500
 tovoice glidetime 50
 tovoice legato_retrigger 1
 scale 2
-note 60 30
+5 note 60 30
 44 note 60 0
 note 61 30
 44 note 61 0

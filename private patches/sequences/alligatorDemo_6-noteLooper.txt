@@ -32,7 +32,7 @@ note 68 30
 notelooper record 0
 1000 scale 0
 mono 1
-note 60 90
+1 note 60 90
 200 note 60 0
 note 64 90
 200 note 64 0
