@@ -25,7 +25,7 @@
 	"homepatcher" : "voice-alligator-overview.maxpat",
 	"filelist" : 	{
 		"externals" : [ "voice-alligator.mxo"],
-		"help" : [ "voice-alligator.maxhelp" , "alligatorNoteLooper.maxhelp" ],
-		"patchers" : [ "alligatorNoteLooper.maxpat"]
+		"help" : [ "voice-alligator.maxhelp" , "voice-alligator-looper.maxhelp" ],
+		"patchers" : [ "voice-alligator-looper.maxpat"]
 	}
 }

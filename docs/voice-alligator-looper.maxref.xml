@@ -1,10 +1,20 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
 
 
-<c74object name='alligatorNoteLooper'>
+<c74object name='voice-alligator-looper'>
 
-	<digest>Note looper for voice-alligator </digest>
-	<description>Note looper specifically designed to work with voice-alligator. Remembers glide notes as well as microtonal pitches.</description>
+	<digest>Note Looper for voice-alligator </digest>
+	<description>
+
+This Note Looper will remember the exact pitches and portamento / glide settings of a musical sequence that was played using voice-alligator.<br/><br/>
+
+After recording, it will start playback automatically and play the loops on the set stream (argument 1) to voice-alligator (for a detailed description of streams, see the helpfile of voice-alligator).<br/><br/>
+
+If the note looper is set to a higher stream than an input going into voice-alligator, it will by default not steal notes from that input.<br/><br/>
+
+voice-alligator also recognizes pre-recorded notes, gives them a special flag, and will output that information to the voice, so that we can customize our voice patch to ignore the pitch-wheel for recorded sequences / the Note Looper for example.<br/><br/>
+
+	</description>
 
 
 	<!--METADATA-->

@@ -19,6 +19,7 @@ MIN_DESCRIPTION{"voice allocator for poly~ object"};
 MIN_TAGS{"velocities, pitches, etc."};
 MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
 MIN_RELATED{"poly~"};
+MIN_FLAGS{documentation_flags::do_not_generate};
 
 inlet<> in1{this, "(list) midipitch, velocity, (stream), (mono_flag), (realpitch)"};
 inlet<> in2{this, "(list) voice number, muteflag"};
@@ -183,7 +184,7 @@ setter{
 }
 };
 attribute<bool>                     debug{this, "debug", false, description{"Debug on / off"}, visibility::show};
-attribute<bool>                     mono_steals_release_attr{this, "mono_steals_release", true, description{"If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default true)"}};
+attribute<bool>                     mono_steals_release_attr{this, "mono_steals_release", false, description{"If false, new monophony notes will ignore monophony notes that are in release and will generate new notes (default false)"}};
 attribute<bool>                     hold_attr{this, "hold", false, description{"Hold on / off"}};
 attribute<number>                   basefreq_attr{this, "basefreq", 440.0f, description{"Standard A, (default 440.0 hz) "}};
 attribute<bool>                     steal_attr{this, "steal", true, description{"Steal on / off (default true)"}};
@@ -193,7 +194,7 @@ bool steal_was_set = false; //steal case is set in the constructor when the exte
 
 bool steal_hold_var = false;
 
-attribute<bool>                     steal_hold_attr{this, "steal_hold", false, description{"Steal Hold Notes on / off"}, 
+attribute<bool>                     steal_hold_attr{this, "steal_hold", true, description{"Steal Hold Notes on / off"}, 
 setter{
     MIN_FUNCTION{
         bool argvar = args[0];
@@ -221,28 +222,28 @@ enum_map mono_note_priority_range = {"Last Note Priority", "Low Note Priority", 
 attribute<mono_note_priority> mono_note_priority_attr{this, "mono_note_priority", mono_note_priority::LAST, mono_note_priority_range,
                                description{"Choose Mono Mode: last note, low note, high note (default last note)"}};
 
-enum class respect_channel_priorities : int{
+enum class respect_stream_priorities : int{
     NO,
     YES,
     MAYBE,
     enum_count
 };
 
-enum_map respect_channel_priorities_range = {"Ignore Ch. Priorities", "Ch. can't steal lower Ch.", "Ch. can steal lower Ch."}; 
+enum_map respect_stream_priorities_range = {"Ignore Ch. Priorities", "Ch. can't steal lower Ch.", "Ch. can steal lower Ch."}; 
 
-bool respect_channel_priorities_was_set = false;
-int respect_channel_priorities_var = 1;
+bool respect_stream_priorities_was_set = false;
+int respect_stream_priorities_var = 1;
 
-attribute<respect_channel_priorities> respect_channel_priorities_attr{this, "respect_channel_priorities", respect_channel_priorities::YES, respect_channel_priorities_range,
+attribute<respect_stream_priorities> respect_stream_priorities_attr{this, "respect_stream_priorities", respect_stream_priorities::YES, respect_stream_priorities_range,
                                 description{"0 Don't respect, 1 Respect, 2 Respect but steal (default 1)"}, 
                                 setter{
                                     MIN_FUNCTION{
                                         int argvar = args[0];
-                                        respect_channel_priorities_var = argvar;
-                                        if (respect_channel_priorities_was_set){
+                                        respect_stream_priorities_var = argvar;
+                                        if (respect_stream_priorities_was_set){
                                             setStealcase();
                                             }
-                                        else respect_channel_priorities_was_set = true;
+                                        else respect_stream_priorities_was_set = true;
                                         return{argvar};  
                                         }
                                     }
@@ -508,7 +509,7 @@ void handleNoteOnMono(Note &note, lock &lock){
             mono_target_note->mpitch.push_back(note.mpitch.back());
             mono_target_note->freq.push_back(note.freq.back());
             mono_target_note->vel = note.vel;
-            mono_target_note->sustain_flag = false;
+            mono_target_note->sustain_flag = sustain_attr;
             note_to_send = *mono_target_note;
             lock.unlock();
             outputFunction(note_to_send, 1, 1, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
@@ -556,7 +557,7 @@ void handleNoteOnMono(Note &note, lock &lock){
             //delete mpitch list, push_back new mpitch, generate note on on old target
             if(debug){cout << "Mono key was pressed, released mono voice of stream " << mono_target_note->stream<< " found with target " << mono_target_note->target << endl;}
             mono_target_note->release_flag = false;
-            mono_target_note->sustain_flag = false;
+            mono_target_note->sustain_flag = sustain_attr;
             mono_target_note->mpitch.clear();
             mono_target_note->mpitch.push_back(note.mpitch.back());
             mono_target_note->freq.clear();
@@ -808,12 +809,12 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate){
 }
 
 void setStealcase(){
-    if(     respect_channel_priorities_var   == 1  && !steal_hold_var)  steal_case = 1;  //hold notes are never stolen, streams are respected (means not allowed to steal from lower streams) (default)
-    else if(respect_channel_priorities_var   == 0  && !steal_hold_var)  steal_case = 2;  //hold notes are never stolen, streams are ignored
-    else if(respect_channel_priorities_var   == 2  && !steal_hold_var)  steal_case = 3;  //hold notes are never stolen, streams are allowed to steal, but will first try to steal of any higher stream
-    else if(respect_channel_priorities_var   == 1  &&  steal_hold_var)  steal_case = 4;  //hold notes are stolen, streams are respected (means not allowed to steal from lower streams)
-    else if(respect_channel_priorities_var   == 0  &&  steal_hold_var)  steal_case = 5;  //hold notes are stolen, streams are ignored
-    else if(respect_channel_priorities_var   == 2  &&  steal_hold_var)  steal_case = 6;  //hold notes are stolen, streams are allowed to steal, but will first try to steal of any higher stream
+    if(     respect_stream_priorities_var   == 1  && !steal_hold_var)  steal_case = 1;  //hold notes are never stolen, streams are respected (means not allowed to steal from lower streams) (default)
+    else if(respect_stream_priorities_var   == 0  && !steal_hold_var)  steal_case = 2;  //hold notes are never stolen, streams are ignored
+    else if(respect_stream_priorities_var   == 2  && !steal_hold_var)  steal_case = 3;  //hold notes are never stolen, streams are allowed to steal, but will first try to steal of any higher stream
+    else if(respect_stream_priorities_var   == 1  &&  steal_hold_var)  steal_case = 4;  //hold notes are stolen, streams are respected (means not allowed to steal from lower streams)
+    else if(respect_stream_priorities_var   == 0  &&  steal_hold_var)  steal_case = 5;  //hold notes are stolen, streams are ignored
+    else if(respect_stream_priorities_var   == 2  &&  steal_hold_var)  steal_case = 6;  //hold notes are stolen, streams are allowed to steal, but will first try to steal of any higher stream
 }
 
 Note* findNoteToSteal(const Note &incoming_note){

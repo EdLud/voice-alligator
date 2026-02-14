@@ -93,7 +93,7 @@
                                     "numoutlets": 3,
                                     "outlettype": [ "", "", "" ],
                                     "patching_rect": [ 29.0, 651.0, 113.0, 22.0 ],
-                                    "text": "alligatorNoteLooper"
+                                    "text": "voice-alligator-looper"
                                 }
                             },
                             {
@@ -9886,7 +9886,7 @@
                                                     "numoutlets": 3,
                                                     "outlettype": [ "", "", "" ],
                                                     "patching_rect": [ 1680.0, 209.0, 227.0, 22.0 ],
-                                                    "text": "alligatorNoteLooper 3 @recordPressed 0"
+                                                    "text": "voice-alligator-looper 3 @recordPressed 0"
                                                 }
                                             },
                                             {
