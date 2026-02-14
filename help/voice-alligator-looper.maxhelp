@@ -2184,7 +2184,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 117.0, 9.0, 289.0, 40.0 ],
+                    "patching_rect": [ 29.0, 9.0, 289.0, 40.0 ],
                     "text": "voice-alligator-looper"
                 }
             },
@@ -2195,7 +2195,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 29.0, 59.0, 464.0, 22.0 ],
+                    "patching_rect": [ 29.0, 53.0, 464.0, 22.0 ],
                     "text": "Abstraction designed to record and play back the output of voice-alligator."
                 }
             },
@@ -2637,6 +2637,14 @@
             "obj-17": [ "number[1]", "number[6]", 0 ],
             "obj-25": [ "number[2]", "number[14]", 0 ],
             "obj-27": [ "number[3]", "number[3]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0

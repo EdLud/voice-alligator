@@ -289,7 +289,7 @@
 
 				<br/><br/>
 				Glide notes (i.e., notes that are not the first note in a portamento sequence) carry a special flag. This flag can be used for different purposes. 
-				The first and most important thing is telling the <o>line~</o> object in the voice, that is driving the pitch of our oscillator, to perform a glide. Also, it will set the <o>adsr~</o> object in the  <openfilelink filename="alligator-example-voice.maxpat">example-voice</openfilelink> to "legato_mode", meaning it won't perform a declick, even though it got a new note while the envelope wasn't finished.
+				The first and most important thing is telling the <o>line~</o> object in the  <openfilelink filename="alligator-example-voice.maxpat">example-voice</openfilelink>, that is driving the pitch of our oscillator, to perform a glide. Also, it will set the <o>adsr~</o> object in the voice to "legato_mode", meaning it won't perform a declick, even though it got a new note while the envelope wasn't finished.
 				The voice also has a parameter called glide_retrigger, which will decide if the amplitude ADSR is retriggered when a glide note is played. Other ADSRs or modulations could also be exempt from retriggering.
 			</description>
 			

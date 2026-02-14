@@ -13,12 +13,52 @@
         "boxes": [
             {
                 "box": {
+                    "id": "obj-23",
+                    "maxclass": "comment",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 421.0, 511.0, 89.0, 20.0 ],
+                    "presentation_linecount": 2,
+                    "text": "live modulation"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-22",
+                    "maxclass": "comment",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 92.0, 357.0, 118.0, 20.0 ],
+                    "text": "get value on note-on"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-20",
+                    "maxclass": "comment",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 444.0, 228.0, 187.0, 20.0 ],
+                    "text": "make receive for live modulations"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-18",
+                    "maxclass": "comment",
+                    "numinlets": 1,
+                    "numoutlets": 0,
+                    "patching_rect": [ 752.0, 109.0, 108.0, 20.0 ],
+                    "text": "Write default value"
+                }
+            },
+            {
+                "box": {
                     "id": "obj-16",
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
                     "patching_rect": [ 323.0, 261.0, 75.0, 20.0 ],
-                    "presentation_linecount": 3,
                     "text": "<stream flag"
                 }
             },
@@ -97,18 +137,6 @@
                     "outlettype": [ "bang", "" ],
                     "patching_rect": [ 206.0, 313.0, 34.0, 22.0 ],
                     "text": "sel 1"
-                }
-            },
-            {
-                "box": {
-                    "fontsize": 14.0,
-                    "id": "obj-72",
-                    "linecount": 2,
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 64.0, 263.0, 140.0, 38.0 ],
-                    "text": "We only want to work with note ons."
                 }
             },
             {
@@ -248,18 +276,6 @@
             },
             {
                 "box": {
-                    "fontsize": 14.0,
-                    "id": "obj-312",
-                    "linecount": 2,
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 929.0, 310.0, 189.0, 38.0 ],
-                    "text": "If it does contain a entry, we don't need to do anything"
-                }
-            },
-            {
-                "box": {
                     "id": "obj-311",
                     "maxclass": "newobj",
                     "numinlets": 2,
@@ -315,18 +331,6 @@
                     "outlettype": [ "" ],
                     "patching_rect": [ 865.0, 249.0, 123.0, 22.0 ],
                     "text": "sprintf contains %s::1"
-                }
-            },
-            {
-                "box": {
-                    "fontsize": 14.0,
-                    "id": "obj-304",
-                    "linecount": 3,
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 1061.0, 189.0, 191.0, 53.0 ],
-                    "text": "First we check: does the dict contain an entry for stream 1 of the parameter?"
                 }
             },
             {
@@ -397,13 +401,13 @@
             },
             {
                 "box": {
-                    "comment": "modulation value",
+                    "comment": "live modulation",
                     "id": "obj-2",
                     "index": 2,
                     "maxclass": "outlet",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 388.0, 487.0, 30.0, 30.0 ]
+                    "patching_rect": [ 388.0, 506.0, 30.0, 30.0 ]
                 }
             },
             {
@@ -414,7 +418,7 @@
                     "maxclass": "outlet",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 216.5, 477.0, 30.0, 30.0 ]
+                    "patching_rect": [ 216.5, 506.0, 30.0, 30.0 ]
                 }
             },
             {
@@ -532,6 +536,7 @@
                             {
                                 "box": {
                                     "id": "obj-30",
+                                    "linecount": 2,
                                     "maxclass": "newobj",
                                     "numinlets": 1,
                                     "numoutlets": 1,
@@ -1441,8 +1446,8 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 227.5, 463.0, 48.0, 20.0 ],
-                    "text": "<value!"
+                    "patching_rect": [ 248.0, 511.0, 98.0, 20.0 ],
+                    "text": "value on note-on"
                 }
             },
             {
