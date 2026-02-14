@@ -153,7 +153,7 @@
                                     "numoutlets": 1,
                                     "outlettype": [ "" ],
                                     "patching_rect": [ 353.0, 440.0, 222.0, 22.0 ],
-                                    "text": "append alligator-auxilary-tutorial.maxpat"
+                                    "text": "append alligator-advanced-voice-tutorial.maxpat"
                                 }
                             },
                             {

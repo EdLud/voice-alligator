@@ -110,7 +110,7 @@
 		</i>
 		<br/><br/>
 
-		Everything after "flags" can be used for different purposes in the voice (see comments in  <openfilelink filename="alligator-example-voice.maxpat">alligator-example-voice</openfilelink>) and you could get really creative with these i.e. having different parameter settings per stream, or glide notes not retriggering a pitch envelope etc. There is an example of one type of alternative usage of flags in the <openfilelink filename="alligator-auxilary-tutorial.maxpat">alligator-auxilary-tutorial</openfilelink>.
+		Everything after "flags" can be used for different purposes in the voice (see comments in  <openfilelink filename="alligator-example-voice.maxpat">alligator-example-voice</openfilelink>) and you could get really creative with these i.e. having different parameter settings per stream, or glide notes not retriggering a pitch envelope etc. There is an example of one type of alternative usage of flags in the <openfilelink filename="alligator-advanced-voice-tutorial.maxpat">alligator-advanced-voice-tutorial</openfilelink>.
 		<br/><br/>
 
 		Depending on the attribute <m>output_mode</m> the pitch will either be a frequency in Hertz as float or a MIDI note as integer (ignoring scale definitions).

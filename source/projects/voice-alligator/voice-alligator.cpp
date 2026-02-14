@@ -229,7 +229,7 @@ enum class respect_stream_priorities : int{
     enum_count
 };
 
-enum_map respect_stream_priorities_range = {"Ignore Ch. Priorities", "Ch. can't steal lower Ch.", "Ch. can steal lower Ch."}; 
+enum_map respect_stream_priorities_range = {"Ignore Stream Priorities", "Stream can't steal lower Stream", "Stream can steal lower Stream"}; 
 
 bool respect_stream_priorities_was_set = false;
 int respect_stream_priorities_var = 1;
