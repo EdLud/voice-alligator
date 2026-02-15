@@ -784,13 +784,29 @@
                             {
                                 "box": {
                                     "bubble": 1,
+                                    "bubblepoint": 0.0,
+                                    "fontname": "Arial",
+                                    "fontsize": 13.0,
+                                    "id": "obj-19",
+                                    "linecount": 2,
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 638.0, 529.0, 171.0, 40.0 ],
+                                    "presentation_linecount": 3,
+                                    "text": "bugs? feature requests? post them here"
+                                }
+                            },
+                            {
+                                "box": {
+                                    "bubble": 1,
                                     "fontname": "Arial",
                                     "fontsize": 13.0,
                                     "id": "obj-18",
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 505.0, 540.5, 122.0, 25.0 ],
+                                    "patching_rect": [ 494.0, 543.5, 122.0, 25.0 ],
                                     "text": "included objects"
                                 }
                             },
@@ -15200,14 +15216,14 @@
                                                     "fontname": "Lato",
                                                     "fontsize": 13.0,
                                                     "id": "obj-77",
-                                                    "linecount": 2,
+                                                    "linecount": 3,
                                                     "maxclass": "comment",
                                                     "numinlets": 1,
                                                     "numoutlets": 0,
-                                                    "patching_rect": [ 763.25, 619.0, 221.0, 38.0 ],
+                                                    "patching_rect": [ 763.25, 619.0, 221.0, 53.0 ],
                                                     "presentation": 1,
                                                     "presentation_rect": [ 505.0, 94.0, 528.0, 22.0 ],
-                                                    "text": "The Instrument is monophonic and polyphonic at the same time.",
+                                                    "text": "The result is 2 gliding melodies playing parallely on the same instrument.",
                                                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                                                 }
                                             },
@@ -15216,15 +15232,15 @@
                                                     "fontname": "Lato",
                                                     "fontsize": 13.0,
                                                     "id": "obj-76",
-                                                    "linecount": 5,
+                                                    "linecount": 4,
                                                     "maxclass": "comment",
                                                     "numinlets": 1,
                                                     "numoutlets": 0,
-                                                    "patching_rect": [ 725.25, 592.0, 179.0, 84.0 ],
+                                                    "patching_rect": [ 725.25, 592.0, 179.0, 69.0 ],
                                                     "presentation": 1,
                                                     "presentation_linecount": 2,
                                                     "presentation_rect": [ 502.0, 51.0, 534.0, 38.0 ],
-                                                    "text": "Press a C-major chord then turn on (mono) and play a short, monophonic portamento melody over the chord.",
+                                                    "text": "First play a low portamento melody and record it. Then play in a higher register over the recording.",
                                                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                                                 }
                                             },
@@ -15240,7 +15256,7 @@
                                                     "patching_rect": [ 687.25, 557.0, 131.0, 69.0 ],
                                                     "presentation": 1,
                                                     "presentation_rect": [ 505.0, 11.0, 514.0, 22.0 ],
-                                                    "text": "This demonstrates the monophony functionality of [voice-alligator]",
+                                                    "text": "Note Looper not only remembers the pitch of the note, but also the monophony flag.",
                                                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                                                 }
                                             },
@@ -16186,6 +16202,7 @@
                                             {
                                                 "box": {
                                                     "fontsize": 30.0,
+                                                    "hidden": 1,
                                                     "id": "obj-121",
                                                     "maxclass": "comment",
                                                     "numinlets": 1,
@@ -16200,6 +16217,7 @@
                                             {
                                                 "box": {
                                                     "bgcolor": [ 0.694117647058824, 0.0, 0.0, 1.0 ],
+                                                    "hidden": 1,
                                                     "id": "obj-23",
                                                     "maxclass": "toggle",
                                                     "numinlets": 1,

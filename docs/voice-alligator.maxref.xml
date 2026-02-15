@@ -47,13 +47,16 @@
 		<br/><br/>
 		<b>The third argument (stream):</b>
 		<br/><br/> 
-		This specifies the priority of the note. By default, notes on stream <i>n</i> cannot steal notes from stream with a higher number (higher number means lower priority with regards to stealing). Monophony is applied to one stream at a time, so we can play two or more portamento melodies on different streams simultaneously. If no stream was provided, stream 1 is chosen.
+		This specifies the priority of the note. By default, notes on stream <i>n</i> cannot steal notes from higher stream (higher stream means lower priority with regards to stealing). Monophony is applied to one stream at a time, so we can play two or more portamento melodies on different streams simultaneously. If no stream was provided, stream 1 is chosen.
 		<br/><br/>
-		<b>The fourth argument (monoflag):</b>
+		<b>The fourth argument (mono_flag):</b>
 		<br/><br/>
 		When provided, this argument treats the incoming note as a <i>Sequencer Note.</i>
 		<br/><br/>
-		<i>Sequencer Notes</i> could originate from note-generating sources, such as the Note Looper or a sequencer, and are designed to allow the player to play over them. They ignore <m>mono</m>, <m>hold</m>, <m>sustain</m>, and <m>mono_note_priority</m> settings but are still affected by <m>mono_steals_release</m>.
+		<i>Sequencer Notes</i> could originate from note-generating sources, 
+		such as the Note Looper or a sequencer, 
+		and are designed to allow the player to play over them. The mono-flag will decide if the instrument performs a glide, so 
+		they ignore <m>mono</m>, <m>hold</m>, <m>sustain</m>, and <m>mono_note_priority</m> settings but are still affected by <m>mono_steals_release</m>.
 		<br/><br/>
 		<b>The fifth argument (realpitch):</b>
 		<br/><br/>
@@ -110,7 +113,7 @@
 		</i>
 		<br/><br/>
 
-		Everything after "flags" can be used for different purposes in the voice (see comments in  <openfilelink filename="alligator-example-voice.maxpat">alligator-example-voice</openfilelink>) and you could get really creative with these i.e. having different parameter settings per stream, or glide notes not retriggering a pitch envelope etc. There is an example of one type of alternative usage of flags in the <openfilelink filename="alligator-advanced-voice-tutorial.maxpat">alligator-advanced-voice-tutorial</openfilelink>.
+		Everything after "flags" can be used for different purposes in the voice (see comments in  <openfilelink filename="alligator-example-voice.maxpat">alligator-example-voice</openfilelink>) and you could get really creative with these i.e. having different parameter settings per stream, or glide notes not retriggering a pitch envelope etc. There is an example of one type of alternative usage of flags in <openfilelink filename="alligator-advanced-voice-tutorial.maxpat">alligator-advanced-voice-tutorial</openfilelink>.
 		<br/><br/>
 
 		Depending on the attribute <m>output_mode</m> the pitch will either be a frequency in Hertz as float or a MIDI note as integer (ignoring scale definitions).

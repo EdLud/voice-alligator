@@ -2637,14 +2637,6 @@
             "obj-17": [ "number[1]", "number[6]", 0 ],
             "obj-25": [ "number[2]", "number[14]", 0 ],
             "obj-27": [ "number[3]", "number[3]", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "inherited_shortname": 1
         },
         "autosave": 0
