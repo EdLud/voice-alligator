@@ -17,7 +17,7 @@
                     "maxclass": "newobj",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 959.0, 729.0, 75.0, 22.0 ],
+                    "patching_rect": [ 1068.0, 658.0, 75.0, 22.0 ],
                     "text": "s #0-mute"
                 }
             },
@@ -387,31 +387,8 @@
                     "maxclass": "newobj",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 331.0, 165.0, 72.0, 22.0 ],
+                    "patching_rect": [ 153.0, 136.0, 72.0, 22.0 ],
                     "text": "s #0-note"
-                }
-            },
-            {
-                "box": {
-                    "color": [ 0.16078431372549, 0.682352941176471, 1.0, 1.0 ],
-                    "id": "obj-4",
-                    "maxclass": "newobj",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 768.0, 120.0, 109.0, 22.0 ],
-                    "text": "s #0-params"
-                }
-            },
-            {
-                "box": {
-                    "color": [ 0.16078431372549, 0.682352941176471, 1.0, 1.0 ],
-                    "id": "obj-8",
-                    "maxclass": "newobj",
-                    "numinlets": 0,
-                    "numoutlets": 1,
-                    "outlettype": [ "" ],
-                    "patching_rect": [ 768.0, 60.0, 116.0, 22.0 ],
-                    "text": "r #1"
                 }
             },
             {
@@ -911,7 +888,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 99.5, 26.0, 410.0, 33.0 ],
-                                    "text": "<glide only on note on. Note that a note-off from the keyboard can be a note on from voice-alligator in monophony context"
+                                    "text": "<glide only on note on. A note-off from the keyboard can be a note on from voice-alligator in monophony context"
                                 }
                             },
                             {
@@ -1944,6 +1921,10 @@
                     "numinlets": 1,
                     "numoutlets": 0,
                     "patching_rect": [ 41.0, 665.0, 42.0, 22.0 ],
+                    "saved_object_attributes": {
+                        "attr_comment": "",
+                        "c": ""
+                    },
                     "text": "out~ 1"
                 }
             },
@@ -2078,6 +2059,10 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 23.0, 10.0, 47.0, 23.0 ],
+                    "saved_object_attributes": {
+                        "attr_comment": "",
+                        "c": ""
+                    },
                     "text": "in 1"
                 }
             },
@@ -2111,14 +2096,14 @@
             {
                 "patchline": {
                     "destination": [ "obj-3", 0 ],
-                    "order": 1,
+                    "order": 0,
                     "source": [ "obj-12", 1 ]
                 }
             },
             {
                 "patchline": {
                     "destination": [ "obj-7", 1 ],
-                    "order": 0,
+                    "order": 1,
                     "source": [ "obj-12", 1 ]
                 }
             },
@@ -2347,12 +2332,6 @@
                 "patchline": {
                     "destination": [ "obj-70", 0 ],
                     "source": [ "obj-74", 0 ]
-                }
-            },
-            {
-                "patchline": {
-                    "destination": [ "obj-4", 0 ],
-                    "source": [ "obj-8", 0 ]
                 }
             },
             {

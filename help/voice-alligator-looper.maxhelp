@@ -22,7 +22,7 @@
                     "offset": 57,
                     "outlettype": [ "int", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 28.0, 229.0, 196.0, 34.0 ]
+                    "patching_rect": [ 28.0, 214.0, 196.0, 34.0 ]
                 }
             },
             {
@@ -33,7 +33,7 @@
                     "numinlets": 2,
                     "numoutlets": 2,
                     "outlettype": [ "", "" ],
-                    "patching_rect": [ 28.0, 269.0, 69.0, 22.0 ],
+                    "patching_rect": [ 28.0, 254.0, 69.0, 22.0 ],
                     "text": "route mono"
                 }
             },
@@ -47,7 +47,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 37.0, 382.0, 141.0, 25.0 ],
+                    "patching_rect": [ 37.0, 367.0, 141.0, 25.0 ],
                     "text": "play with pitchwheel"
                 }
             },
@@ -57,7 +57,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 251.0, 193.0, 38.0, 20.0 ],
+                    "patching_rect": [ 251.0, 178.0, 38.0, 20.0 ],
                     "text": "notes"
                 }
             },
@@ -71,7 +71,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 341.0, 153.0, 92.0, 40.0 ],
+                    "patching_rect": [ 341.0, 138.0, 92.0, 40.0 ],
                     "text": "enable chords"
                 }
             },
@@ -91,7 +91,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 977.5, 231.0, 63.0, 20.0 ],
+                    "patching_rect": [ 978.0, 216.0, 63.0, 20.0 ],
                     "text": "semitones"
                 }
             },
@@ -111,7 +111,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 977.5, 156.0, 63.0, 20.0 ],
+                    "patching_rect": [ 978.0, 141.0, 63.0, 20.0 ],
                     "text": "semitones"
                 }
             },
@@ -121,7 +121,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 882.5, 156.0, 32.0, 20.0 ],
+                    "patching_rect": [ 883.0, 141.0, 32.0, 20.0 ],
                     "text": "ratio"
                 }
             },
@@ -131,7 +131,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 399.0, 196.0, 45.0, 20.0 ],
+                    "patching_rect": [ 399.0, 181.0, 45.0, 20.0 ],
                     "text": "chords"
                 }
             },
@@ -143,7 +143,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 375.0, 194.0, 24.0, 24.0 ]
+                    "patching_rect": [ 375.0, 179.0, 24.0, 24.0 ]
                 }
             },
             {
@@ -152,7 +152,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 7.0, 441.0, 194.0, 20.0 ],
+                    "patching_rect": [ 7.0, 426.0, 194.0, 20.0 ],
                     "text": "gets ignored for note looper notes^"
                 }
             },
@@ -653,7 +653,7 @@
                             }
                         ]
                     },
-                    "patching_rect": [ 252.0, 347.0, 100.0, 22.0 ],
+                    "patching_rect": [ 252.0, 332.0, 100.0, 22.0 ],
                     "text": "p startup settings"
                 }
             },
@@ -663,7 +663,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 162.0, 325.0, 65.0, 20.0 ],
+                    "patching_rect": [ 162.0, 310.0, 65.0, 20.0 ],
                     "text": "pitchwheel"
                 }
             },
@@ -957,7 +957,7 @@
                             }
                         ]
                     },
-                    "patching_rect": [ 201.0, 383.5, 19.0, 22.0 ],
+                    "patching_rect": [ 201.0, 369.0, 19.0, 22.0 ],
                     "text": "p"
                 }
             },
@@ -970,7 +970,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 183.0, 347.0, 23.0, 95.0 ]
+                    "patching_rect": [ 183.0, 332.0, 23.0, 95.0 ]
                 }
             },
             {
@@ -983,7 +983,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 143.0, 149.0, 191.0, 40.0 ],
+                    "patching_rect": [ 143.0, 134.0, 191.0, 40.0 ],
                     "text": "turn off to only hear note looper"
                 }
             },
@@ -998,7 +998,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 858.5, 100.0, 182.0, 55.0 ],
+                    "patching_rect": [ 859.0, 85.0, 182.0, 55.0 ],
                     "text": "play around with these settings, set to higher speed"
                 }
             },
@@ -1013,7 +1013,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 622.0, 150.0, 172.0, 98.0 ],
+                    "patching_rect": [ 622.0, 135.0, 172.0, 98.0 ],
                     "text": "click record, record a short sequence, click again\n\n(repeat until you find something you like)"
                 }
             },
@@ -1027,7 +1027,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 81.0, 191.0, 148.0, 25.0 ],
+                    "patching_rect": [ 81.0, 176.0, 148.0, 25.0 ],
                     "text": "generate some notes"
                 }
             },
@@ -1041,7 +1041,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 110.0, 477.0, 110.0, 25.0 ],
+                    "patching_rect": [ 110.0, 462.0, 110.0, 25.0 ],
                     "text": "Turn on audio"
                 }
             },
@@ -1052,7 +1052,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 440.0, 196.0, 170.0, 74.0 ],
+                    "patching_rect": [ 440.0, 181.0, 170.0, 74.0 ],
                     "saved_attribute_attributes": {
                         "textcolor": {
                             "expression": "themecolor.live_dial_triangle"
@@ -1068,7 +1068,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 832.5, 188.0, 89.0, 22.0 ],
+                    "patching_rect": [ 833.0, 173.0, 89.0, 22.0 ],
                     "text": "prepend speed"
                 }
             },
@@ -1082,7 +1082,7 @@
                     "numoutlets": 2,
                     "outlettype": [ "", "bang" ],
                     "parameter_enable": 1,
-                    "patching_rect": [ 832.5, 155.0, 50.0, 22.0 ],
+                    "patching_rect": [ 833.0, 140.0, 50.0, 22.0 ],
                     "saved_attribute_attributes": {
                         "valueof": {
                             "parameter_initial": [ 1 ],
@@ -1107,7 +1107,7 @@
                     "numoutlets": 2,
                     "outlettype": [ "", "bang" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 1047.0, 230.0, 50.0, 22.0 ]
+                    "patching_rect": [ 1047.0, 215.0, 50.0, 22.0 ]
                 }
             },
             {
@@ -1117,7 +1117,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 1047.0, 263.0, 97.0, 22.0 ],
+                    "patching_rect": [ 1047.0, 248.0, 97.0, 22.0 ],
                     "text": "prepend volJitter"
                 }
             },
@@ -1128,7 +1128,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 927.5, 263.0, 107.0, 22.0 ],
+                    "patching_rect": [ 928.0, 248.0, 107.0, 22.0 ],
                     "text": "prepend pitchJitter"
                 }
             },
@@ -1139,7 +1139,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 1047.0, 188.0, 78.0, 22.0 ],
+                    "patching_rect": [ 1047.0, 173.0, 78.0, 22.0 ],
                     "text": "prepend vol"
                 }
             },
@@ -1154,7 +1154,7 @@
                     "numoutlets": 2,
                     "outlettype": [ "", "bang" ],
                     "parameter_enable": 1,
-                    "patching_rect": [ 1047.0, 155.0, 50.0, 22.0 ],
+                    "patching_rect": [ 1047.0, 140.0, 50.0, 22.0 ],
                     "saved_attribute_attributes": {
                         "valueof": {
                             "parameter_initial": [ 100 ],
@@ -1177,7 +1177,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 927.5, 188.0, 109.0, 22.0 ],
+                    "patching_rect": [ 928.0, 173.0, 109.0, 22.0 ],
                     "text": "prepend transpose"
                 }
             },
@@ -1190,7 +1190,7 @@
                     "numoutlets": 2,
                     "outlettype": [ "", "bang" ],
                     "parameter_enable": 1,
-                    "patching_rect": [ 927.5, 155.0, 50.0, 22.0 ],
+                    "patching_rect": [ 928.0, 140.0, 50.0, 22.0 ],
                     "saved_attribute_attributes": {
                         "valueof": {
                             "parameter_initial": [ 0 ],
@@ -1215,7 +1215,7 @@
                     "numoutlets": 2,
                     "outlettype": [ "", "bang" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 927.5, 230.0, 50.0, 22.0 ]
+                    "patching_rect": [ 928.0, 215.0, 50.0, 22.0 ]
                 }
             },
             {
@@ -1235,7 +1235,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 294.0, 544.0, 229.0, 22.0 ],
+                    "patching_rect": [ 294.0, 529.0, 229.0, 22.0 ],
                     "text": "end 2",
                     "textcolor": [ 1.0, 1.0, 1.0, 1.0 ]
                 }
@@ -1859,7 +1859,7 @@
                             }
                         ]
                     },
-                    "patching_rect": [ 227.0, 235.0, 167.0, 22.0 ],
+                    "patching_rect": [ 227.0, 220.0, 167.0, 22.0 ],
                     "text": "p generate some notes"
                 }
             },
@@ -1871,7 +1871,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 227.0, 191.0, 24.0, 24.0 ]
+                    "patching_rect": [ 227.0, 176.0, 24.0, 24.0 ]
                 }
             },
             {
@@ -1891,7 +1891,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 294.0, 508.0, 229.0, 22.0 ],
+                    "patching_rect": [ 294.0, 493.0, 229.0, 22.0 ],
                     "text": "notes 840. 0 flags 0 0 0 1 1 2",
                     "textcolor": [ 0.968627450980392, 0.968627450980392, 0.968627450980392, 1.0 ]
                 }
@@ -1903,73 +1903,7 @@
                     "maxclass": "ezdac~",
                     "numinlets": 2,
                     "numoutlets": 0,
-                    "patching_rect": [ 228.0, 467.0, 45.0, 45.0 ]
-                }
-            },
-            {
-                "box": {
-                    "hidden": 1,
-                    "id": "obj-2",
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 238.0, 750.0, 196.0, 20.0 ],
-                    "text": "<----------------- sets playback speed"
-                }
-            },
-            {
-                "box": {
-                    "hidden": 1,
-                    "id": "obj-35",
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 293.0, 737.0, 499.0, 20.0 ],
-                    "text": "<--- if a note is already pressed when record starts, this will transform the note into a note-on"
-                }
-            },
-            {
-                "box": {
-                    "hidden": 1,
-                    "id": "obj-34",
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 302.0, 723.0, 407.0, 20.0 ],
-                    "text": "<- sets how much semitones the pitch will jitter. goes positive and negative."
-                }
-            },
-            {
-                "box": {
-                    "hidden": 1,
-                    "id": "obj-32",
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 302.0, 710.0, 201.0, 20.0 ],
-                    "text": "<- transposes the pitch in semitones"
-                }
-            },
-            {
-                "box": {
-                    "hidden": 1,
-                    "id": "obj-31",
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 302.0, 696.0, 358.0, 20.0 ],
-                    "text": "<- will randomize how much to substract from the volume of notes"
-                }
-            },
-            {
-                "box": {
-                    "hidden": 1,
-                    "id": "obj-30",
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 302.0, 684.0, 257.0, 20.0 ],
-                    "text": "<- will play back recorded notes louder / quiter "
+                    "patching_rect": [ 228.0, 452.0, 45.0, 45.0 ]
                 }
             },
             {
@@ -1979,7 +1913,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 696.0, 294.0, 90.0, 22.0 ],
+                    "patching_rect": [ 696.0, 279.0, 90.0, 22.0 ],
                     "text": "prepend record"
                 }
             },
@@ -1991,7 +1925,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 696.0, 261.0, 24.0, 24.0 ]
+                    "patching_rect": [ 696.0, 246.0, 24.0, 24.0 ]
                 }
             },
             {
@@ -2000,7 +1934,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 785.0, 452.0, 316.0, 20.0 ],
+                    "patching_rect": [ 785.0, 437.0, 316.0, 20.0 ],
                     "text": "< Note Looper records frequencies instead of midi pitches"
                 }
             },
@@ -2013,7 +1947,7 @@
                     "numoutlets": 2,
                     "outlettype": [ "", "bang" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 734.0, 451.0, 50.0, 22.0 ]
+                    "patching_rect": [ 734.0, 436.0, 50.0, 22.0 ]
                 }
             },
             {
@@ -2023,7 +1957,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 734.0, 419.0, 50.0, 22.0 ],
+                    "patching_rect": [ 734.0, 404.0, 50.0, 22.0 ],
                     "text": "$5"
                 }
             },
@@ -2035,7 +1969,7 @@
                     "numoutlets": 2,
                     "outlettype": [ "", "bang" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 733.0, 536.0, 50.0, 22.0 ]
+                    "patching_rect": [ 733.0, 521.0, 50.0, 22.0 ]
                 }
             },
             {
@@ -2044,7 +1978,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 752.0, 501.0, 325.0, 20.0 ],
+                    "patching_rect": [ 752.0, 486.0, 325.0, 20.0 ],
                     "text": "<Note Looper will end all notes of it's stream on end of loop"
                 }
             },
@@ -2056,7 +1990,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "bang" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 696.0, 535.0, 24.0, 24.0 ]
+                    "patching_rect": [ 696.0, 520.0, 24.0, 24.0 ]
                 }
             },
             {
@@ -2066,7 +2000,7 @@
                     "numinlets": 2,
                     "numoutlets": 2,
                     "outlettype": [ "", "" ],
-                    "patching_rect": [ 696.0, 500.0, 59.0, 22.0 ],
+                    "patching_rect": [ 696.0, 485.0, 59.0, 22.0 ],
                     "text": "route end"
                 }
             },
@@ -2076,7 +2010,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 862.0, 337.0, 297.0, 20.0 ],
+                    "patching_rect": [ 862.0, 322.0, 297.0, 20.0 ],
                     "text": "argument 1= stream of the looper instance (default 2)"
                 }
             },
@@ -2087,7 +2021,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 798.0, 294.0, 78.0, 22.0 ],
+                    "patching_rect": [ 798.0, 279.0, 78.0, 22.0 ],
                     "text": "prepend play"
                 }
             },
@@ -2099,7 +2033,7 @@
                     "numinlets": 1,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 841.0, 392.0, 72.0, 22.0 ],
+                    "patching_rect": [ 841.0, 377.0, 72.0, 22.0 ],
                     "text": "prepend set"
                 }
             },
@@ -2111,7 +2045,7 @@
                     "numinlets": 2,
                     "numoutlets": 2,
                     "outlettype": [ "", "" ],
-                    "patching_rect": [ 841.0, 368.0, 61.0, 22.0 ],
+                    "patching_rect": [ 841.0, 353.0, 61.0, 22.0 ],
                     "text": "route play"
                 }
             },
@@ -2124,7 +2058,7 @@
                     "numinlets": 2,
                     "numoutlets": 3,
                     "outlettype": [ "", "", "" ],
-                    "patching_rect": [ 696.0, 334.0, 164.0, 26.0 ],
+                    "patching_rect": [ 696.0, 319.0, 164.0, 26.0 ],
                     "text": "voice-alligator-looper 2",
                     "textcolor": [ 0.0, 0.0, 0.0, 1.0 ]
                 }
@@ -2137,7 +2071,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 798.0, 261.0, 24.0, 24.0 ]
+                    "patching_rect": [ 798.0, 246.0, 24.0, 24.0 ]
                 }
             },
             {
@@ -2147,7 +2081,7 @@
                     "numinlets": 1,
                     "numoutlets": 3,
                     "outlettype": [ "signal", "", "" ],
-                    "patching_rect": [ 228.0, 415.0, 327.0, 22.0 ],
+                    "patching_rect": [ 228.0, 400.0, 327.0, 22.0 ],
                     "text": "poly~ alligator-example-voice 8 @args example-noteLooper",
                     "varname": "poly~_AA"
                 }
@@ -2160,21 +2094,9 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 228.0, 383.0, 288.0, 22.0 ],
+                    "patching_rect": [ 228.0, 368.0, 288.0, 22.0 ],
                     "text": "voice-alligator 8 @mono 1 @mono_steals_release 1",
                     "textcolor": [ 0.0, 0.0, 0.0, 1.0 ]
-                }
-            },
-            {
-                "box": {
-                    "hidden": 1,
-                    "id": "obj-13",
-                    "linecount": 13,
-                    "maxclass": "comment",
-                    "numinlets": 1,
-                    "numoutlets": 0,
-                    "patching_rect": [ 105.0, 616.0, 289.0, 181.0 ],
-                    "text": "methods:\nrecord         1/0\nplay             1/0\n\nattributes:\nvol               (percent) (default 100)\nvolJitter       (percent) (default 0)\ntranspose    (semitones) (default 0.)\npitchJitter    (semitones) (default 0.)\nrecordPressed (bool) (default 1)\nspeed (ratio) (default 1.)\n\nAll other messages to the object get passed to MTR"
                 }
             },
             {
@@ -2214,7 +2136,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 943.5, 82.0, 20.0, 20.0 ],
+                    "patching_rect": [ 944.0, 67.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "5",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2239,7 +2161,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 94.0, 360.0, 20.0, 20.0 ],
+                    "patching_rect": [ 94.0, 345.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "7",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2264,7 +2186,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 377.0, 131.0, 20.0, 20.0 ],
+                    "patching_rect": [ 377.0, 116.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "6",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2289,7 +2211,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 228.0, 131.0, 20.0, 20.0 ],
+                    "patching_rect": [ 228.0, 116.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "4",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2314,7 +2236,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 88.0, 479.0, 20.0, 20.0 ],
+                    "patching_rect": [ 88.0, 464.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "1",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2339,7 +2261,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 698.0, 131.0, 20.0, 20.0 ],
+                    "patching_rect": [ 698.0, 116.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "3",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2364,7 +2286,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 65.0, 193.0, 20.0, 20.0 ],
+                    "patching_rect": [ 65.0, 178.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "2",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2386,7 +2308,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-72", 0 ],
-                    "midpoints": [ 807.5, 317.0, 705.5, 317.0 ],
+                    "midpoints": [ 807.5, 302.0, 705.5, 302.0 ],
                     "source": [ "obj-12", 0 ]
                 }
             },
@@ -2394,7 +2316,7 @@
                 "patchline": {
                     "destination": [ "obj-58", 0 ],
                     "hidden": 1,
-                    "midpoints": [ 850.5, 428.03125, 1172.66015625, 428.03125, 1172.66015625, 393.0, 1173.1171875, 393.0, 1173.1171875, 75.7734375, 807.5, 75.7734375 ],
+                    "midpoints": [ 850.5, 413.03125, 1172.66015625, 413.03125, 1172.66015625, 378.0, 1173.1171875, 378.0, 1173.1171875, 60.7734375, 807.5, 60.7734375 ],
                     "source": [ "obj-14", 0 ]
                 }
             },
@@ -2478,7 +2400,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-19", 1 ],
-                    "midpoints": [ 391.5, 451.08984375, 556.515625, 451.08984375, 556.515625, 377.0, 506.5, 377.0 ],
+                    "midpoints": [ 391.5, 436.08984375, 556.515625, 436.08984375, 556.515625, 362.0, 506.5, 362.0 ],
                     "source": [ "obj-33", 1 ]
                 }
             },

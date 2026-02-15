@@ -87,6 +87,26 @@ voice-alligator also recognizes pre-recorded notes, gives them a special flag, a
 
 	<methodlist>
 
+
+		<method name='list'>
+			<digest>messages from voice-alligator</digest>
+			<description>
+				<h4>Inlet 1:</h4>
+				Messages from voice-alligator. 
+				<br/><br/>
+				These are lists that either start with <b>"target",</b> <b>"notes"</b> or <b>"flags"</b>.
+				<br/><br/>
+				All messages that don't start with these words or any of the loopers methods or attributes get passed directly to the <o>mtr</o> sitting in the looper.
+				<h4>Inlet 2:</h4>
+
+				Auxilary Inlet for parameters.
+				<br/><br/>
+
+			 Everything that goes in here will be recorded and played back as it is.
+
+			</description>
+		</method>
+
 		<method name='record'>
 			<digest>record 1 / 0: starts or stops recording</digest>
 			<description> record 1 / 0: starts or stops recording.
@@ -97,6 +117,7 @@ voice-alligator also recognizes pre-recorded notes, gives them a special flag, a
 			<digest>play 1 / 0 starts / stops playback </digest>
 			<description>play 1 / 0 starts / stops playback </description>
 		</method>
+
 
 	</methodlist>
 

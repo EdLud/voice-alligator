@@ -1,9 +1,9 @@
 {
 	"name" : "voice-alligator",
 	"displayname" : "",
-	"version" : "1.0.0.",
+	"version" : "1.0.0",
 	"author" : "Edis Ludwig, Jan Godde",
-	"description" : "voice-alligator is an advanced voice allocation algorithm designed to work with poly~",
+	"description" : "voice-alligator is an advanced voice allocation tool designed to work with poly~",
 	"tags" : [ "midi", "poly~", "voice allocation"],
 	"website" : "https://github.com/EdLud/voice-alligator",
 	"extends" : "",
