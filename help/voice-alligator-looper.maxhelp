@@ -1236,7 +1236,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 294.0, 529.0, 229.0, 22.0 ],
-                    "text": "end 2",
+                    "text": "1 60. 2 1 5103.608767",
                     "textcolor": [ 1.0, 1.0, 1.0, 1.0 ]
                 }
             },
@@ -1892,7 +1892,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 294.0, 493.0, 229.0, 22.0 ],
-                    "text": "notes 840. 0 flags 0 0 0 1 1 2",
+                    "text": "notes 5103.608767 60. flags 1 0 0 1 1 2",
                     "textcolor": [ 0.968627450980392, 0.968627450980392, 0.968627450980392, 1.0 ]
                 }
             },
@@ -2559,6 +2559,14 @@
             "obj-17": [ "number[1]", "number[6]", 0 ],
             "obj-25": [ "number[2]", "number[14]", 0 ],
             "obj-27": [ "number[3]", "number[3]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0

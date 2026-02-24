@@ -1388,8 +1388,8 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 717.0, 506.0, 201.0, 69.0 ],
-                    "text": "Extras\n\n\n"
+                    "patching_rect": [ 716.0, 506.0, 201.0, 69.0 ],
+                    "text": " Extras\n\n\n"
                 }
             },
             {
@@ -1402,8 +1402,8 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 299.0, 506.0, 205.0, 85.0 ],
-                    "text": "Included Objects\n\n\n\n"
+                    "patching_rect": [ 300.0, 506.0, 205.0, 85.0 ],
+                    "text": " Included Objects\n\n\n\n"
                 }
             },
             {
@@ -14712,15 +14712,12 @@
                                     "fontname": "Lato",
                                     "fontsize": 13.0,
                                     "id": "obj-77",
-                                    "linecount": 6,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 763.25, 619.0, 221.0, 100.0 ],
+                                    "patching_rect": [ 763.25, 619.0, 221.0, 22.0 ],
                                     "presentation": 1,
-                                    "presentation_linecount": 3,
-                                    "presentation_rect": [ 505.0, 94.0, 549.0, 53.0 ],
-                                    "text": "The player can therefore play an evolving glissando chord. Play the starting note A#, then a second note that will be the glide's target, then first release A#, then the target note. Repeat this for different end pitches.",
+                                    "presentation_rect": [ 505.0, 94.0, 549.0, 22.0 ],
                                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                                 }
                             },
@@ -14729,15 +14726,12 @@
                                     "fontname": "Lato",
                                     "fontsize": 13.0,
                                     "id": "obj-76",
-                                    "linecount": 7,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 725.25, 592.0, 179.0, 116.0 ],
+                                    "patching_rect": [ 725.25, 592.0, 179.0, 22.0 ],
                                     "presentation": 1,
-                                    "presentation_linecount": 2,
-                                    "presentation_rect": [ 503.5, 48.0, 552.0, 38.0 ],
-                                    "text": "With glidetime and attack both set to 30 seconds we get long, swelling notes that also glide in pitch. glide_retrigger is set to 0, this prevents a retriggering of the ADSR.",
+                                    "presentation_rect": [ 503.5, 48.0, 552.0, 22.0 ],
                                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                                 }
                             },
@@ -14746,15 +14740,12 @@
                                     "fontname": "Lato",
                                     "fontsize": 13.0,
                                     "id": "obj-75",
-                                    "linecount": 9,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 687.25, 557.0, 131.0, 147.0 ],
+                                    "patching_rect": [ 687.25, 557.0, 131.0, 22.0 ],
                                     "presentation": 1,
-                                    "presentation_linecount": 2,
-                                    "presentation_rect": [ 505.0, 8.0, 549.0, 38.0 ],
-                                    "text": "With a long attack time (30 s) and (hold) turned on, a key that is pressed shorter than the attack+decay time will still trigger the whole ADS part of the ADSR.",
+                                    "presentation_rect": [ 505.0, 8.0, 549.0, 22.0 ],
                                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                                 }
                             },
@@ -15736,6 +15727,7 @@
                             {
                                 "box": {
                                     "fontsize": 22.12370242214533,
+                                    "hidden": 1,
                                     "id": "obj-121",
                                     "maxclass": "comment",
                                     "numinlets": 1,
@@ -15750,6 +15742,7 @@
                             {
                                 "box": {
                                     "bgcolor": [ 0.694117647058824, 0.0, 0.0, 1.0 ],
+                                    "hidden": 1,
                                     "id": "obj-23",
                                     "maxclass": "toggle",
                                     "numinlets": 1,
@@ -17608,7 +17601,7 @@
                     "numinlets": 1,
                     "numoutlets": 0,
                     "patching_rect": [ 527.0, 506.0, 167.0, 116.0 ],
-                    "text": "Online Ressources\n\n\n\n\n\n"
+                    "text": "     Online Ressources\n\n\n\n\n\n"
                 }
             }
         ],
@@ -17731,6 +17724,14 @@
             "obj-1::obj-277": [ "attack", "attack", 0 ],
             "obj-1::obj-83::obj-105::obj-19": [ "number[5]", "number[5]", 0 ],
             "obj-1::obj-83::obj-1::obj-19": [ "number[8]", "number[5]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "parameter_overrides": {
                 "obj-1::obj-264": {
                     "parameter_longname": "live.numbox",

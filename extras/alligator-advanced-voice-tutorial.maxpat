@@ -1445,7 +1445,7 @@
                     "numinlets": 1,
                     "numoutlets": 0,
                     "patching_rect": [ 21.0, 68.0, 410.0, 145.0 ],
-                    "text": "For this tutorial we'll use \n\nOne of the most powerful features of voice-alligator is that it outputs informations about the note to the voice in form of flags (see reference).\n\nIn this tutorial we'll look at how we can use the stream flag to implement per-stream parameter changes."
+                    "text": "For this tutorial we'll use \n\nOne of the most powerful features of voice-alligator is that it outputs information about the note to the voice in form of flags (see reference).\n\nIn this tutorial we'll look at how we can use the stream flag to implement per-stream parameter changes."
                 }
             },
             {
@@ -1896,7 +1896,6 @@
                             "expression": "themecolor.live_display_line_one"
                         }
                     },
-                    "text": "15.50",
                     "textcolor": [ 1.0, 0.725490196078431, 0.003921568627451, 1.0 ]
                 }
             },
@@ -3552,7 +3551,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 91.0, 4504.0, 99.0, 22.0 ],
-                    "text": "2 mod_ratio 2."
+                    "text": "1 mod_ratio 1.5"
                 }
             },
             {
@@ -4999,6 +4998,10 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 32.0, 1874.0, 28.0, 22.0 ],
+                    "saved_object_attributes": {
+                        "attr_comment": "",
+                        "c": ""
+                    },
                     "text": "in 1"
                 }
             },
@@ -5713,6 +5716,7 @@
                             "expression": "themecolor.live_display_line_one"
                         }
                     },
+                    "text": "15.50",
                     "textcolor": [ 1.0, 0.725490196078431, 0.003921568627451, 1.0 ]
                 }
             },
@@ -7520,7 +7524,6 @@
                             {
                                 "box": {
                                     "id": "obj-83",
-                                    "linecount": 2,
                                     "maxclass": "newobj",
                                     "numinlets": 1,
                                     "numoutlets": 0,
@@ -10178,6 +10181,14 @@
             "obj-377": [ "number[2]", "number[2]", 0 ],
             "obj-5": [ "number[1]", "number[1]", 0 ],
             "obj-94": [ "mod_ratio", "mod_ratio", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0,
