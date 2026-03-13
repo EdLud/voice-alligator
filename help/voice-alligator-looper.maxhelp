@@ -13,6 +13,17 @@
         "boxes": [
             {
                 "box": {
+                    "id": "obj-2",
+                    "maxclass": "newobj",
+                    "numinlets": 2,
+                    "numoutlets": 1,
+                    "outlettype": [ "multichannelsignal" ],
+                    "patching_rect": [ 228.0, 425.0, 92.0, 22.0 ],
+                    "text": "mc.mixdown~ 1"
+                }
+            },
+            {
+                "box": {
                     "hkeycolor": [ 1.0, 0.0, 0.0, 1.0 ],
                     "id": "obj-42",
                     "maxclass": "kslider",
@@ -1892,7 +1903,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 294.0, 493.0, 229.0, 22.0 ],
-                    "text": "notes 840. 0 flags 0 0 0 1 1 2",
+                    "text": "notes 1680. 0 flags 0 0 0 0 0 1",
                     "textcolor": [ 0.968627450980392, 0.968627450980392, 0.968627450980392, 1.0 ]
                 }
             },
@@ -2079,10 +2090,10 @@
                     "id": "obj-33",
                     "maxclass": "newobj",
                     "numinlets": 1,
-                    "numoutlets": 3,
-                    "outlettype": [ "signal", "", "" ],
-                    "patching_rect": [ 228.0, 400.0, 327.0, 22.0 ],
-                    "text": "poly~ alligator-example-voice 8 @args example-noteLooper",
+                    "numoutlets": 2,
+                    "outlettype": [ "multichannelsignal", "multichannelsignal" ],
+                    "patching_rect": [ 228.0, 400.0, 346.0, 22.0 ],
+                    "text": "mc.poly~ alligator-example-voice 8 @args example-noteLooper",
                     "varname": "poly~_AA"
                 }
             },
@@ -2363,6 +2374,20 @@
             },
             {
                 "patchline": {
+                    "destination": [ "obj-6", 1 ],
+                    "order": 0,
+                    "source": [ "obj-2", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-6", 0 ],
+                    "order": 1,
+                    "source": [ "obj-2", 0 ]
+                }
+            },
+            {
+                "patchline": {
                     "destination": [ "obj-72", 0 ],
                     "source": [ "obj-21", 0 ]
                 }
@@ -2400,21 +2425,13 @@
             {
                 "patchline": {
                     "destination": [ "obj-19", 1 ],
-                    "midpoints": [ 391.5, 436.08984375, 556.515625, 436.08984375, 556.515625, 362.0, 506.5, 362.0 ],
+                    "midpoints": [ 564.5, 436.08984375, 591.37109375, 436.08984375, 591.37109375, 362.0, 506.5, 362.0 ],
                     "source": [ "obj-33", 1 ]
                 }
             },
             {
                 "patchline": {
-                    "destination": [ "obj-6", 1 ],
-                    "order": 0,
-                    "source": [ "obj-33", 0 ]
-                }
-            },
-            {
-                "patchline": {
-                    "destination": [ "obj-6", 0 ],
-                    "order": 1,
+                    "destination": [ "obj-2", 0 ],
                     "source": [ "obj-33", 0 ]
                 }
             },
@@ -2559,6 +2576,14 @@
             "obj-17": [ "number[1]", "number[6]", 0 ],
             "obj-25": [ "number[2]", "number[14]", 0 ],
             "obj-27": [ "number[3]", "number[3]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0

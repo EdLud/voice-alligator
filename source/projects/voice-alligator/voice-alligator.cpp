@@ -5,15 +5,19 @@
 #include <algorithm>
 #include "c74_min.h"
 #include <vector>
-#include <queue>
 #include <cmath>
 #include <optional>
 #include <unordered_set>
+#include <atomic>
+#include <unordered_map>
 
 using namespace c74::min;
 using namespace c74::min::lib;
 
-class voice_alligator : public object<voice_alligator>{
+// Forward declaration for MC channel count callback
+long voice_alligator_multichanneloutputs(c74::max::t_object* x, long index, long count);
+
+class voice_alligator : public object<voice_alligator>, public vector_operator<> {
 public:
 MIN_DESCRIPTION{"voice allocator for poly~ object"};
 MIN_TAGS{"velocities, pitches, etc."};
@@ -22,9 +26,24 @@ MIN_RELATED{"poly~"};
 MIN_FLAGS{documentation_flags::do_not_generate};
 
 inlet<> in1{this, "(list) midipitch, velocity, (stream), (mono_flag), (realpitch)"};
-inlet<> in2{this, "(list) voice number, muteflag"};
+inlet<> in2{this, "(multichannelsignal) adsr~ signals from poly~ voices, one channel per voice", "multichannelsignal"};
 outlet<> out1{this, "messages to poly~ object, [(notes), freq, velocity, (flags), glide, hold, sustain, sequencer, mono, stream]"};
-// outlet<thread_check::scheduler, thread_action::fifo> out1{this, "messages to poly~ object"};
+
+// Register the MC channel count callback so Max knows how many channels in2 expects,
+// and set Z_MC_INLETS so the audio bundle receives all channels of the MC inlet.
+message<> maxclass_setup{this, "maxclass_setup", MIN_FUNCTION{
+    c74::max::t_class* c = args[0];
+    c74::max::class_addmethod(c, (c74::max::method)voice_alligator_multichanneloutputs, "multichanneloutputs", c74::max::A_CANT, 0);
+    return {};
+}};
+
+// Set Z_MC_INLETS on the object instance so Max passes all MC channels to operator().
+// This must be done per-instance (not per-class) by setting the z_misc field directly.
+message<> setup{this, "setup", MIN_FUNCTION{
+    auto* self = (c74::max::t_pxobject*)maxobj();
+    self->z_misc |= 32; // Z_MC_INLETS — object knows how to count channels of incoming MC signals
+    return {};
+}};
 
 
 struct Note
@@ -143,7 +162,8 @@ private:
 };
 
 std::vector<Note> active_voices;
-std::queue<int> inactive_voices;
+std::unordered_map<int, Note> pending_voices; // target -> Note, sent to poly~ but ADSR not yet confirmed
+std::vector<int> inactive_voices;
 ScaleArray scale_array;
 
 std::unordered_set<int> inactive_channels; 
@@ -291,13 +311,112 @@ voice_alligator(const atoms& args = {}){
             if(voicenr > 1024){
             cerr << "maximum number of voices is 1024" << endl;    
                 return;
-            } 
+            }
+                voices = voicenr; // keep member in sync — used by operator() and MC callback
                 inactive_voices = {};
                 active_voices.clear();
+                pending_voices.clear();
+                std::fill(std::begin(adsr_active), std::end(adsr_active), false);
+                for (int i = 0; i < 1024; ++i) adsr_transitions[i].store(0, std::memory_order_relaxed);
                 for (int i = 1; i <= voicenr; ++i){
-                    inactive_voices.push(i);
+                    inactive_voices.push_back(i);
                 }
 }
+
+// DSP operator: reads the multichannel ADSR signal from inlet 2.
+// Channel index (0-based) maps to voice target (1-based): channel 0 = target 1, etc.
+// A voice is "started"  when its ADSR first goes above zero  → promote pending → active.
+// A voice is "finished" when its ADSR returns to zero after being active  → return to inactive pool.
+// Audio thread writes transition events here — no locking needed.
+// Values: 0 = no event, -1 = ADSR finished (went below threshold after being active).
+// Fixed size matching the max voice cap of 1024; only indices [0, voices-1] are used.
+std::atomic<int> adsr_transitions[1024] {};
+
+// Threshold below which ADSR is considered silent. adsr~ tapers asymptotically so exact 0.0 is unreliable.
+static constexpr double ADSR_THRESHOLD = 1e-5;
+
+void operator()(audio_bundle input, audio_bundle output){
+    // Channel layout: ch 0 is the first (message) inlet's dummy signal slot.
+    // MC inlet 2 starts at ch 1, so ch 1 = target 1, ch 2 = target 2, etc.
+    const int offset = 1;
+    const int total_channels = static_cast<int>(input.channel_count());
+    const int num_voices = std::min(voices, total_channels - offset);
+
+    for (int v = 0; v < num_voices; ++v){
+        const int ch  = v + offset;
+        const auto* samples = input.samples(ch);
+        const int frames = input.frame_count();
+
+        // Peak tells us if the ADSR fired at all this vector.
+        // Last sample tells us if it's still active at vector end.
+        double peak = 0.0;
+        for (int i = 0; i < frames; ++i)
+            if (samples[i] > peak) peak = samples[i];
+        const double last = frames > 0 ? samples[frames - 1] : 0.0;
+
+        const bool was_active  = adsr_active[v];
+        const bool went_active = (peak  > ADSR_THRESHOLD); // fired at any point this vector
+        const bool still_active = (last > ADSR_THRESHOLD); // still on at end of vector
+
+        if (!was_active && went_active && !still_active){
+            // Entire note life within one vector — signal both start and end atomically
+            adsr_transitions[v].store(2, std::memory_order_relaxed);
+        }
+        else if (!was_active && went_active){
+            adsr_transitions[v].store(1, std::memory_order_relaxed);  // pending → active
+        }
+        else if ((was_active) && !still_active){
+            adsr_transitions[v].store(-1, std::memory_order_relaxed); // active → done
+        }
+
+        adsr_active[v] = still_active;
+    }
+}
+
+// Timer runs on the scheduler thread and drains adsr_transitions safely.
+timer<timer_options::defer_delivery> adsr_poll{this, MIN_FUNCTION{
+    const int n = voices;
+    for (int v = 0; v < n; ++v){
+        int event = adsr_transitions[v].exchange(0, std::memory_order_relaxed);
+        if (event == 0) continue;
+
+        const int target = v + 1;
+        lock lock{m_mutex};
+
+        if (event == 1){
+            // ADSR went non-zero: promote pending → active, pop from inactive_voices
+            auto it = pending_voices.find(target);
+            if (it != pending_voices.end()){
+                if(debug){cout << "ADSR on for target " << target << " → promoting to active_voices" << (it->second.release_flag ? " (already released, awaiting tail)" : "") << endl;}
+                auto vit = std::find(inactive_voices.begin(), inactive_voices.end(), target);
+                if (vit != inactive_voices.end()) inactive_voices.erase(vit);
+                active_voices.push_back(it->second);
+                pending_voices.erase(it);
+            }
+        }
+        else if (event == 2){
+            // ADSR fired and finished within the same vector — promote pending straight to inactive
+            auto it = pending_voices.find(target);
+            if (it != pending_voices.end()){
+                if(debug){cout << "ADSR blip for target " << target << " → note complete, returning to inactive_voices" << endl;}
+                // target already in inactive_voices (was never popped), just discard from pending
+                pending_voices.erase(it);
+            }
+        }
+        else{ // event == -1
+            if(debug){cout << "ADSR off for target " << target << " → returning to inactive_voices" << endl;}
+            auto noteIt = std::find_if(active_voices.begin(), active_voices.end(),
+                                       [target](const Note& n){ return n.target == target; });
+            if (noteIt != active_voices.end()){
+                inactive_voices.push_back(target);
+                active_voices.erase(noteIt);
+                if(debug){cout << "  done, inactive_voices size=" << inactive_voices.size() << endl;}
+            }
+        }
+    }
+    adsr_poll.delay(1);
+    return {};
+}};
 
 message<> voicesMessage{this, "voices", "set voices",
         MIN_FUNCTION{
@@ -309,8 +428,11 @@ message<> voicesMessage{this, "voices", "set voices",
             } 
                 inactive_voices = {};
                 active_voices.clear();
+                pending_voices.clear();
+                std::fill(std::begin(adsr_active), std::end(adsr_active), false);
+                for (int i = 0; i < 1024; ++i) adsr_transitions[i].store(0, std::memory_order_relaxed);
                 for (int i = 1; i <= voiceMessNr; ++i){
-                    inactive_voices.push(i);
+                    inactive_voices.push_back(i);
                 }
             out1.send("voices", voiceMessNr);
             return {};
@@ -447,9 +569,6 @@ function mainInletFunction = MIN_FUNCTION{
             handleNoteOff(current_note, lock);
         }
     }
-    else{ //inlet 2, from thispoly~
-        fromPoly(args[0], args[1], lock);
-    }
     return {};
 };
 
@@ -484,7 +603,7 @@ void handleNoteOn(Note &note, lock &lock){
 }
 
 void handleNoteOnMono(Note &note, lock &lock){
-    int free_voice = 0;
+    int free_voice = -1;
     int incoming_note_stream = note.stream;
     Note note_to_send;
 
@@ -571,13 +690,12 @@ void handleNoteOnMono(Note &note, lock &lock){
         }
 
     // CASE: NO MONO VOICE PLAYING ON stream, FREE VOICE AVAILABLE
-    if (!inactive_voices.empty()){
-        free_voice = inactive_voices.front();
-        inactive_voices.pop();
+    free_voice = findFreeVoice();
+    if (free_voice != -1){
         note.target = free_voice;
         note.mono_flag = true;
-        active_voices.push_back(note);
-        if(debug){cout << "Found inactive voice with target " << free_voice << " and pushed new mono note to active_voices" << endl;}
+        pending_voices[free_voice] = note;
+        if(debug){cout << "Found inactive voice with target " << free_voice << " and added new mono note to pending_voices" << endl;}
         lock.unlock();
         outputFunction(note, 1, 0);
         return;
@@ -616,17 +734,17 @@ void handleNoteOnMono(Note &note, lock &lock){
 }
 
 void handleNoteOnPoly(Note &note, lock &lock){
-    int free_voice = 0;
+    int free_voice = -1;
 
     // CASE: FREE VOICE AVAILABLE
-    if (!inactive_voices.empty()){
-        free_voice = inactive_voices.front();
-        inactive_voices.pop();
+    free_voice = findFreeVoice();
+    if(debug){cout << "handleNoteOnPoly: findFreeVoice=" << free_voice << " inactive_voices size=" << inactive_voices.size() << " active_voices size=" << active_voices.size() << " pending size=" << pending_voices.size() << endl;}
+    if (free_voice != -1){
         note.target = free_voice;
         note.mono_flag = false;
-        note.sustain_flag = sustain_attr;//!!!!
-        active_voices.push_back(note);
-        if(debug){cout << "Found inactive voice with target " << free_voice << " and pushed new note with mpitch " << note.mpitch.back() << " to active_voices" << endl;}
+        note.sustain_flag = sustain_attr;
+        pending_voices[free_voice] = note;
+        if(debug){cout << "Found inactive voice with target " << free_voice << " and added new note with mpitch " << note.mpitch.back() << " to pending_voices" << endl;}
         lock.unlock();
         outputFunction(note, 1, 0); // -> spiele neue note mit freiem target, mono flag 0 und steal 0
     }
@@ -665,9 +783,22 @@ void handleNoteOnPoly(Note &note, lock &lock){
 
 void handleNoteOff(Note &incoming_note, lock &lock){
     if(debug) cout << "Called Handle Note Off" << endl;
-    int incoming_note_stream = incoming_note.stream; // we copy these variables for the lambdas below for safety reasons 
+    int incoming_note_stream = incoming_note.stream;
     int incoming_note_mpitch_back = incoming_note.mpitch.back();
     Note note_to_send;
+
+    // If the note is still pending (ADSR not yet confirmed), send the note-off to poly~ and
+    // mark release_flag so adsr_poll can clean up once the ADSR finishes.
+    for (auto it = pending_voices.begin(); it != pending_voices.end(); ++it){
+        if (it->second.mpitch.back() == incoming_note_mpitch_back && it->second.stream == incoming_note_stream){
+            if(debug) cout << "Note off for pending target " << it->first << " → sending note-off to poly~ and marking release_flag" << endl;
+            it->second.release_flag = true;
+            Note note_to_send = it->second;
+            lock.unlock();
+            outputFunction(note_to_send, 0, 0); // send note-off to poly~ so ADSR starts its release
+            return;
+        }
+    }
     // Set hold / sustain case: On note off, set the the note to hold or sustain and return
     if(!incoming_note.sequencer_note_flag){ //but only if the note didn't come from a sequencer
         if (hold_attr && !sustain_attr){ //if hold is on and sustain is off: set the note to hold and return
@@ -787,6 +918,24 @@ void handleNoteOff(Note &incoming_note, lock &lock){
         note->remove_mpitch_and_freq_entry(incoming_note_mpitch_back);
         }
     }
+}
+
+// Returns the first inactive voice not already in pending_voices, or -1 if none available.
+// If a pending voice has release_flag set its note-off was already sent and it's effectively
+// done — clean it up immediately so the slot can be reused.
+int findFreeVoice(){
+    for (int candidate : inactive_voices){
+        auto it = pending_voices.find(candidate);
+        if (it == pending_voices.end())
+            return candidate; // normal free voice
+        if (it->second.release_flag){
+            // Note-off already sent while pending and ADSR never confirmed — discard now
+            if(debug){cout << "findFreeVoice: discarding stale pending note on target " << candidate << endl;}
+            pending_voices.erase(it);
+            return candidate;
+        }
+    }
+    return -1;
 }
 
 Note* findFirstNoteWithPredicate(std::function<bool(const Note &)> predicate){
@@ -964,18 +1113,6 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
     }
 }
 
-
-void fromPoly(const int target, const int muteflag, const lock &lock){
-    if (!muteflag)return;
-    if(debug){cout << "  Inlet 2 target: " << target << " muteflag: " << muteflag << endl;}
-    if (auto *note = findFirstNoteWithPredicate([=](const Note &n)
-                                         { return n.target == target; })){
-    if(debug){cout << "Searching for Note To Remove from Vector at target " << target << endl;}
-        inactive_voices.push(target);
-        size_t index = note - &active_voices[0];
-        active_voices.erase(active_voices.begin() + index);
-    }
-}
 
 function endHold = MIN_FUNCTION{
     if (inlet == 0){
@@ -1239,8 +1376,21 @@ message<threadsafe::yes> end_hold{this, "endhold", "End hold notes: all (default
 // message<threadsafe::no> panic{this, "panic", "sends out the message *panic* to the voice", panicFunction};
 message<threadsafe::yes> end{this, "end", "Sends Notes into release. If an argument was provided, send notes of stream (argument) into release, else send all notes into release.", endFunction};
 
+message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
+    // Start the scheduler-thread poll timer when DSP is turned on
+    adsr_poll.delay(1);
+    return {};
+}};
+
 private:
 mutex m_mutex;
+bool adsr_active[1024] {}; // per-voice active state tracked on the audio thread
 };
+
+// MC callback: tells Max how many channels inlet 2 expects (one per voice)
+long voice_alligator_multichanneloutputs(c74::max::t_object* x, long index, long count) {
+    minwrap<voice_alligator>* ob = (minwrap<voice_alligator>*)(x);
+    return ob->m_min_object.voices;
+}
 
 MIN_EXTERNAL(voice_alligator);
