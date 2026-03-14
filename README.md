@@ -1,5 +1,5 @@
 # voice-alligator
-collection of voice allocation objecgts
+collection of voice allocation objects
 
 [voice-alligator] is an external that manages voice allocation. It is designed to work with the [mc.poly~] object and offers several additional features compared to the built-in voice allocation system.
 

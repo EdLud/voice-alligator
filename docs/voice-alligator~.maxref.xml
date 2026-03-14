@@ -297,6 +297,8 @@
 			<description>
 				Sustain level of the built-in ADSR as a fraction of peak (0–1).
 				<br/><br/>
+				If sustain_level is set to 0.0, we have an ADS envelope with no release phase. We don't need to provide note-off messages to end the envelope, and the <m>hold</m> and <m>sustain</m> attributes have limited effect.  
+				<br/><br/>
 				<i>default: 1.0</i>
 			</description>
 		</attribute>
@@ -315,7 +317,7 @@
 			<description>
 				Shape of the attack segment. Negative values produce a concave (slow start) curve, positive values a convex (fast start) curve, 0 is linear.
 				<br/><br/>
-				<i>default: 0</i>
+				<i>default: 0.0</i>
 			</description>
 		</attribute>
 
@@ -333,7 +335,7 @@
 			<description>
 				Shape of the release segment. Same range and convention as <m>attack_curve</m>.
 				<br/><br/>
-				<i>default: 0</i>
+				<i>default: 0.0</i>
 			</description>
 		</attribute>
 
@@ -362,7 +364,7 @@
 			<description>
 				Blends between linear Hz interpolation (0) and logarithmic / semitone interpolation (1). Values between 0 and 1 are a proportional blend. Log interpolation sounds more natural for large pitch intervals.
 				<br/><br/>
-				<i>default: 0 (linear)</i>
+				<i>default: 0.0 (linear)</i>
 			</description>
 		</attribute>
 

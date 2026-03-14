@@ -711,6 +711,17 @@ void operator()(audio_bundle input, audio_bundle output) {
                 voice_done_flags[v].store(1, std::memory_order_release);
             }
 
+            // If sustain_level is 0 and the ADSR just entered sustain, the note has
+            // fully decayed to silence — treat it as finished immediately, no release phase.
+            if (stage_before == adsr::adsr_stage::decay && stage_after == adsr::adsr_stage::sustain) {
+                float sl = adsr_sustain_lvl.load(std::memory_order_relaxed);
+                if (sl <= 0.f && audio_voice_active[v]) {
+                    voice_adsr[v].trigger(false); // puts ADSR into release/early_release
+                    audio_voice_active[v] = false;
+                    voice_done_flags[v].store(1, std::memory_order_release);
+                }
+            }
+
             // At retrigger→attack transition: apply deferred freq, peak, sustain, initial
             if (stage_before != adsr::adsr_stage::attack && stage_after == adsr::adsr_stage::attack) {
                 if (voice_pending_freq[v].active) {
