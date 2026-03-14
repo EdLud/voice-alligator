@@ -92,7 +92,7 @@
 			<description>
 				Number of voices. Maximum: 1024. Default: 1.
 				<br/><br/>
-				Unlike <o>voice-alligator</o>, the number of voices cannot be changed after construction — the <m>voices</m> message is not supported. Set this argument to match the first argument of your <o>mc.poly~</o>.
+				Unlike <o>voice-alligator</o>, the number of voices cannot be changed after construction — the <m>voices</m> message is not supported.
 			</description>
 		</objarg>
 
@@ -326,7 +326,7 @@
 			<description>
 				Shape of the decay segment. Same range and convention as <m>attack_curve</m>.
 				<br/><br/>
-				<i>default: 0</i>
+				<i>default: 0.0</i>
 			</description>
 		</attribute>
 

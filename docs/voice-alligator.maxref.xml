@@ -12,7 +12,7 @@
 <description>
 		<b>voice-alligator</b> is an external that manages voice allocation. It is designed to work with the <o>mc.poly~</o> object and offers several additional features compared to the built-in voice allocation system.
 		<br/><br/>
-		The primary focus is to allow all settings of voice-alligator to be adjusted on the fly while maintaining coherent and intuitive behavior. The differences from <o>poly~</o>'s voice allocation are best demonstrated through musical demos, which can be found in the <openfilelink filename="voice-alligator-overview.maxpat">Overview Patch</openfilelink>.
+		The primary focus is to allow all settings of voice-alligator to be adjusted on the fly while maintaining coherent and intuitive behavior. The differences from <o>mc.poly~</o>'s voice allocation are best demonstrated through musical demos, which can be found in the <openfilelink filename="voice-alligator-overview.maxpat">Overview Patch</openfilelink>.
 		<br/><br/>
 		Features:
 		<br/><br/>
@@ -342,7 +342,7 @@
 		</attribute>
 
 		<attribute name='respect_stream_priorities' get='1' set='1' type='int' size='1' >
-			<digest>Don't respect streams, 1 Respect streams, 2 Respect streams but steal (default 1) </digest>
+			<digest>Stream-aware stealing: 0 off, 1 strict, 2 prefer lower priority </digest>
 			<description>
 				
 				Sets the voice stealing mode with regard to streams.

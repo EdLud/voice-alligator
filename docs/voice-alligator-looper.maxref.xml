@@ -6,7 +6,7 @@
 	<digest>Note Looper for voice-alligator </digest>
 	<description>
 
-This <o>mtr</o> based Note Looper will remember the exact pitches and portamento / glide settings of a musical sequence that was played using voice-alligator.<br/><br/>
+This <o>mtr</o> based Note Looper will remember the exact pitches and portamento / glide settings of a musical sequence that was played using <o>voice-alligator</o><br/><br/>
 
 After recording, it will start playback automatically and play the loops on the set stream (argument 1) to voice-alligator (for a detailed description of streams, see the helpfile of voice-alligator).<br/><br/>
 
@@ -130,7 +130,7 @@ voice-alligator also recognizes pre-recorded notes, gives them a special flag, a
 			<digest>sets the playback speed as ratio (default 1.)</digest>
 			<description> sets the playback speed as ratio 
 				<br/><br/>
-				<i>default 1.</i> </description>
+				<i>default 1.0</i> </description>
 		</attribute>
 
 		<attribute name='recordPressed' get='0' set='1' type='bool' size='1' >
@@ -146,24 +146,32 @@ voice-alligator also recognizes pre-recorded notes, gives them a special flag, a
 			<digest>volume of ouput as percentage</digest>
 			<description> multiplies recorded velocities by given percentage 
 				<br/><br/>
-				<i>default 100.</i>
+				<i>default 100.0</i>
 			</description>
 		</attribute>
 
 		<attribute name='volJitter' get='0' set='1' type='int' size='1' >
 			<digest>volume jitter of ouput as percentage</digest>
 			<description> manipulates recorded velocities by substracting given percentage from them
+				<br/><br/>
+				<i>default 0.0</i>
 			</description>
 		</attribute>
 
 		<attribute name='transpose' get='0' set='1' type='float' size='1' >
 			<digest>transposes the recorded notes (semitones)</digest>
-			<description> transposes the recorded notes (semitones)</description>
+			<description> transposes the recorded notes (semitones)
+				<br/><br/>
+				<i>default 0.0</i>
+			</description>
 		</attribute>
 
 		<attribute name='pitchJitter' get='0' set='1' type='float' size='1' >
 			<digest>pitch jitter of output as semitones</digest>
-			<description> transposes the recorded notes randomly by given number (in positive and negative direction)</description>
+			<description> transposes the recorded notes randomly by given number (in positive and negative direction)
+				<br/><br/>
+				<i>default 0.0</i>
+			</description>
 		</attribute>
 
 	</attributelist>

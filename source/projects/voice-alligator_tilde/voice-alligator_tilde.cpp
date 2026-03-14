@@ -446,6 +446,7 @@ void resetVoices(int n) {
         voice_glide[i]        = VoiceGlide{};
         voice_vel_ramp[i]     = VoiceVelRamp{};
         voice_pending_freq[i] = VoicePendingFreq{};
+        new (&voice_adsr[i]) adsr{};  // reconstruct in-place — clears m_last_output and all internal state
     }
     for (int i = 1; i <= n; ++i) inactive_voices.push_back(i);
 }
@@ -489,7 +490,6 @@ void applyADSRTimingOnly(int v) {
 void operator()(audio_bundle input, audio_bundle output) {
     const int n      = voices;
     const int frames = static_cast<int>(input.frame_count());
-
 
     for (int v = 0; v < n; ++v) {
         // Consume pending command from scheduler thread
