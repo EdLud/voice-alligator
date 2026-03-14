@@ -1,0 +1,401 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+
+<c74object name='voice-alligator~' category='velocities,  pitches,  etc.'>
+
+	<digest>Signal-domain voice allocator with built-in ADSR, glide, and velocity scaling</digest>
+
+	<description>
+		<b>voice-alligator~</b> is the signal-domain companion to <o>voice-alligator</o>. It performs the same voice allocation and shares the same inlet 1 message protocol, but replaces the message outlet with nine MC signal outlets which output the volume envelope and pitch plus the flags. The ADSR envelope, glide interpolation, and velocity scaling are computed internally — no <o>adsr~</o>, <o>line~</o>, or feedback inlet is needed in the voice patcher.
+		<br/><br/>
+		For full documentation of the shared voice allocation behaviour — including streams, hold, sustain, mono, steal, scale definitions, and the inlet 1 message format — see the <o>voice-alligator</o> reference.
+		<br/><br/>
+		Features added over <o>voice-alligator</o>:
+		<br/><br/>
+			&#160;&#160;&#160;&#160;- Built-in ADSR<br/>
+			&#160;&#160;&#160;&#160;- Built-in glide / portamento with linear or logarithmic curvature.<br/>
+			&#160;&#160;&#160;&#160;- All signal outlets are MC — one channel per voice.<br/>
+	</description>
+
+	<discussion>
+		<br/>
+		<i><b>Inlet 1 — Note input</b></i>
+		<br/><br/>
+		Identical to <o>voice-alligator</o> inlet 1. See that reference for the full message syntax.
+		<br/><br/>
+
+
+		<i><b>MC Signal Outlets</b></i>
+		<br/><br/>
+	
+
+		<u>Outlet 1 — freq~</u><br/>
+		Frequency in Hz, glide-interpolated. Use this to drive your oscillator pitch directly. Interpolation is controlled by <m>glidetime</m> and <m>glidetime_curvature</m>.
+		<br/><br/>
+
+		<u>Outlet 2 — env~</u><br/>
+		ADSR envelope output, velocity-scaled. The peak of the envelope equals the normalised velocity (0–1), so this signal can be used directly as an amplitude multiplier. ADSR shape is controlled by the <m>attack</m>, <m>decay</m>, <m>sustain_level</m>, <m>release</m>, and curve attributes.
+		<br/><br/>
+
+		<u>Outlet 3 — impulse~</u><br/>
+		A single sample impulse fired at the start of each note attack. Use this to trigger pitch envelopes or other one-shot modulations in the voice. <m>glide_impulse</m> controls whether an impulse is fired on glide notes.
+
+		<u>Outlet 4 — glide flag~</u><br/>
+		1.0 while a glide (portamento) is in progress, 0.0 otherwise. 
+		<br/><br/>
+
+		<u>Outlet 5 — hold flag~</u><br/>
+		1.0 while the voice is in hold, 0.0 otherwise. Gets set on note-off.
+		<br/><br/>
+
+		<u>Outlet 6 — sustain flag~</u><br/>
+		1.0 while the voice is in sustain, 0.0 otherwise. Gets set on note-off.
+		<br/><br/>
+
+		<u>Outlet 7	 — sequencer flag~</u><br/>
+		1.0 if the current note is a sequencer note, 0.0 otherwise.
+		<br/><br/>
+
+		<u>Outlet 8 — mono flag~</u><br/>
+		1.0 if the current note is a mono note, 0.0 otherwise. Gets set on note-on.
+		<br/><br/>
+
+		<u>Outlet 9 — stream flag~</u><br/>
+		stream number of the current note. Gets set on note-on.
+		<br/><br/>
+
+		<u>Outlet 10 — message outlet</u><br/>
+		Outputs the same <m>target</m> / <m>notes</m> / <m>flags</m> messages as <o>voice-alligator</o> outlet 1. Primarily for usage with <o>voice-alligator-looper</o>.
+		<br/><br/>
+
+		<i><b>ADSR parameter changes</b></i>
+		<br/><br/>
+		ADSR parameter changes (attack, decay, sustain_level, release, curves) take effect on the next note-on only. Currently playing voices are not affected.
+		<br/><br/>
+	</discussion>
+
+	<!--METADATA-->
+
+	<metadatalist>
+		<metadata name='author'>Jan Godde, Edis Ludwig</metadata>
+		<metadata name='tag'>velocities</metadata>
+		<metadata name='tag'>pitches</metadata>
+		<metadata name='tag'>etc.</metadata>
+	</metadatalist>
+
+
+	<!--ARGUMENTS-->
+
+	<objarglist>
+
+		<objarg name='voices' optional='1' type='int'>
+			<digest>Number of voices (max 1024)</digest>
+			<description>
+				Number of voices. Maximum: 1024. Default: 1.
+				<br/><br/>
+				Unlike <o>voice-alligator</o>, the number of voices cannot be changed after construction — the <m>voices</m> message is not supported. Set this argument to match the first argument of your <o>mc.poly~</o>.
+			</description>
+		</objarg>
+
+	</objarglist>
+
+
+	<!--MESSAGES-->
+
+	<methodlist>
+
+		<method name='list'>
+			<digest>Queue a note</digest>
+			<description>
+				Identical to <o>voice-alligator</o> inlet 1. Full syntax:
+				<br/><br/>
+				&#160;&#160;&#160;&#160;&#160;<m>midipitch, velocity, (stream), (mono_flag), (realpitch)</m>
+				<br/><br/>
+				See the <o>voice-alligator</o> reference for full documentation of all arguments.
+			</description>
+		</method>
+
+		<method name='end'>
+			<digest>Send notes into release</digest>
+			<description>
+				<m>end</m> sends all notes into release.
+				<br/>
+				<m>end <i>$1</i></m> sends notes of stream <i>$1</i> into release.
+			</description>
+		</method>
+
+		<method name='endhold'>
+			<digest>End hold notes</digest>
+			<description>
+				Releases all hold notes when called with <m>endhold</m>, ends the youngest held note with <m>endhold first</m>, or the oldest with <m>endhold last</m>.
+			</description>
+		</method>
+
+		<method name='scale_def'>
+			<digest>Define internal tuning</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference for full documentation.
+			</description>
+		</method>
+
+		<method name='print'>
+			<digest>Print active voices and all parameter settings to console</digest>
+			<description>
+				Prints active voices, inactive voices, and the current value of every parameter to the Max console. Useful for debugging.
+			</description>
+		</method>
+
+	</methodlist>
+
+
+	<!--ATTRIBUTES-->
+
+	<attributelist>
+
+		<!-- ── Shared with voice-alligator ── -->
+
+		<attribute name='active' get='1' set='1' type='bool' size='1'>
+			<digest>Activates note processing (default true)</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: true</i>
+			</description>
+		</attribute>
+
+		<attribute name='mono' get='1' set='1' type='bool' size='1'>
+			<digest>Monophony on/off</digest>
+			<description>
+				Enables monophonic / portamento playing. Identical behaviour to <o>voice-alligator</o>.
+				<br/><br/>
+				Glide notes output 1.0 on outlet 3 (glide~) and do not fire an impulse on outlet 8. Whether the envelope is retriggered on a glide note is controlled by <m>glide_retrigger</m>.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='mono_note_priority' get='1' set='1' type='int' size='1'>
+			<digest>Mono note priority: 0 last, 1 low, 2 high</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: 0 (Last)</i>
+			</description>
+		</attribute>
+
+		<attribute name='mono_steals_release' get='1' set='1' type='bool' size='1'>
+			<digest>Mono note steals releasing mono notes</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='hold' get='1' set='1' type='bool' size='1'>
+			<digest>Hold on/off</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. While a voice is in hold, outlet 4 (hold~) outputs 1.0.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='sustain' get='1' set='1' type='bool' size='1'>
+			<digest>Sustain on/off</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. While a voice is in sustain, outlet 5 (sustain~) outputs 1.0.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='steal' get='1' set='1' type='bool' size='1'>
+			<digest>Voice stealing on/off (default true)</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: true</i>
+			</description>
+		</attribute>
+
+		<attribute name='steal_hold' get='1' set='1' type='bool' size='1'>
+			<digest>Allow hold notes to be stolen (default true)</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: true</i>
+			</description>
+		</attribute>
+
+		<attribute name='respect_stream_priorities' get='1' set='1' type='int' size='1'>
+			<digest>Stream-aware stealing: 0 off, 1 strict, 2 prefer lower priority</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: 1</i>
+			</description>
+		</attribute>
+
+		<attribute name='output_mode' get='1' set='1' type='bool' size='1'>
+			<digest>Output mode: 0 MIDI, 1 frequency (default frequency)</digest>
+			<description>
+				Determines whether outlet 1 (freq~) outputs frequencies in Hz or raw MIDI pitch values.
+				<br/><br/>
+				<i>default: 1 (Frequency)</i>
+			</description>
+		</attribute>
+
+		<attribute name='scale_def_mode' get='1' set='1' type='bool' size='1'>
+			<digest>Scale definition mode: 0 MIDI, 1 frequency (default frequency)</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: 1 (Frequency)</i>
+			</description>
+		</attribute>
+
+		<attribute name='basefreq' get='1' set='1' type='float' size='1'>
+			<digest>Standard A tuning reference (default 440.0 Hz)</digest>
+			<description>
+				Identical to <o>voice-alligator</o>.
+				<br/><br/>
+				<i>default: 440.0</i>
+			</description>
+		</attribute>
+
+		<attribute name='debug' get='1' set='1' type='bool' size='1'>
+			<digest>Debug on/off</digest>
+			<description>
+				Prints note-on, note-off, voice assignment, and ADSR completion events to the Max console.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<!-- ── ADSR ── -->
+
+		<attribute name='attack' get='1' set='1' type='float' size='1'>
+			<digest>ADSR attack time in ms (default 10)</digest>
+			<description>
+				Attack time of the built-in ADSR in milliseconds. Takes effect on the next note-on; running voices are unaffected.
+				<br/><br/>
+				<i>default: 10 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='decay' get='1' set='1' type='float' size='1'>
+			<digest>ADSR decay time in ms (default 100)</digest>
+			<description>
+				Decay time of the built-in ADSR in milliseconds.
+				<br/><br/>
+				<i>default: 100 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='sustain_level' get='1' set='1' type='float' size='1'>
+			<digest>ADSR sustain level 0–1 (default 0.8)</digest>
+			<description>
+				Sustain level of the built-in ADSR as a fraction of peak (0–1).
+				<br/><br/>
+				<i>default: 1.0</i>
+			</description>
+		</attribute>
+
+		<attribute name='release' get='1' set='1' type='float' size='1'>
+			<digest>ADSR release time in ms (default 300)</digest>
+			<description>
+				Release time of the built-in ADSR in milliseconds.
+				<br/><br/>
+				<i>default: 300 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='attack_curve' get='1' set='1' type='float' size='1'>
+			<digest>Attack curve shape: negative concave, 0 linear, positive convex (default 0)</digest>
+			<description>
+				Shape of the attack segment. Negative values produce a concave (slow start) curve, positive values a convex (fast start) curve, 0 is linear.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='decay_curve' get='1' set='1' type='float' size='1'>
+			<digest>Decay curve shape (default 0)</digest>
+			<description>
+				Shape of the decay segment. Same range and convention as <m>attack_curve</m>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='release_curve' get='1' set='1' type='float' size='1'>
+			<digest>Release curve shape (default 0)</digest>
+			<description>
+				Shape of the release segment. Same range and convention as <m>attack_curve</m>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='declick_ms' get='1' set='1' type='float' size='1'>
+			<digest>Declick ramp time in ms for retriggered voices (default 5)</digest>
+			<description>
+				When a voice is retriggered while its ADSR is still active, the envelope ramps to zero over this duration before the new attack begins. This prevents clicks when notes overlap. Impulses out of outlet 8 are fired at the bottom of this declick ramp.
+				<br/><br/>
+				<i>default: 5 ms</i>
+			</description>
+		</attribute>
+
+		<!-- ── Glide ── -->
+
+		<attribute name='glidetime' get='1' set='1' type='float' size='1'>
+			<digest>Portamento / glide time in ms (default 0)</digest>
+			<description>
+				Time in milliseconds for outlet 1 (freq~) to glide from the previous pitch to the new pitch. 0 = instant snap.
+				<br/><br/>
+				<i>default: 30 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='glidetime_curvature' get='1' set='1' type='float' size='1'>
+			<digest>Glide interpolation: 0 linear Hz, 1 logarithmic semitones (default 0)</digest>
+			<description>
+				Blends between linear Hz interpolation (0) and logarithmic / semitone interpolation (1). Values between 0 and 1 are a proportional blend. Log interpolation sounds more natural for large pitch intervals.
+				<br/><br/>
+				<i>default: 0 (linear)</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_retrigger' get='1' set='1' type='bool' size='1'>
+			<digest>Retrigger envelope on glide notes (default false)</digest>
+			<description>
+				Controls envelope behaviour on glide (portamento) notes.
+				<br/><br/>
+				<m>0</m> (legato): The envelope runs completely uninterrupted through the glide.
+				<br/><br/>
+				<m>1</m> (retrigger): The ADSR keeps running, and a gain ramp from the current velocity ratio to the new velocity is applied over the attack time. This produces a velocity change without a declick.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_impulse' get='1' set='1' type='bool' size='1'>
+			<digest>Send impulse on outlet 8 when a glide note is triggered (default false)</digest>
+			<description>
+				Controls whether an impulse is sent on outlet 8 when a glide note is triggered.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+	</attributelist>
+
+
+	<!--RELATED-->
+
+	<seealsolist>
+		<seealso name='voice-alligator' />
+		<seealso name='mc.poly~' />
+	</seealsolist>
+
+</c74object>
