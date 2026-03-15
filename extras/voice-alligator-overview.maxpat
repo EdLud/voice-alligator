@@ -337,8 +337,8 @@
                     "id": "obj-1",
                     "maxclass": "newobj",
                     "numinlets": 3,
-                    "numoutlets": 5,
-                    "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal" ],
+                    "numoutlets": 6,
+                    "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal" ],
                     "patching_rect": [ 306.0, 625.5, 123.0, 22.0 ],
                     "text": "voice-alligator-audio~",
                     "varname": "poly~_AA[4]"
@@ -709,6 +709,7 @@
                     "numinlets": 1,
                     "numoutlets": 0,
                     "patching_rect": [ 9.0, 5.0, 1049.0, 46.0 ],
+                    "presentation_linecount": 2,
                     "text": "                          is an external that manages voice allocation. \nIt is designed to work with the mc.poly~ object and offers several additional features compared to the built-in voice allocation system."
                 }
             },
@@ -2331,6 +2332,14 @@
             "obj-23::obj-277": [ "attack[1]", "attack", 0 ],
             "obj-23::obj-83::obj-105::obj-19": [ "number[9]", "number[5]", 0 ],
             "obj-23::obj-83::obj-1::obj-19": [ "number[2]", "number[5]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "parameter_overrides": {
                 "obj-23::obj-264": {
                     "parameter_longname": "live.numbox[1]"
