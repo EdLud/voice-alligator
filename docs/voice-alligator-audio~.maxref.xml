@@ -1,0 +1,347 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+
+<c74object name='voice-alligator-audio~' category='velocities,  pitches,  etc.'>
+
+	<digest>audio-to-audio voice allocator with built-in ADSR and glide</digest>
+
+	<description>
+		<b>voice-alligator-audio~</b> is the audio-input companion to <o>voice-alligator~</o>. Rather than receiving MIDI-style messages, it is driven entirely by signals: a trigger impulse, a pitch signal, and a velocity signal.
+		<br/><br/>
+		Notes are triggered by a rising edge (i.e. a <o>click~</o>) on inlet 1. Pitch and velocity are sampled at the moment of the trigger. Note duration is set via the <m>duration</m> attribute; after that many milliseconds the note enters its release phase automatically.
+		<br/><br/>
+		The ADSR attributes, glide attributes, and MC signal outlets are identical to <o>voice-alligator~</o>. See that reference for full documentation of the shared signal processing behaviour.
+	</description>
+
+	<discussion>
+		<br/>
+		<i><b>Inlet 1 — trigger signal</b></i>
+		<br/><br/>
+		A rising edge (transition from 0 to any non-zero value) fires a note-on. 
+		<br/><br/>
+
+		<i><b>Inlet 2 — pitch signal</b></i>
+		<br/><br/>
+		When <m>scale</m> is off (default): a raw frequency in Hz. When <m>scale</m> is on: a MIDI note number (rounded to the nearest integer and looked up in the internal scale array, identical to <o>voice-alligator</o>).
+		<br/><br/>
+
+		<i><b>Inlet 3 — velocity signal</b></i>
+		<br/><br/>
+		Velocity sampled at the moment of the trigger.
+		<br/><br/>
+
+		<i><b>MC Signal Outlets</b></i>
+		<br/><br/>
+
+		<u>Outlet 1 — freq~</u><br/>
+		Frequency in Hz.
+		<br/><br/>
+
+		<u>Outlet 2 — env~</u><br/>
+		ADSR envelope output, velocity-scaled. Peak equals the normalised velocity from inlet 3.
+		<br/><br/>
+
+		<u>Outlet 3 — impulse~</u><br/>
+		A single sample impulse fired at the start of each non-glide note attack. Set <m>glide_impulse</m> to also fire on glide notes.
+		<br/><br/>
+
+		<u>Outlet 4 — ramp~</u><br/>
+		A linear ramp from 0.0 at note-on to 1.0 at the end of the release phase. The total ramp length equals <m>duration</m> + <m>release</m> in milliseconds. Useful for driving time-based modulations that span the full lifetime of a note. Outputs 0.0 when the voice is inactive.
+		<br/><br/>
+
+		<u>Outlet 5 — glide flag~</u><br/>
+		1.0 while a glide is in progress, 0.0 otherwise.
+		<br/><br/>
+
+		<u>Outlet 6 — mono flag~</u><br/>
+		1.0 while the voice is in mono mode, 0.0 otherwise.
+		<br/><br/>
+
+		<i><b>Note duration and voice recycling</b></i>
+		<br/><br/>
+		After <m>duration</m> milliseconds, the note-off is triggered internally on the audio thread. The ADSR release phase then runs through completely before the voice is returned to the pool.
+		<br/><br/>
+
+		<i><b>Mono mode</b></i>
+		<br/><br/>
+		When <m>mono</m> is on, all triggers share a single persistent voice. Each trigger glides to the new pitch rather than allocating a new voice. If the mono voice is still in its release phase when a new trigger arrives, the behaviour depends on <m>mono_steals_release</m>: if off (default), a fresh poly voice is allocated and the release rings out; if on, the releasing voice is stolen and glides to the new pitch.
+		<br/><br/>
+
+		<i><b>ADSR parameter changes</b></i>
+		<br/><br/>
+		ADSR parameter changes take effect on the next note-on only. Currently playing voices are not affected.
+		<br/><br/>
+	</discussion>
+
+	<!--METADATA-->
+
+	<metadatalist>
+		<metadata name='author'>Jan Godde, Edis Ludwig</metadata>
+		<metadata name='tag'>velocities</metadata>
+		<metadata name='tag'>pitches</metadata>
+		<metadata name='tag'>etc.</metadata>
+	</metadatalist>
+
+
+	<!--ARGUMENTS-->
+
+	<objarglist>
+
+		<objarg name='voices' optional='1' type='int'>
+			<digest>Number of voices (max 1024)</digest>
+			<description>
+				Number of voices. Maximum: 1024. Default: 1.
+			</description>
+		</objarg>
+
+	</objarglist>
+
+
+	<!--MESSAGES-->
+
+	<methodlist>
+
+		<method name='scale_def'>
+			<digest>Define internal tuning</digest>
+			<description>
+				Identical to <o>voice-alligator</o>. Only relevant when <m>scale</m> is on.
+				<br/><br/>
+				See the <o>voice-alligator</o> reference for full documentation.
+			</description>
+		</method>
+
+		<method name='print'>
+			<digest>Print active voices and all parameter settings to console</digest>
+			<description>
+				Prints active voices, inactive voices, and the current value of every parameter to the Max console.
+			</description>
+		</method>
+
+	</methodlist>
+
+
+	<!--ATTRIBUTES-->
+
+	<attributelist>
+
+		<attribute name='duration' get='1' set='1' type='float' size='1'>
+			<digest>Note duration in milliseconds (default 1000)</digest>
+			<description>
+				How long each note plays before its release phase begins, in milliseconds. Sampled at the moment of each trigger, so changes take effect immediately on the next note.
+				<br/><br/>
+				<i>default: 1000 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='active' get='1' set='1' type='bool' size='1'>
+			<digest>Activates note-on processing (default true)</digest>
+			<description>
+				When off, incoming triggers are ignored. Release and ADSR of already-playing voices are unaffected.
+				<br/><br/>
+				<i>default: true</i>
+			</description>
+		</attribute>
+
+		<attribute name='mono' get='1' set='1' type='bool' size='1'>
+			<digest>Monophony on/off</digest>
+			<description>
+				When on, all triggers share one persistent voice. Each trigger glides to the new pitch. See <m>mono_steals_release</m> for behaviour when a trigger arrives during the release phase.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='mono_steals_release' get='1' set='1' type='bool' size='1'>
+			<digest>Steal releasing mono voice on new trigger (default false)</digest>
+			<description>
+				Controls what happens when a new trigger arrives while the mono voice is still in release.
+				<br/><br/>
+				<m>0</m>: The release rings out and the new note is allocated on a fresh voice.<br/>
+				<m>1</m>: The releasing voice is stolen and immediately glides to the new pitch.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='steal' get='1' set='1' type='bool' size='1'>
+			<digest>Voice stealing on/off (default true)</digest>
+			<description>
+				When on, if no free voice is available the oldest active voice is stolen.
+				<br/><br/>
+				<i>default: true</i>
+			</description>
+		</attribute>
+
+		<attribute name='scale' get='1' set='1' type='bool' size='1'>
+			<digest>Use scale array for pitch lookup (default false)</digest>
+			<description>
+				When off (default), inlet 2 is treated as a raw frequency in Hz.<br/>
+				When on, inlet 2 is rounded to the nearest integer and used as a MIDI note number to look up a frequency in the internal scale array. Use <m>scale_def</m> to define the tuning.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='basefreq' get='1' set='1' type='float' size='1'>
+			<digest>Standard A tuning reference (default 440.0 Hz)</digest>
+			<description>
+				Used as the reference frequency for the default MTOF scale table.
+				<br/><br/>
+				<i>default: 440.0</i>
+			</description>
+		</attribute>
+
+		<!-- ── ADSR ── -->
+
+		<attribute name='attack' get='1' set='1' type='float' size='1'>
+			<digest>ADSR attack time in ms (default 10)</digest>
+			<description>
+				Attack time in milliseconds. Takes effect on the next note-on.
+				<br/><br/>
+				<i>default: 10 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='decay' get='1' set='1' type='float' size='1'>
+			<digest>ADSR decay time in ms (default 100)</digest>
+			<description>
+				<i>default: 100 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='sustain_level' get='1' set='1' type='float' size='1'>
+			<digest>ADSR sustain level 0–1 (default 0.8)</digest>
+			<description>
+				Sustain level as a fraction of peak (0–1). The actual sustain amplitude is <m>sustain_level</m> × normalised velocity.
+				<br/><br/>
+				<i>default: 0.8</i>
+			</description>
+		</attribute>
+
+		<attribute name='release' get='1' set='1' type='float' size='1'>
+			<digest>ADSR release time in ms (default 300)</digest>
+			<description>
+				<i>default: 300 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='attack_curve' get='1' set='1' type='float' size='1'>
+			<digest>Attack curve shape -1 to 1 (default 0 = linear)</digest>
+			<description>
+				0 is linear, positive values are convex (fast start), negative values are concave (slow start). Range: -1 to 1.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='decay_curve' get='1' set='1' type='float' size='1'>
+			<digest>Decay curve shape -1 to 1 (default 0 = linear)</digest>
+			<description>
+				Same range and convention as <m>attack_curve</m>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='release_curve' get='1' set='1' type='float' size='1'>
+			<digest>Release curve shape -1 to 1 (default 0 = linear)</digest>
+			<description>
+				Same range and convention as <m>attack_curve</m>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='declick_ms' get='1' set='1' type='float' size='1'>
+			<digest>Declick ramp time in ms (default 5)</digest>
+			<description>
+				When a voice is stolen, a declick ramp of this duration is applied before the new attack begins.
+				<br/><br/>
+				<i>default: 5 ms</i>
+			</description>
+		</attribute>
+
+		<!-- ── Glide ── -->
+
+		<attribute name='glidetime' get='1' set='1' type='float' size='1'>
+			<digest>Glide time in ms (default 30)</digest>
+			<description>
+				Time in milliseconds for outlet 1 to glide from the previous pitch to the new pitch. 0 = instant snap.
+				<br/><br/>
+				<i>default: 30 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_curve' get='1' set='1' type='float' size='1'>
+			<digest>Glide curve shape -1 to 1 (default 0 = linear)</digest>
+			<description>
+				Same range and convention as <m>attack_curve</m>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_retrigger' get='1' set='1' type='bool' size='1'>
+			<digest>Retrigger envelope on glide notes (default false)</digest>
+			<description>
+				<m>0</m> (legato): the envelope runs uninterrupted through the glide.<br/>
+				<m>1</m> (retrigger): the envelope restarts from the current level with the new velocity applied.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_impulse' get='1' set='1' type='bool' size='1'>
+			<digest>Fire impulse on glide notes (default false)</digest>
+			<description>
+				When on, outlet 3 fires a 1-sample impulse on glide notes as well as fresh note-ons. When off (default), glide notes produce no impulse.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<!-- ── Scale ── -->
+
+		<attribute name='scale_def_mode' get='1' set='1' type='int' size='1'>
+			<digest>Scale definition mode: 0 MIDI, 1 frequency (default frequency)</digest>
+			<description>
+				Determines how values in a <m>scale_def</m> message are interpreted.
+				<br/><br/>
+				<i>default: 1 (frequency)</i>
+			</description>
+		</attribute>
+
+		<attribute name='scale_fill' get='1' set='1' type='bool' size='1'>
+			<digest>Fill undefined scale entries with MTOF values (default true)</digest>
+			<description>
+				<i>default: true</i>
+			</description>
+		</attribute>
+
+		<attribute name='scalearray_maxsize' get='1' set='1' type='int' size='1'>
+			<digest>Maximum scale array size (default 128)</digest>
+			<description>
+				<i>default: 128</i>
+			</description>
+		</attribute>
+
+		<attribute name='debug' get='1' set='1' type='bool' size='1'>
+			<digest>Debug on/off</digest>
+			<description>
+				Prints trigger, voice allocation, and ADSR completion events to the Max console.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+	</attributelist>
+
+
+	<!--RELATED-->
+
+	<seealsolist>
+		<seealso name='voice-alligator' />
+		<seealso name='voice-alligator~' />
+		<seealso name='mc.poly~' />
+	</seealsolist>
+
+</c74object>

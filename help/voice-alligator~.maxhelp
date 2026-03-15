@@ -34,12 +34,54 @@
                         "boxes": [
                             {
                                 "box": {
+                                    "bubble": 1,
+                                    "bubblepoint": 0.96,
+                                    "bubbleside": 2,
+                                    "fontname": "Arial",
+                                    "fontsize": 13.0,
+                                    "id": "obj-3",
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 637.0, 20.0, 176.0, 40.0 ],
+                                    "text": "view all options and try them"
+                                }
+                            },
+                            {
+                                "box": {
+                                    "bubble": 1,
+                                    "bubbleside": 2,
+                                    "fontname": "Arial",
+                                    "fontsize": 13.0,
+                                    "id": "obj-28",
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 399.0, 20.0, 83.0, 40.0 ],
+                                    "text": "click a demo"
+                                }
+                            },
+                            {
+                                "box": {
+                                    "bubble": 1,
+                                    "fontname": "Arial",
+                                    "fontsize": 13.0,
+                                    "id": "obj-4",
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 402.0, 848.0, 110.0, 25.0 ],
+                                    "text": "Turn on audio"
+                                }
+                            },
+                            {
+                                "box": {
                                     "fontface": 2,
                                     "id": "obj-63",
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 399.0, 8.0, 344.0, 20.0 ],
+                                    "patching_rect": [ 16.0, 8.0, 344.0, 20.0 ],
                                     "text": "just a proof-of-concept using demos from the overview patcher "
                                 }
                             },
@@ -285,26 +327,6 @@
                                     },
                                     "patching_rect": [ 16.0, 7.0, 112.0, 22.0 ],
                                     "text": "p scale and unpack"
-                                }
-                            },
-                            {
-                                "box": {
-                                    "bgmode": 0,
-                                    "border": 0,
-                                    "clickthrough": 0,
-                                    "enablehscroll": 0,
-                                    "enablevscroll": 0,
-                                    "id": "obj-17",
-                                    "lockeddragscroll": 0,
-                                    "lockedsize": 0,
-                                    "maxclass": "bpatcher",
-                                    "name": "_alligator-demo-sequences.maxpat",
-                                    "numinlets": 1,
-                                    "numoutlets": 2,
-                                    "offset": [ 0.0, 0.0 ],
-                                    "outlettype": [ "", "" ],
-                                    "patching_rect": [ 393.0, 41.0, 1066.0, 395.0 ],
-                                    "viewvisibility": 1
                                 }
                             },
                             {
@@ -1004,13 +1026,94 @@
                                     "presentation_rect": [ 0.0, 490.0, 184.0, 68.0 ],
                                     "range": [ 0.009999999776482582, 1.1 ]
                                 }
+                            },
+                            {
+                                "box": {
+                                    "background": 1,
+                                    "bgcolor": [ 1.0, 0.788235, 0.470588, 1.0 ],
+                                    "fontface": 1,
+                                    "hint": "",
+                                    "id": "obj-8",
+                                    "ignoreclick": 1,
+                                    "legacytextcolor": 1,
+                                    "maxclass": "textbutton",
+                                    "numinlets": 1,
+                                    "numoutlets": 3,
+                                    "outlettype": [ "", "", "int" ],
+                                    "parameter_enable": 0,
+                                    "patching_rect": [ 807.0, 8.0, 20.0, 20.0 ],
+                                    "rounded": 60.0,
+                                    "text": "3",
+                                    "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ]
+                                }
+                            },
+                            {
+                                "box": {
+                                    "background": 1,
+                                    "bgcolor": [ 1.0, 0.788235, 0.470588, 1.0 ],
+                                    "fontface": 1,
+                                    "hint": "",
+                                    "id": "obj-26",
+                                    "ignoreclick": 1,
+                                    "legacytextcolor": 1,
+                                    "maxclass": "textbutton",
+                                    "numinlets": 1,
+                                    "numoutlets": 3,
+                                    "outlettype": [ "", "", "int" ],
+                                    "parameter_enable": 0,
+                                    "patching_rect": [ 480.0, 20.0, 20.0, 20.0 ],
+                                    "rounded": 60.0,
+                                    "text": "2",
+                                    "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ]
+                                }
+                            },
+                            {
+                                "box": {
+                                    "background": 1,
+                                    "bgcolor": [ 1.0, 0.788235, 0.470588, 1.0 ],
+                                    "fontface": 1,
+                                    "hint": "",
+                                    "id": "obj-93",
+                                    "ignoreclick": 1,
+                                    "legacytextcolor": 1,
+                                    "maxclass": "textbutton",
+                                    "numinlets": 1,
+                                    "numoutlets": 3,
+                                    "outlettype": [ "", "", "int" ],
+                                    "parameter_enable": 0,
+                                    "patching_rect": [ 508.0, 841.0, 20.0, 20.0 ],
+                                    "rounded": 60.0,
+                                    "text": "1",
+                                    "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ]
+                                }
+                            },
+                            {
+                                "box": {
+                                    "background": 1,
+                                    "bgmode": 0,
+                                    "border": 0,
+                                    "clickthrough": 0,
+                                    "enablehscroll": 0,
+                                    "enablevscroll": 0,
+                                    "id": "obj-17",
+                                    "lockeddragscroll": 0,
+                                    "lockedsize": 0,
+                                    "maxclass": "bpatcher",
+                                    "name": "_alligator-demo-sequences.maxpat",
+                                    "numinlets": 1,
+                                    "numoutlets": 2,
+                                    "offset": [ 0.0, 0.0 ],
+                                    "outlettype": [ "", "" ],
+                                    "patching_rect": [ 393.0, 41.0, 1066.0, 395.0 ],
+                                    "viewvisibility": 1
+                                }
                             }
                         ],
                         "lines": [
                             {
                                 "patchline": {
                                     "destination": [ "obj-17", 0 ],
-                                    "midpoints": [ 1104.4999999999998, 488.0, 1474.4609375, 488.0, 1474.4609375, 31.0, 402.5, 31.0 ],
+                                    "midpoints": [ 1104.4999999999998, 488.0, 1474.4609375, 488.0, 1474.4609375, 6.0703125, 402.5, 6.0703125 ],
                                     "source": [ "obj-1", 9 ]
                                 }
                             },
@@ -1412,7 +1515,7 @@
                             }
                         ]
                     },
-                    "patching_rect": [ 224.0, 125.0, 94.0, 22.0 ],
+                    "patching_rect": [ 344.0, 125.0, 94.0, 22.0 ],
                     "text": "p \"Demo Clone\""
                 }
             },
@@ -1432,7 +1535,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 26.0, 1212.0, 653.0 ],
+                        "rect": [ 34.0, 113.0, 1212.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -6144,7 +6247,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 34.0, 113.0, 1212.0, 653.0 ],
+                        "rect": [ 0.0, 26.0, 1212.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -6909,12 +7012,12 @@
                                 "box": {
                                     "fontsize": 14.0,
                                     "id": "obj-30",
-                                    "linecount": 8,
+                                    "linecount": 9,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 11.0, 21.0, 273.0, 132.0 ],
-                                    "text": "The third outlet will output an impulse (click) when a new note is triggered. \n\nThe glide_impulse attribute will decide if an impulse is also output when a glide note starts. \n\nHere we use this to drive a filter envelope."
+                                    "patching_rect": [ 11.0, 21.0, 273.0, 147.0 ],
+                                    "text": "The third outlet will output an impulse (click) when a new note is triggered. \n\nThe glide_impulse attribute will decide if an impulse will also fire when a glide note starts. \n\nHere we use the impulse to drive a filter envelope."
                                 }
                             },
                             {
@@ -7379,7 +7482,6 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 68.0, 216.0, 160.0, 40.0 ],
-                                    "presentation_linecount": 2,
                                     "text": "activate to hear difference"
                                 }
                             },
@@ -7394,7 +7496,6 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 323.0, 20.0, 51.0, 25.0 ],
-                                    "presentation_linecount": 3,
                                     "text": "click"
                                 }
                             }
@@ -7674,14 +7775,6 @@
             "obj-39::obj-73": [ "number[1]", "number", 0 ],
             "obj-39::obj-9": [ "live.tab[2]", "live.tab", 0 ],
             "obj-49::obj-17": [ "mc.live.gain~", "mc.live.gain~", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "parameter_overrides": {
                 "obj-1::obj-17::obj-264": {
                     "parameter_longname": "live.numbox[3]"
