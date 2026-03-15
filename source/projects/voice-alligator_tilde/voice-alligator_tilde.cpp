@@ -231,7 +231,7 @@ std::atomic<bool>  adsr_return_to_zero{true};
 // ─── Glide parameter cache ────────────────────────────────────────────────────
 
 std::atomic<float> glide_time_ms  {0.f};   // 0 = instant (no glide)
-std::atomic<float> glide_curvature{0.f};   // 0 = linear, >0 = logarithmic (exponential feel)
+std::atomic<float> glide_curvature{0.f};   // +/-100, 0 = linear, same convention as attack_curve
 std::atomic<bool>  glide_retrigger{false}; // false=legato (envelope continues), true=full retrigger no declick
 
 // ─── Per-voice glide state (audio thread only) ────────────────────────────────
@@ -272,17 +272,18 @@ attribute<bool>   steal_attr              {this, "steal",               true,   
 attribute<number> glidetime_attr{this, "glidetime", 30.0,
     description{"Glide time in milliseconds. 0 = no glide (default 30)"},
     setter{MIN_FUNCTION{
-        glide_time_ms.store((float)(number)args[0], std::memory_order_relaxed);
-        return args;
+        float v = std::max(0.f, (float)(number)args[0]);
+        glide_time_ms.store(v, std::memory_order_relaxed);
+        return {(number)v};
     }}
 };
 
-attribute<number> glidetime_curvature_attr{this, "glidetime_curvature", 0.0,
-    description{"Glide curvature: 0 = linear frequency interpolation, 1 = fully logarithmic/exponential (default 0)"},
+attribute<number, threadsafe::no, limit::clamp> glide_curve_attr{this, "glide_curve", 0.0,
+    description{"Glide curve -1 to 1 (default 0 = linear)"},
+    range { -1.0, 1.0 },
     setter{MIN_FUNCTION{
-        float v = std::max(0.f, std::min(1.f, (float)(number)args[0]));
-        glide_curvature.store(v, std::memory_order_relaxed);
-        return {(number)v};
+        glide_curvature.store((float)(number)args[0], std::memory_order_relaxed);
+        return args;
     }}
 };
 
@@ -303,19 +304,22 @@ attribute<bool> glide_impulse_attr{this, "glide_impulse", false,
 attribute<number> attack_attr{this, "attack", 10.0,
     description{"ADSR attack time in milliseconds (default 10)"},
     setter{MIN_FUNCTION{
-        adsr_attack.store((float)(number)args[0], std::memory_order_relaxed);
-        return args;
+        float v = std::max(0.f, (float)(number)args[0]);
+        adsr_attack.store(v, std::memory_order_relaxed);
+        return {(number)v};
     }}
 };
 attribute<number> decay_attr{this, "decay", 100.0,
     description{"ADSR decay time in milliseconds (default 100)"},
     setter{MIN_FUNCTION{
-        adsr_decay.store((float)(number)args[0], std::memory_order_relaxed);
-        return args;
+        float v = std::max(0.f, (float)(number)args[0]);
+        adsr_decay.store(v, std::memory_order_relaxed);
+        return {(number)v};
     }}
 };
-attribute<number> sustain_level_attr{this, "sustain_level", 0.8,
+attribute<number, threadsafe::no, limit::clamp> sustain_level_attr{this, "sustain_level", 0.8,
     description{"ADSR sustain level 0.0-1.0 (default 0.8)"},
+    range { 0.0, 1.0 },
     setter{MIN_FUNCTION{
         adsr_sustain_lvl.store((float)(number)args[0], std::memory_order_relaxed);
         return args;
@@ -324,26 +328,30 @@ attribute<number> sustain_level_attr{this, "sustain_level", 0.8,
 attribute<number> release_attr{this, "release", 300.0,
     description{"ADSR release time in milliseconds (default 300)"},
     setter{MIN_FUNCTION{
-        adsr_release.store((float)(number)args[0], std::memory_order_relaxed);
-        return args;
+        float v = std::max(0.f, (float)(number)args[0]);
+        adsr_release.store(v, std::memory_order_relaxed);
+        return {(number)v};
     }}
 };
-attribute<number> attack_curve_attr{this, "attack_curve", 0.0,
-    description{"ADSR attack curve +/-100 (default 0 = linear)"},
+attribute<number, threadsafe::no, limit::clamp> attack_curve_attr{this, "attack_curve", 0.0,
+    description{"ADSR attack curve -1 to 1 (default 0 = linear)"},
+    range { -1.0, 1.0 },
     setter{MIN_FUNCTION{
         adsr_attack_curve.store((float)(number)args[0], std::memory_order_relaxed);
         return args;
     }}
 };
-attribute<number> decay_curve_attr{this, "decay_curve", 0.0,
-    description{"ADSR decay curve +/-100 (default 0 = linear)"},
+attribute<number, threadsafe::no, limit::clamp> decay_curve_attr{this, "decay_curve", 0.0,
+    description{"ADSR decay curve -1 to 1 (default 0 = linear)"},
+    range { -1.0, 1.0 },
     setter{MIN_FUNCTION{
         adsr_decay_curve.store((float)(number)args[0], std::memory_order_relaxed);
         return args;
     }}
 };
-attribute<number> release_curve_attr{this, "release_curve", 0.0,
-    description{"ADSR release curve +/-100 (default 0 = linear)"},
+attribute<number, threadsafe::no, limit::clamp> release_curve_attr{this, "release_curve", 0.0,
+    description{"ADSR release curve -1 to 1 (default 0 = linear)"},
+    range { -1.0, 1.0 },
     setter{MIN_FUNCTION{
         adsr_release_curve.store((float)(number)args[0], std::memory_order_relaxed);
         return args;
@@ -352,8 +360,11 @@ attribute<number> release_curve_attr{this, "release_curve", 0.0,
 attribute<number> declick_ms_attr{this, "declick_ms", 5.0,
     description{"ADSR declick ramp time in milliseconds (default 5)"},
     setter{MIN_FUNCTION{
-        adsr_retrigger_ms.store((float)(number)args[0], std::memory_order_relaxed);
-        return args;
+        float v = std::max(0.f, (float)(number)args[0]);
+        adsr_retrigger_ms.store(v, std::memory_order_relaxed);
+        return {(number)v};
+        // adsr_retrigger_ms.store((float)(number)args[0], std::memory_order_relaxed);
+        // return args;
     }}
 };
 attribute<bool> return_to_zero_attr{this, "return_to_zero", true,
@@ -758,16 +769,18 @@ void operator()(audio_bundle input, audio_bundle output) {
                     ? std::min((float)voice_glide[v].samples_done / (float)voice_glide[v].samples_total, 1.f)
                     : 1.f;
 
-                // Linear interpolation in Hz
-                const float freq_lin = sf + t * (tf - sf);
+                // Apply curve shaping to t — same convention as attack_curve (-1 to 1).
+                // Positive = convex (fast start), negative = concave (slow start).
+                float t_curved = t;
+                if (std::abs(curve) > 0.00001f) {
+                    const float k_power = 5.f;
+                    float exp = (curve > 0.f)
+                        ? 1.f + curve * k_power
+                        : 1.f / (1.f + (-curve) * k_power);
+                    t_curved = std::pow(t, exp);
+                }
 
-                // Logarithmic interpolation in semitone space (log2 Hz)
-                float freq_log = freq_lin; // fallback if freqs aren't positive
-                if (sf > 0.f && tf > 0.f)
-                    freq_log = std::pow(2.f, std::log2(sf) + t * (std::log2(tf) - std::log2(sf)));
-
-                // Blend: curve=0 → pure linear Hz, curve=1 → pure log (semitone) interp
-                out_freq = freq_lin + curve * (freq_log - freq_lin);
+                out_freq = sf + t_curved * (tf - sf);
 
                 ++voice_glide[v].samples_done;
                 if (voice_glide[v].samples_done >= voice_glide[v].samples_total) {
@@ -1365,7 +1378,7 @@ message<> print{this, "print", "Print active voices and all parameter settings t
         cout << "  return_to_zero      = " << adsr_return_to_zero.load() << endl;
         cout << "─── glide ────────────────────────────────────" << endl;
         cout << "  glidetime           = " << glide_time_ms  .load() << " ms" << endl;
-        cout << "  glidetime_curvature = " << glide_curvature.load() << endl;
+        cout << "  glide_curve         = " << glide_curvature.load() << endl;
         cout << "  glide_retrigger     = " << glide_retrigger.load() << endl;
         cout << "  glide_impulse       = " << (bool)glide_impulse_attr << endl;
         cout << "  debug               = " << (bool)debug << endl;

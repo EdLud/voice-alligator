@@ -2,10 +2,10 @@
 
 <c74object name='voice-alligator~' category='velocities,  pitches,  etc.'>
 
-	<digest>Signal-domain voice allocator with built-in ADSR, glide, and velocity scaling</digest>
+	<digest>voice allocator with built-in ADSR, glide, and velocity scaling</digest>
 
 	<description>
-		<b>voice-alligator~</b> is the signal-domain companion to <o>voice-alligator</o>. It performs the same voice allocation and shares the same inlet 1 message protocol, but replaces the message outlet with nine MC signal outlets which output the volume envelope and pitch plus the flags. The ADSR envelope, glide interpolation, and velocity scaling are computed internally — no <o>adsr~</o>, <o>line~</o>, or feedback inlet is needed in the voice patcher.
+		<b>voice-alligator~</b> is the signal output companion to <o>voice-alligator</o>. It performs the same voice allocation and shares the same inlet 1 message protocol, but replaces the message outlet with nine MC signal outlets which output the volume envelope and pitch plus the flags.
 		<br/><br/>
 		For full documentation of the shared voice allocation behaviour — including streams, hold, sustain, mono, steal, scale definitions, and the inlet 1 message format — see the <o>voice-alligator</o> reference.
 		<br/><br/>
@@ -29,7 +29,7 @@
 	
 
 		<u>Outlet 1 — freq~</u><br/>
-		Frequency in Hz, glide-interpolated. Use this to drive your oscillator pitch directly. Interpolation is controlled by <m>glidetime</m> and <m>glidetime_curvature</m>.
+		Frequency in Hz, glide-interpolated. Use this to drive your oscillator pitch directly. Interpolation is controlled by <m>glidetime</m> and <m>glide_curve</m>.
 		<br/><br/>
 
 		<u>Outlet 2 — env~</u><br/>
@@ -38,6 +38,7 @@
 
 		<u>Outlet 3 — impulse~</u><br/>
 		A single sample impulse fired at the start of each note attack. Use this to trigger pitch envelopes or other one-shot modulations in the voice. <m>glide_impulse</m> controls whether an impulse is fired on glide notes.
+		<br/><br/>
 
 		<u>Outlet 4 — glide flag~</u><br/>
 		1.0 while a glide (portamento) is in progress, 0.0 otherwise. 
@@ -359,10 +360,10 @@
 			</description>
 		</attribute>
 
-		<attribute name='glidetime_curvature' get='1' set='1' type='float' size='1'>
-			<digest>Glide interpolation: 0 linear Hz, 1 logarithmic semitones (default 0)</digest>
+		<attribute name='glide_curve' get='1' set='1' type='float' size='1'>
+			<digest>Glide curve shape: negative concave, 0 linear, positive convex (default 0)</digest>
 			<description>
-				Blends between linear Hz interpolation (0) and logarithmic / semitone interpolation (1). Values between 0 and 1 are a proportional blend. Log interpolation sounds more natural for large pitch intervals.
+				Works like the ADSR curve attributes. Negative values produce a concave curve (slow start, fast end), positive values a convex curve (fast start, slow end), 0 is linear.
 				<br/><br/>
 				<i>default: 0.0 (linear)</i>
 			</description>
@@ -397,7 +398,6 @@
 
 	<seealsolist>
 		<seealso name='voice-alligator' />
-		<seealso name='mc.poly~' />
 	</seealsolist>
 
 </c74object>

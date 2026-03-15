@@ -25,28 +25,6 @@
             },
             {
                 "box": {
-                    "id": "obj-132",
-                    "maxclass": "newobj",
-                    "numinlets": 1,
-                    "numoutlets": 1,
-                    "outlettype": [ "" ],
-                    "patching_rect": [ 2404.957767367363, 652.8028173446655, 133.0, 22.0 ],
-                    "text": "prepend glide_retrigger"
-                }
-            },
-            {
-                "box": {
-                    "id": "obj-42",
-                    "maxclass": "newobj",
-                    "numinlets": 2,
-                    "numoutlets": 2,
-                    "outlettype": [ "", "" ],
-                    "patching_rect": [ 2404.957767367363, 613.8028173446655, 123.0, 22.0 ],
-                    "text": "route legato_retrigger"
-                }
-            },
-            {
-                "box": {
                     "id": "obj-297",
                     "maxclass": "newobj",
                     "numinlets": 2,
@@ -5203,7 +5181,7 @@
                                 {
                                     "time": 0.0,
                                     "message": "tovoice",
-                                    "args": [ "legato_retrigger", 1 ]
+                                    "args": [ "glide_retrigger", 1 ]
                                 },
                                 {
                                     "time": 0.0,
@@ -10140,7 +10118,7 @@
                 "box": {
                     "comment": "from alligator",
                     "id": "obj-84",
-                    "index": 1,
+                    "index": 0,
                     "maxclass": "inlet",
                     "numinlets": 0,
                     "numoutlets": 1,
@@ -12398,7 +12376,6 @@
                             {
                                 "box": {
                                     "id": "obj-31",
-                                    "linecount": 3,
                                     "maxclass": "newobj",
                                     "numinlets": 1,
                                     "numoutlets": 0,
@@ -13228,6 +13205,7 @@
                     "patching_rect": [ 763.25, 619.0, 221.0, 22.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 505.0, 94.0, 549.0, 22.0 ],
+                    "text": "Release G: F in scale 0 sounds again.",
                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                 }
             },
@@ -13236,12 +13214,15 @@
                     "fontname": "Lato",
                     "fontsize": 13.0,
                     "id": "obj-76",
+                    "linecount": 7,
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 725.25, 592.0, 179.0, 22.0 ],
+                    "patching_rect": [ 725.25, 592.0, 179.0, 116.0 ],
                     "presentation": 1,
-                    "presentation_rect": [ 503.5, 48.0, 552.0, 22.0 ],
+                    "presentation_linecount": 2,
+                    "presentation_rect": [ 503.5, 48.0, 552.0, 38.0 ],
+                    "text": "Monophony is enabled. Press the note F: F sounds in default equal-tempered scale (12-TET). Switch to scale 1 (some harmonics) and press G: the corresponding pitch in scale 1 sounds.",
                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                 }
             },
@@ -13250,12 +13231,15 @@
                     "fontname": "Lato",
                     "fontsize": 13.0,
                     "id": "obj-75",
+                    "linecount": 7,
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 687.25, 557.0, 131.0, 22.0 ],
+                    "patching_rect": [ 687.25, 557.0, 131.0, 116.0 ],
                     "presentation": 1,
-                    "presentation_rect": [ 505.0, 8.0, 552.0, 22.0 ],
+                    "presentation_linecount": 2,
+                    "presentation_rect": [ 505.0, 8.0, 552.0, 38.0 ],
+                    "text": "[voice-alligator] can handle different scales/tunings while playing and remembers the pitches of played notes.",
                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                 }
             },
@@ -14050,7 +14034,7 @@
                 "box": {
                     "comment": "\"to voice\"",
                     "id": "obj-3",
-                    "index": 2,
+                    "index": 0,
                     "maxclass": "outlet",
                     "numinlets": 1,
                     "numoutlets": 0,
@@ -14160,7 +14144,7 @@
                 "box": {
                     "comment": "\"to alligator\"",
                     "id": "obj-11",
-                    "index": 1,
+                    "index": 0,
                     "maxclass": "outlet",
                     "numinlets": 1,
                     "numoutlets": 0,
@@ -14640,12 +14624,6 @@
                 "patchline": {
                     "destination": [ "obj-1", 0 ],
                     "source": [ "obj-131", 0 ]
-                }
-            },
-            {
-                "patchline": {
-                    "destination": [ "obj-278", 0 ],
-                    "source": [ "obj-132", 0 ]
                 }
             },
             {
@@ -15421,14 +15399,14 @@
             },
             {
                 "patchline": {
-                    "destination": [ "obj-282", 0 ],
-                    "source": [ "obj-281", 5 ]
+                    "destination": [ "obj-278", 0 ],
+                    "source": [ "obj-281", 7 ]
                 }
             },
             {
                 "patchline": {
-                    "destination": [ "obj-42", 0 ],
-                    "source": [ "obj-281", 7 ]
+                    "destination": [ "obj-282", 0 ],
+                    "source": [ "obj-281", 5 ]
                 }
             },
             {
@@ -15649,18 +15627,6 @@
                     "destination": [ "obj-126", 0 ],
                     "hidden": 1,
                     "source": [ "obj-41", 0 ]
-                }
-            },
-            {
-                "patchline": {
-                    "destination": [ "obj-132", 0 ],
-                    "source": [ "obj-42", 0 ]
-                }
-            },
-            {
-                "patchline": {
-                    "destination": [ "obj-278", 0 ],
-                    "source": [ "obj-42", 1 ]
                 }
             },
             {
@@ -16092,6 +16058,27 @@
                 }
             }
         ],
+        "parameters": {
+            "obj-264": [ "live.numbox[2]", "live.numbox", 0 ],
+            "obj-267": [ "filter_freq[2]", "filter_freq", 0 ],
+            "obj-269": [ "live.tab[3]", "live.tab", 0 ],
+            "obj-271": [ "release[2]", "release", 0 ],
+            "obj-273": [ "sustain[2]", "sustain", 0 ],
+            "obj-275": [ "decay[2]", "decay", 0 ],
+            "obj-277": [ "attack[2]", "attack", 0 ],
+            "obj-83::obj-105::obj-19": [ "number[9]", "number[5]", 0 ],
+            "obj-83::obj-1::obj-19": [ "number[2]", "number[5]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
+            "inherited_shortname": 1
+        },
+        "autosave": 0,
         "styles": [
             {
                 "name": "PuredataButton",
