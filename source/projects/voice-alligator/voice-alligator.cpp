@@ -1376,6 +1376,12 @@ message<threadsafe::yes> end_hold{this, "endhold", "End hold notes: all (default
 // message<threadsafe::no> panic{this, "panic", "sends out the message *panic* to the voice", panicFunction};
 message<threadsafe::yes> end{this, "end", "Sends Notes into release. If an argument was provided, send notes of stream (argument) into release, else send all notes into release.", endFunction};
 
+message<> dspstate{this, "dspstate", MIN_FUNCTION{
+    bool audio_on = (bool)args[0];
+    if (!audio_on) adsr_poll.stop();
+    return {};
+}};
+
 message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
     // Collect all active/pending voices that need releasing
     std::vector<Note> to_release;
