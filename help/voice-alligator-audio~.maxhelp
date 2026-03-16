@@ -14,6 +14,39 @@
         "boxes": [
             {
                 "box": {
+                    "id": "obj-19",
+                    "maxclass": "live.scope~",
+                    "numinlets": 2,
+                    "numoutlets": 1,
+                    "outlettype": [ "bang" ],
+                    "patching_rect": [ 731.0, 451.0, 184.0, 68.0 ],
+                    "range": [ 0.0, 1.0 ]
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-18",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "outlettype": [ "signal", "signal" ],
+                    "patching_rect": [ 731.0, 342.0, 74.0, 22.0 ],
+                    "text": "mc.unpack~"
+                }
+            },
+            {
+                "box": {
+                    "id": "obj-11",
+                    "maxclass": "live.scope~",
+                    "numinlets": 2,
+                    "numoutlets": 1,
+                    "outlettype": [ "bang" ],
+                    "patching_rect": [ 731.0, 382.0, 184.0, 68.0 ],
+                    "range": [ 0.0, 1.0 ]
+                }
+            },
+            {
+                "box": {
                     "id": "obj-12",
                     "maxclass": "comment",
                     "numinlets": 1,
@@ -33,7 +66,7 @@
                     "numinlets": 2,
                     "numoutlets": 2,
                     "outlettype": [ "signal", "float" ],
-                    "patching_rect": [ 776.0, 253.0, 56.0, 22.0 ],
+                    "patching_rect": [ 780.0, 225.0, 56.0, 22.0 ],
                     "sig": 0.0
                 }
             },
@@ -568,6 +601,7 @@
                 "box": {
                     "attr": "duration",
                     "id": "obj-24",
+                    "lock": 1,
                     "maxclass": "attrui",
                     "numinlets": 1,
                     "numoutlets": 1,
@@ -717,6 +751,13 @@
         "lines": [
             {
                 "patchline": {
+                    "destination": [ "obj-18", 0 ],
+                    "order": 0,
+                    "source": [ "obj-1", 1 ]
+                }
+            },
+            {
+                "patchline": {
                     "destination": [ "obj-2", 0 ],
                     "source": [ "obj-1", 0 ]
                 }
@@ -725,6 +766,7 @@
                 "patchline": {
                     "destination": [ "obj-3", 1 ],
                     "midpoints": [ 650.7, 326.64453125, 663.5, 326.64453125 ],
+                    "order": 1,
                     "source": [ "obj-1", 1 ]
                 }
             },
@@ -744,6 +786,18 @@
                 "patchline": {
                     "destination": [ "obj-20", 0 ],
                     "source": [ "obj-16", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-11", 0 ],
+                    "source": [ "obj-18", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-19", 0 ],
+                    "source": [ "obj-18", 1 ]
                 }
             },
             {
@@ -820,6 +874,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-10", 0 ],
+                    "midpoints": [ 855.5, 277.0, 840.88671875, 277.0, 840.88671875, 215.0, 789.5, 215.0 ],
                     "order": 1,
                     "source": [ "obj-30", 0 ]
                 }
@@ -858,6 +913,14 @@
         ],
         "parameters": {
             "obj-15": [ "mc.live.gain~", "mc.live.gain~", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0,

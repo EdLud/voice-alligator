@@ -628,7 +628,7 @@ void handleNoteOnMono(Note &note, lock &lock){
             mono_target_note->mpitch.push_back(note.mpitch.back());
             mono_target_note->freq.push_back(note.freq.back());
             mono_target_note->vel = note.vel;
-            mono_target_note->sustain_flag = sustain_attr;
+            // mono_target_note->sustain_flag = sustain_attr;
             note_to_send = *mono_target_note;
             lock.unlock();
             outputFunction(note_to_send, 1, 1, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
@@ -676,7 +676,7 @@ void handleNoteOnMono(Note &note, lock &lock){
             //delete mpitch list, push_back new mpitch, generate note on on old target
             if(debug){cout << "Mono key was pressed, released mono voice of stream " << mono_target_note->stream<< " found with target " << mono_target_note->target << endl;}
             mono_target_note->release_flag = false;
-            mono_target_note->sustain_flag = sustain_attr;
+            // mono_target_note->sustain_flag = sustain_attr;
             mono_target_note->mpitch.clear();
             mono_target_note->mpitch.push_back(note.mpitch.back());
             mono_target_note->freq.clear();
@@ -742,7 +742,7 @@ void handleNoteOnPoly(Note &note, lock &lock){
     if (free_voice != -1){
         note.target = free_voice;
         note.mono_flag = false;
-        note.sustain_flag = sustain_attr;
+        // note.sustain_flag = sustain_attr;
         pending_voices[free_voice] = note;
         if(debug){cout << "Found inactive voice with target " << free_voice << " and added new note with mpitch " << note.mpitch.back() << " to pending_voices" << endl;}
         lock.unlock();

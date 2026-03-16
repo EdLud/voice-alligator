@@ -363,8 +363,6 @@ attribute<number> declick_ms_attr{this, "declick_ms", 5.0,
         float v = std::max(0.f, (float)(number)args[0]);
         adsr_retrigger_ms.store(v, std::memory_order_relaxed);
         return {(number)v};
-        // adsr_retrigger_ms.store((float)(number)args[0], std::memory_order_relaxed);
-        // return args;
     }}
 };
 attribute<bool> return_to_zero_attr{this, "return_to_zero", true,
@@ -505,8 +503,6 @@ void operator()(audio_bundle input, audio_bundle output) {
     for (int v = 0; v < n; ++v) {
         // Consume pending command from scheduler thread
         int cmd = voice_cmd[v].cmd.exchange(0, std::memory_order_acquire);
-        bool log_samples = false;
-
 
         if (cmd == (int)VoiceCmd::Type::note_on) {
             float new_freq  = voice_cmd[v].freq .load(std::memory_order_relaxed);
@@ -539,22 +535,25 @@ void operator()(audio_bundle input, audio_bundle output) {
                 bool rtz      = adsr_return_to_zero.load(std::memory_order_relaxed);
                 bool do_declick = is_steal || (rtz && audio_voice_active[v]);
                 if (do_declick) {
-                    // Always declick on steal; also declick on retrigger if return_to_zero is set.
                     applyADSRTimingOnly(v);
-                    voice_adsr[v].trigger(true);
-                    if (voice_adsr[v].stage() == adsr::adsr_stage::attack) {
-                        // trigger() went straight to attack (voice was releasing, m_active=false).
-                        // No retrigger ramp — set initial to current level for smooth crossfade.
-                        voice_adsr[v].initial(last_env_output[v]);
-                        voice_adsr[v].peak   (new_vel);
-                        voice_adsr[v].sustain(adsr_sustain_lvl.load(std::memory_order_relaxed) * new_vel);
-                        voice_glide[v].current_freq  = new_freq;
-                        voice_glide[v].target_freq   = new_freq;
-                        voice_glide[v].active        = false;
+                    // Check m_active via stage: release/early_release means m_active=false.
+                    // In that case trigger(true) goes straight to attack — we need two calls
+                    // to force the retrigger stage.
+                    adsr::adsr_stage st = voice_adsr[v].stage();
+                    bool is_releasing = (st == adsr::adsr_stage::release ||
+                                        st == adsr::adsr_stage::early_release ||
+                                        st == adsr::adsr_stage::inactive);
+                    if (is_releasing) {
+                        if (debug) cout << "declick: voice " << v+1 << " was releasing (stage=" << (int)st << ") — double trigger" << endl;
+                        voice_adsr[v].trigger(true);   // m_active=false→true, goes to attack
+                        voice_adsr[v].trigger(true);   // m_active=true→true, goes to retrigger
                     } else {
-                        // retrigger stage active — defer freq/peak/sustain to bottom of declick
-                        voice_pending_freq[v] = {true, new_freq, new_vel};
+                        if (debug) cout << "declick: voice " << v+1 << " was active (stage=" << (int)st << ") — single trigger" << endl;
+                        voice_adsr[v].trigger(true);   // already active, goes to retrigger
                     }
+                    if (debug) cout << "  stage after trigger=" << (int)voice_adsr[v].stage()
+                                    << " rtz=" << adsr_return_to_zero.load() << endl;
+                    voice_pending_freq[v] = {true, new_freq, new_vel};
                 } else {
                     // No declick — apply everything immediately
                     applyADSRParams(v, new_vel);
@@ -584,51 +583,18 @@ void operator()(audio_bundle input, audio_bundle output) {
                 }
                 if (gr == 0) {
                     // Legato: envelope and velocity completely uninterrupted
-                    if (debug) cout << "glide legato voice " << v+1 << endl;
                 } else {
-                    // Retrigger: smoothly transition from current level to new peak over attack time
-                    if (debug) cout << "glide retrigger voice " << v+1
-                        << " last_env=" << last_env_output[v]
-                        << " new_vel=" << new_vel
-                        << " m_active=" << voice_adsr[v].active()
-                        << " attack_ms=" << adsr_attack.load(std::memory_order_relaxed)
-                        << " sr=" << m_samplerate << endl;
-                    
-                    // Store current value for the transition
-                    float current_env = last_env_output[v];
-                    float target_vel = new_vel;
-                    
-                    // Calculate attack samples
-                    float attack_ms = adsr_attack.load(std::memory_order_relaxed);
-                    int attack_samples = static_cast<int>((attack_ms / 1000.f) * (float)m_samplerate);
-                    
-                    if (attack_samples > 0 && current_env > 0.001f) {
-                        // Apply ADSR params with the target velocity
-                        applyADSRParams(v, target_vel);
-                        
-                        // Set the initial value to the current envelope level
-                        voice_adsr[v].initial(current_env);
-                        
-                        // Force the ADSR into attack stage starting from current_env
-                        // We need to bypass the normal retrigger logic
-                        voice_adsr[v].trigger(false);  // Force to inactive
-                        voice_adsr[v].trigger(true);   // This will put it in attack stage with initial=current_env
-                        
-                        // Reset velocity ramp
-                        voice_vel_ramp[v] = {1.f, 1.f, 0.f};
-                    } else {
-                        // No attack time or envelope was silent, just jump
-                        applyADSRParams(v, target_vel);
-                        voice_adsr[v].trigger(true);
-                        voice_vel_ramp[v] = {1.f, 1.f, 0.f};
-                    }
-                    
-                    if (debug) { 
-                        cout << "  after trigger stage=" << (int)voice_adsr[v].stage() 
-                            << " initial=" << current_env 
-                            << " peak=" << target_vel << endl; 
-                        log_samples = true; 
-                    }
+                    // Retrigger: restart attack from current envelope level with new velocity.
+                    // trigger(false)+trigger(true) goes straight to attack stage without
+                    // going through the retrigger stage (avoids the one-sample resolution issue).
+                    float sl = adsr_sustain_lvl.load(std::memory_order_relaxed);
+                    voice_adsr[v].return_to_zero(false);
+                    voice_adsr[v].initial(last_env_output[v]);
+                    voice_adsr[v].peak   (new_vel);
+                    voice_adsr[v].sustain(sl * new_vel);
+                    voice_adsr[v].trigger(false);
+                    voice_adsr[v].trigger(true);
+                    voice_vel_ramp[v] = {1.f, 1.f, 0.f};
                 }
             }
             audio_voice_active[v] = true;
@@ -686,9 +652,6 @@ void operator()(audio_bundle input, audio_bundle output) {
         // Read glide params once per vector
         const float curve = glide_curvature.load(std::memory_order_relaxed);
 
-        int  log_count   = 0;
-
-
         for (int i = 0; i < frames; ++i) {
             const adsr::adsr_stage stage_before = voice_adsr[v].stage();
             float env = static_cast<float>(voice_adsr[v]());
@@ -707,14 +670,6 @@ void operator()(audio_bundle input, audio_bundle output) {
                 }
             }
             env *= voice_vel_ramp[v].current;
-
-            if (log_samples && log_count < 4) {
-                cout << "  sample " << i << " raw_env=" << (env / voice_vel_ramp[v].current)
-                     << " ramp=" << voice_vel_ramp[v].current
-                     << " final_env=" << env
-                     << " stage=" << (int)stage_after << endl;
-                ++log_count;
-            }
 
             // Detect envelope finishing — notify scheduler to reclaim voice
             if (audio_voice_active[v] && stage_after == adsr::adsr_stage::inactive) {
@@ -748,15 +703,22 @@ void operator()(audio_bundle input, audio_bundle output) {
                 }
             }
 
-            // Fire impulse at retrigger→attack transition, or on sample 0 if already in attack
+            // Fire impulse at retrigger→attack transition, on sample 0 if already in attack,
+            // or on sample 0 for legato glide notes (ADSR not retriggered, transition never fires)
             bool fire_impulse = false;
             if (pending_impulse[v]) {
-                bool transition = (stage_before != adsr::adsr_stage::attack &&
-                                   stage_after  == adsr::adsr_stage::attack);
+                bool transition     = (stage_before != adsr::adsr_stage::attack &&
+                                       stage_after  == adsr::adsr_stage::attack);
                 bool already_attack = (stage_before == adsr::adsr_stage::attack && i == 0);
-                if (transition || already_attack) {
+                bool legato_glide   = (live_glide[v] > 0.5f && !glide_retrigger.load(std::memory_order_relaxed) && i == 0);
+                if (transition || already_attack || legato_glide) {
                     fire_impulse       = true;
                     pending_impulse[v] = false;
+                    if (debug) cout << "impulse voice " << v+1
+                        << " env=" << env
+                        << " stage_before=" << (int)stage_before
+                        << " stage_after=" << (int)stage_after
+                        << " i=" << i << endl;
                 }
             }
 
@@ -988,7 +950,7 @@ void handleNoteOnMono(Note& note, lock& lock) {
             if (mono_note_priority_attr == mono_note_priority::HIGH && mt->return_highest_mpitch() > note.mpitch.back()) return;
             mt->mpitch.push_back(note.mpitch.back());
             mt->freq.push_back(note.freq.back());
-            mt->vel = note.vel; mt->sustain_flag = sustain_attr;
+            mt->vel = note.vel; 
             nts = *mt; lock.unlock();
             outputFunction(nts, 1, 1, false, true); return;
         }
@@ -1006,7 +968,7 @@ void handleNoteOnMono(Note& note, lock& lock) {
                 return n.mono_flag && n.stream == st && n.release_flag; })) {
             if (mono_note_priority_attr == mono_note_priority::LOW  && !note.sequencer_note_flag && mt->return_lowest_mpitch()  < note.mpitch.back()) return;
             if (mono_note_priority_attr == mono_note_priority::HIGH && !note.sequencer_note_flag && mt->return_highest_mpitch() > note.mpitch.back()) return;
-            mt->release_flag = false; mt->sustain_flag = sustain_attr;
+            mt->release_flag = false; 
             mt->mpitch = {note.mpitch.back()}; mt->freq = {note.freq.back()};
             mt->vel = note.vel; nts = *mt; lock.unlock();
             outputFunction(nts, 1, 1, false, true); return;
@@ -1038,7 +1000,7 @@ void handleNoteOnMono(Note& note, lock& lock) {
 void handleNoteOnPoly(Note& note, lock& lock) {
     int fv = findFreeVoice();
     if (fv != -1) {
-        note.target = fv; note.mono_flag = false; note.sustain_flag = sustain_attr;
+        note.target = fv; note.mono_flag = false; 
         pending_voices[fv] = note;
         lock.unlock(); outputFunction(note, 1, 0);
     } else {

@@ -37,7 +37,7 @@
 		<br/><br/>
 
 		<u>Outlet 3 — impulse~</u><br/>
-		A single sample impulse fired at the start of each note attack. Use this to trigger pitch envelopes or other one-shot modulations in the voice. <m>glide_impulse</m> controls whether an impulse is fired on glide notes.
+		A single sample impulse fired at the start of each note attack. Use this to trigger pitch envelopes or other one-shot modulations in the voice. <m>glide_impulse</m> controls whether an impulse is fired on glide notes. If a note is stolen, the impulse is fired at the bottom of the declick ramp.
 		<br/><br/>
 
 		<u>Outlet 4 — glide flag~</u><br/>

@@ -2195,6 +2195,39 @@
                         "boxes": [
                             {
                                 "box": {
+                                    "id": "obj-8",
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 685.5, 114.0, 63.0, 20.0 ],
+                                    "text": "velocity %"
+                                }
+                            },
+                            {
+                                "box": {
+                                    "id": "obj-30",
+                                    "maxclass": "number",
+                                    "numinlets": 1,
+                                    "numoutlets": 2,
+                                    "outlettype": [ "", "bang" ],
+                                    "parameter_enable": 1,
+                                    "patching_rect": [ 636.5, 113.0, 50.0, 22.0 ],
+                                    "saved_attribute_attributes": {
+                                        "valueof": {
+                                            "parameter_initial": [ 100 ],
+                                            "parameter_initial_enable": 1,
+                                            "parameter_invisible": 1,
+                                            "parameter_longname": "number[2]",
+                                            "parameter_modmode": 0,
+                                            "parameter_shortname": "number[2]",
+                                            "parameter_type": 3
+                                        }
+                                    },
+                                    "varname": "number[2]"
+                                }
+                            },
+                            {
+                                "box": {
                                     "id": "obj-5",
                                     "maxclass": "newobj",
                                     "numinlets": 2,
@@ -2227,27 +2260,27 @@
                                     "preset_data": [
                                         {
                                             "number": 1,
-                                            "data": [ 5, "obj-73", "number", "int", 100, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 0.5, 5, "obj-17", "live.dial", "float", 150.0, 5, "obj-9", "live.tab", "float", 0.0, 5, "obj-11", "live.dial", "float", 5000.0, 5, "obj-44", "live.tab", "float", 1.0, 5, "obj-49", "live.numbox", "float", 50.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 440.0, 5, "obj-66", "number", "int", 80, 5, "obj-81", "number", "int", 0 ]
+                                            "data": [ 5, "obj-73", "number", "int", 100, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 0.5, 5, "obj-17", "live.dial", "float", 150.0, 5, "obj-9", "live.tab", "float", 0.0, 5, "obj-11", "live.dial", "float", 5000.0, 5, "obj-44", "live.tab", "float", 1.0, 5, "obj-49", "live.numbox", "float", 50.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 440.0, 5, "obj-66", "number", "int", 80, 5, "obj-81", "number", "int", 0, 5, "obj-30", "number", "int", 100 ]
                                         },
                                         {
                                             "number": 2,
-                                            "data": [ 5, "obj-73", "number", "int", 100, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 0.5, 5, "obj-17", "live.dial", "float", 10000.0, 5, "obj-9", "live.tab", "float", 0.0, 5, "obj-11", "live.dial", "float", 5000.0, 4, "obj-19", "kslider", "chord", 5, "obj-44", "live.tab", "float", 1.0, 5, "obj-49", "live.numbox", "float", 3000.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 440.0, 5, "obj-66", "number", "int", 50, 5, "obj-81", "number", "int", 1 ]
+                                            "data": [ 5, "obj-73", "number", "int", 100, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 0.20000000298023224, 5, "obj-17", "live.dial", "float", 10000.0, 5, "obj-9", "live.tab", "float", 0.0, 5, "obj-11", "live.dial", "float", 5000.0, 5, "obj-44", "live.tab", "float", 1.0, 5, "obj-49", "live.numbox", "float", 3000.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 440.0, 5, "obj-66", "number", "int", 50, 5, "obj-81", "number", "int", 1, 5, "obj-30", "number", "int", 80 ]
                                         },
                                         {
                                             "number": 3,
-                                            "data": [ 5, "obj-73", "number", "int", 107, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 1.0, 5, "obj-17", "live.dial", "float", 1071.4998779296875, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 3960.534912109375, 4, "obj-19", "kslider", "chord", 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 5.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 120, 5, "obj-81", "number", "int", 0 ]
+                                            "data": [ 5, "obj-73", "number", "int", 107, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 1.0, 5, "obj-17", "live.dial", "float", 1071.4998779296875, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 3960.534912109375, 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 5.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 120, 5, "obj-81", "number", "int", 0, 5, "obj-30", "number", "int", 75 ]
                                         },
                                         {
                                             "number": 4,
-                                            "data": [ 5, "obj-73", "number", "int", 107, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 1.0, 5, "obj-17", "live.dial", "float", 1071.4998779296875, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 3960.534912109375, 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 5.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 1, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 532, 5, "obj-81", "number", "int", 0 ]
+                                            "data": [ 5, "obj-73", "number", "int", 107, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 250.0, 5, "obj-15", "live.dial", "float", 1.0, 5, "obj-17", "live.dial", "float", 1071.4998779296875, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 3960.534912109375, 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 5.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 1, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 1, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 532, 5, "obj-81", "number", "int", 0, 5, "obj-30", "number", "int", 36 ]
                                         },
                                         {
                                             "number": 5,
-                                            "data": [ 5, "obj-73", "number", "int", 1, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 3.5589046478271484, 5, "obj-15", "live.dial", "float", 0.14960628747940063, 5, "obj-17", "live.dial", "float", 1360.6461181640625, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 14442.4619140625, 4, "obj-19", "kslider", "chord", 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 5.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 0, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 0, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 532, 5, "obj-81", "number", "int", 0 ]
+                                            "data": [ 5, "obj-73", "number", "int", 1, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 3.5589046478271484, 5, "obj-15", "live.dial", "float", 0.14960628747940063, 5, "obj-17", "live.dial", "float", 1360.6461181640625, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 14442.4619140625, 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 5.0, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 0, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 0, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 532, 5, "obj-81", "number", "int", 0, 5, "obj-30", "number", "int", 60 ]
                                         },
                                         {
                                             "number": 6,
-                                            "data": [ 5, "obj-73", "number", "int", 102, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 3.5589046478271484, 5, "obj-15", "live.dial", "float", 0.14960628747940063, 5, "obj-17", "live.dial", "float", 1360.6461181640625, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 14442.4619140625, 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 2083.740234375, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 0, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 532, 5, "obj-81", "number", "int", 0 ]
+                                            "data": [ 5, "obj-73", "number", "int", 102, 5, "obj-6", "live.dial", "float", 7.0, 5, "obj-13", "live.dial", "float", 3.5589046478271484, 5, "obj-15", "live.dial", "float", 0.14960628747940063, 5, "obj-17", "live.dial", "float", 1360.6461181640625, 5, "obj-9", "live.tab", "float", 1.0, 5, "obj-11", "live.dial", "float", 14442.4619140625, 5, "obj-44", "live.tab", "float", 0.0, 5, "obj-49", "live.numbox", "float", 2083.740234375, 5, "obj-3", "attrui", "attr", "mono", 5, "obj-3", "attrui", "int", 1, 5, "obj-25", "attrui", "attr", "mono_note_priority", 5, "obj-25", "attrui", "int", 0, 5, "obj-28", "attrui", "attr", "mono_steals_release", 5, "obj-28", "attrui", "int", 0, 5, "obj-40", "attrui", "attr", "steal_hold", 5, "obj-40", "attrui", "int", 1, 5, "obj-43", "attrui", "attr", "hold", 5, "obj-43", "attrui", "int", 0, 5, "obj-48", "attrui", "attr", "steal", 5, "obj-48", "attrui", "int", 0, 5, "obj-52", "attrui", "attr", "sustain", 5, "obj-52", "attrui", "int", 0, 5, "obj-56", "attrui", "attr", "active", 5, "obj-56", "attrui", "int", 1, 5, "obj-57", "attrui", "attr", "basefreq", 5, "obj-57", "attrui", "float", 1440.0, 5, "obj-66", "number", "int", 532, 5, "obj-81", "number", "int", 0, 5, "obj-30", "number", "int", 90 ]
                                         }
                                     ]
                                 }
@@ -2332,7 +2365,6 @@
                                                     "numoutlets": 1,
                                                     "outlettype": [ "" ],
                                                     "patching_rect": [ 0.0, 0.0, 229.0, 22.0 ],
-                                                    "text": "target 5",
                                                     "textcolor": [ 0.0, 0.6823529411764706, 0.6941176470588235, 1.0 ]
                                                 }
                                             },
@@ -2484,7 +2516,6 @@
                                                     "numoutlets": 1,
                                                     "outlettype": [ "" ],
                                                     "patching_rect": [ 0.0, 0.0, 229.0, 22.0 ],
-                                                    "text": "notes 630. 40. flags 0 0 0 0 1 1",
                                                     "textcolor": [ 0.0, 0.6823529411764706, 0.6941176470588235, 1.0 ]
                                                 }
                                             },
@@ -2551,7 +2582,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 637.0, 108.0, 137.0, 20.0 ],
+                                    "patching_rect": [ 686.0, 90.0, 137.0, 20.0 ],
                                     "text": "randomize +- semitones"
                                 }
                             },
@@ -2563,7 +2594,7 @@
                                     "numoutlets": 2,
                                     "outlettype": [ "", "bang" ],
                                     "parameter_enable": 0,
-                                    "patching_rect": [ 588.0, 107.0, 50.0, 22.0 ]
+                                    "patching_rect": [ 637.0, 89.0, 50.0, 22.0 ]
                                 }
                             },
                             {
@@ -2572,7 +2603,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 639.0, 84.0, 66.0, 20.0 ],
+                                    "patching_rect": [ 688.0, 66.0, 66.0, 20.0 ],
                                     "text": "duration %"
                                 }
                             },
@@ -2582,7 +2613,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 638.0, 60.0, 69.0, 20.0 ],
+                                    "patching_rect": [ 687.0, 42.0, 69.0, 20.0 ],
                                     "text": "tempo bpm"
                                 }
                             },
@@ -2595,7 +2626,7 @@
                                     "numoutlets": 2,
                                     "outlettype": [ "", "bang" ],
                                     "parameter_enable": 1,
-                                    "patching_rect": [ 588.0, 59.0, 50.0, 22.0 ],
+                                    "patching_rect": [ 637.0, 41.0, 50.0, 22.0 ],
                                     "saved_attribute_attributes": {
                                         "valueof": {
                                             "parameter_initial": [ 80 ],
@@ -3235,7 +3266,7 @@
                                     "hidden": 1,
                                     "id": "obj-80",
                                     "maxclass": "newobj",
-                                    "numinlets": 5,
+                                    "numinlets": 6,
                                     "numoutlets": 1,
                                     "outlettype": [ "" ],
                                     "patcher": {
@@ -3250,6 +3281,40 @@
                                         "classnamespace": "box",
                                         "rect": [ 84.0, 131.0, 896.0, 620.0 ],
                                         "boxes": [
+                                            {
+                                                "box": {
+                                                    "id": "obj-42",
+                                                    "maxclass": "newobj",
+                                                    "numinlets": 2,
+                                                    "numoutlets": 1,
+                                                    "outlettype": [ "float" ],
+                                                    "patching_rect": [ 316.0, 444.0, 29.5, 22.0 ],
+                                                    "text": "* 1."
+                                                }
+                                            },
+                                            {
+                                                "box": {
+                                                    "id": "obj-25",
+                                                    "maxclass": "newobj",
+                                                    "numinlets": 2,
+                                                    "numoutlets": 1,
+                                                    "outlettype": [ "float" ],
+                                                    "patching_rect": [ 973.0, 132.0, 39.0, 22.0 ],
+                                                    "text": "/ 100."
+                                                }
+                                            },
+                                            {
+                                                "box": {
+                                                    "comment": "",
+                                                    "id": "obj-23",
+                                                    "index": 6,
+                                                    "maxclass": "inlet",
+                                                    "numinlets": 0,
+                                                    "numoutlets": 1,
+                                                    "outlettype": [ "" ],
+                                                    "patching_rect": [ 973.0, 63.0, 30.0, 30.0 ]
+                                                }
+                                            },
                                             {
                                                 "box": {
                                                     "id": "obj-18",
@@ -4093,8 +4158,20 @@
                                             },
                                             {
                                                 "patchline": {
+                                                    "destination": [ "obj-25", 0 ],
+                                                    "source": [ "obj-23", 0 ]
+                                                }
+                                            },
+                                            {
+                                                "patchline": {
                                                     "destination": [ "obj-63", 1 ],
                                                     "source": [ "obj-24", 0 ]
+                                                }
+                                            },
+                                            {
+                                                "patchline": {
+                                                    "destination": [ "obj-42", 1 ],
+                                                    "source": [ "obj-25", 0 ]
                                                 }
                                             },
                                             {
@@ -4244,6 +4321,12 @@
                                             },
                                             {
                                                 "patchline": {
+                                                    "destination": [ "obj-65", 1 ],
+                                                    "source": [ "obj-42", 0 ]
+                                                }
+                                            },
+                                            {
+                                                "patchline": {
                                                     "destination": [ "obj-46", 0 ],
                                                     "order": 1,
                                                     "source": [ "obj-43", 1 ]
@@ -4325,7 +4408,7 @@
                                             },
                                             {
                                                 "patchline": {
-                                                    "destination": [ "obj-65", 1 ],
+                                                    "destination": [ "obj-42", 0 ],
                                                     "source": [ "obj-60", 0 ]
                                                 }
                                             },
@@ -5209,7 +5292,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 656.0, 41.0, 164.0, 25.0 ],
+                                    "patching_rect": [ 705.0, 23.0, 164.0, 25.0 ],
                                     "text": "note generation settings"
                                 }
                             },
@@ -5386,7 +5469,7 @@
                                     "numoutlets": 2,
                                     "outlettype": [ "", "bang" ],
                                     "parameter_enable": 1,
-                                    "patching_rect": [ 588.0, 83.0, 50.0, 22.0 ],
+                                    "patching_rect": [ 637.0, 65.0, 50.0, 22.0 ],
                                     "saved_attribute_attributes": {
                                         "valueof": {
                                             "parameter_initial": [ 100 ],
@@ -5537,6 +5620,13 @@
                                     "destination": [ "obj-79", 0 ],
                                     "midpoints": [ 363.5, 167.274727165699, 325.5, 167.274727165699 ],
                                     "source": [ "obj-3", 0 ]
+                                }
+                            },
+                            {
+                                "patchline": {
+                                    "destination": [ "obj-80", 5 ],
+                                    "hidden": 1,
+                                    "source": [ "obj-30", 0 ]
                                 }
                             },
                             {
@@ -11552,6 +11642,7 @@
                                                             {
                                                                 "box": {
                                                                     "id": "obj-19",
+                                                                    "linecount": 2,
                                                                     "maxclass": "newobj",
                                                                     "numinlets": 1,
                                                                     "numoutlets": 4,
@@ -12638,6 +12729,7 @@
                                             {
                                                 "box": {
                                                     "id": "obj-38",
+                                                    "linecount": 2,
                                                     "maxclass": "newobj",
                                                     "numinlets": 1,
                                                     "numoutlets": 4,
@@ -13453,20 +13545,13 @@
             "obj-71::obj-13": [ "decay", "decay", 0 ],
             "obj-71::obj-15": [ "sustain", "sustain", 0 ],
             "obj-71::obj-17": [ "release", "release", 0 ],
+            "obj-71::obj-30": [ "number[2]", "number[2]", 0 ],
             "obj-71::obj-44": [ "live.tab[1]", "live.tab[1]", 0 ],
             "obj-71::obj-49": [ "live.numbox", "live.numbox", 0 ],
             "obj-71::obj-6": [ "attack", "attack", 0 ],
             "obj-71::obj-66": [ "number", "number", 0 ],
             "obj-71::obj-73": [ "number[1]", "number", 0 ],
             "obj-71::obj-9": [ "live.tab", "live.tab", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "inherited_shortname": 1
         },
         "autosave": 0,

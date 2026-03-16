@@ -172,6 +172,7 @@ float live_mono [1024] {};
 bool  audio_voice_active[1024] {};
 bool  pending_impulse   [1024] {};
 float last_env_output   [1024] {};
+bool  voice_is_glide    [1024] {};  // true when current note is a glide note
 
 // Per-voice duration counter (audio thread only)
 // Counts down from duration_samps to 0, then triggers note-off
@@ -181,8 +182,9 @@ bool  voice_duration_active   [1024] {};  // true while counting
 // Per-voice note ramp (audio thread only)
 // Outputs 1.0 at note-on, ramps linearly to 0.0 at end of release.
 // Total ramp length = duration_samps + release_samps.
-float voice_ramp_value[1024] {};   // current output value
-float voice_ramp_step [1024] {};   // per-sample decrement (negative)
+float voice_ramp_value  [1024] {};   // current output value
+float voice_ramp_step   [1024] {};   // per-sample increment
+bool  voice_ramp_frozen [1024] {};   // true during declick — hold value, don't advance
 
 struct VoiceVelRamp {
     float current {1.f};
@@ -445,6 +447,7 @@ void resetVoices(int n) {
     std::fill(std::begin(audio_voice_active),       std::end(audio_voice_active),       false);
     std::fill(std::begin(pending_impulse),           std::end(pending_impulse),           false);
     std::fill(std::begin(last_env_output),           std::end(last_env_output),           0.f);
+    std::fill(std::begin(voice_is_glide),            std::end(voice_is_glide),            false);
     std::fill(std::begin(live_freq),                 std::end(live_freq),                 0.f);
     std::fill(std::begin(live_vel),                  std::end(live_vel),                  0.f);
     std::fill(std::begin(live_mono),                 std::end(live_mono),                 0.f);
@@ -452,6 +455,7 @@ void resetVoices(int n) {
     std::fill(std::begin(voice_duration_active),     std::end(voice_duration_active),     false);
     std::fill(std::begin(voice_ramp_value),          std::end(voice_ramp_value),          0.f);
     std::fill(std::begin(voice_ramp_step),           std::end(voice_ramp_step),           0.f);
+    std::fill(std::begin(voice_ramp_frozen),         std::end(voice_ramp_frozen),         false);
     prev_trigger_sample = 0.f;
     pending_trigger_flag .store(0, std::memory_order_relaxed);
     pending_trigger_pitch.store(0.f, std::memory_order_relaxed);
@@ -542,6 +546,7 @@ void operator()(audio_bundle input, audio_bundle output) {
             live_freq[v] = new_freq;
             live_vel [v] = new_vel;
             live_mono[v] = voice_cmd[v].mono.load(std::memory_order_relaxed);
+            voice_is_glide[v] = is_glide;
 
             if (!is_glide) {
                 bool rtz       = adsr_return_to_zero.load(std::memory_order_relaxed);
@@ -550,13 +555,19 @@ void operator()(audio_bundle input, audio_bundle output) {
                     applyADSRTimingOnly(v);
                     voice_adsr[v].trigger(true);
                     if (voice_adsr[v].stage() == adsr::adsr_stage::attack) {
+                        // No retrigger ramp — declick resolved immediately
                         voice_adsr[v].initial(last_env_output[v]);
                         voice_adsr[v].peak   (new_vel);
                         voice_adsr[v].sustain(adsr_sustain_lvl.load(std::memory_order_relaxed) * new_vel);
                         voice_glide[v].current_freq = new_freq;
                         voice_glide[v].target_freq  = new_freq;
                         voice_glide[v].active       = false;
+                        // Declick already done — reset ramp immediately
+                        voice_ramp_value [v] = 0.f;
+                        voice_ramp_frozen[v] = false;
                     } else {
+                        // Retrigger stage active — freeze ramp until declick finishes
+                        voice_ramp_frozen[v] = true;
                         voice_pending_freq[v] = {true, new_freq, new_vel};
                     }
                 } else {
@@ -587,18 +598,19 @@ void operator()(audio_bundle input, audio_bundle output) {
                 }
 
                 if (gr) {
-                    float sl      = adsr_sustain_lvl.load(std::memory_order_relaxed);
+                    // Retrigger from current envelope level with new velocity.
+                    // We bypass lib::adsr's retrigger stage entirely by using
+                    // trigger(false)+trigger(true) — this puts the ADSR straight
+                    // into attack from initial=last_env_output, avoiding the
+                    // one-sample retrigger resolution that causes discontinuities.
+                    float sl = adsr_sustain_lvl.load(std::memory_order_relaxed);
+                    voice_adsr[v].return_to_zero(false);
+                    voice_adsr[v].initial(last_env_output[v]);
                     voice_adsr[v].peak   (new_vel);
                     voice_adsr[v].sustain(sl * new_vel);
-                    float ramp_cur   = voice_vel_ramp[v].current;
-                    float raw_env    = (ramp_cur > 0.f) ? last_env_output[v] / ramp_cur : last_env_output[v];
-                    float target_mul = (raw_env > 0.f) ? new_vel / raw_env : 1.f;
-                    float attack_ms  = adsr_attack.load(std::memory_order_relaxed);
-                    int   ramp_samps = (attack_ms > 0.f)
-                        ? static_cast<int>((attack_ms / 1000.f) * (float)m_samplerate) : 1;
-                    voice_vel_ramp[v].current = ramp_cur;
-                    voice_vel_ramp[v].target  = target_mul * ramp_cur;
-                    voice_vel_ramp[v].step    = (voice_vel_ramp[v].target - ramp_cur) / (float)ramp_samps;
+                    voice_adsr[v].trigger(false);  // m_active → false
+                    voice_adsr[v].trigger(true);   // straight to attack, no retrigger stage
+                    voice_vel_ramp[v] = {1.f, 1.f, 0.f};
                 }
             }
 
@@ -693,7 +705,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                 }
             }
 
-            // retrigger→attack transition: apply pending freq
+            // retrigger→attack transition: apply pending freq, reset ramp
             if (stage_before != adsr::adsr_stage::attack && stage_after == adsr::adsr_stage::attack) {
                 if (voice_pending_freq[v].active) {
                     float pvel = voice_pending_freq[v].vel_norm;
@@ -706,15 +718,19 @@ void operator()(audio_bundle input, audio_bundle output) {
                     voice_glide[v].active       = false;
                     voice_pending_freq[v].active = false;
                 }
+                // Declick finished — reset ramp to 0 and unfreeze
+                voice_ramp_value [v] = 0.f;
+                voice_ramp_frozen[v] = false;
             }
 
             // Impulse
             bool fire_impulse = false;
             if (pending_impulse[v]) {
-                bool transition    = (stage_before != adsr::adsr_stage::attack &&
-                                      stage_after  == adsr::adsr_stage::attack);
+                bool transition     = (stage_before != adsr::adsr_stage::attack &&
+                                       stage_after  == adsr::adsr_stage::attack);
                 bool already_attack = (stage_before == adsr::adsr_stage::attack && i == 0);
-                if (transition || already_attack) {
+                bool legato_glide   = (voice_is_glide[v] && !glide_retrigger.load(std::memory_order_relaxed) && i == 0);
+                if (transition || already_attack || legato_glide) {
                     fire_impulse        = true;
                     pending_impulse[v]  = false;
                 }
@@ -754,8 +770,8 @@ void operator()(audio_bundle input, audio_bundle output) {
             ch_glide  [i] = (voice_glide[v].active || voice_glide[v].samples_done > 0) ? 1.f : 0.f;
             ch_mono   [i] = live_mono[v];
 
-            // Advance ramp
-            if (voice_ramp_step[v] != 0.f) {
+            // Advance ramp (frozen during declick)
+            if (!voice_ramp_frozen[v] && voice_ramp_step[v] != 0.f) {
                 voice_ramp_value[v] += voice_ramp_step[v];
                 if (voice_ramp_value[v] > 1.f) {
                     voice_ramp_value[v] = 1.f;
@@ -822,8 +838,9 @@ timer<timer_options::defer_delivery> adsr_poll{this, MIN_FUNCTION{
         live_freq[v] = 0.f;
         live_mono[v] = 0.f;
         voice_glide[v] = VoiceGlide{};
-        voice_ramp_value[v] = 0.f;
-        voice_ramp_step [v] = 0.f;
+        voice_ramp_value [v] = 0.f;
+        voice_ramp_step  [v] = 0.f;
+        voice_ramp_frozen[v] = false;
 
         auto it = std::find_if(active_voices.begin(), active_voices.end(),
                                [target](const Note& n){ return n.target == target; });
