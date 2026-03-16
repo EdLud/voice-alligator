@@ -1377,7 +1377,28 @@ message<threadsafe::yes> end_hold{this, "endhold", "End hold notes: all (default
 message<threadsafe::yes> end{this, "end", "Sends Notes into release. If an argument was provided, send notes of stream (argument) into release, else send all notes into release.", endFunction};
 
 message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
-    // Start the scheduler-thread poll timer when DSP is turned on
+    // Collect all active/pending voices that need releasing
+    std::vector<Note> to_release;
+    {
+        lock l{m_mutex};
+        for (auto& n : active_voices)
+            if (!n.release_flag) { n.release_flag = true; to_release.push_back(n); }
+        for (auto& kv : pending_voices)
+            if (!kv.second.release_flag) { kv.second.release_flag = true; to_release.push_back(kv.second); }
+    }
+    // Send note-offs so mc.poly~ voices release cleanly
+    for (auto& n : to_release) outputFunction(n, 0, 0, false);
+
+    // Reset all voice state
+    {
+        lock l{m_mutex};
+        active_voices.clear();
+        pending_voices.clear();
+        inactive_voices.clear();
+        for (int i = 1; i <= voices; ++i) inactive_voices.push_back(i);
+        std::fill(std::begin(adsr_active), std::end(adsr_active), false);
+    }
+
     adsr_poll.delay(1);
     return {};
 }};
