@@ -14,6 +14,17 @@
         "boxes": [
             {
                 "box": {
+                    "id": "obj-42",
+                    "maxclass": "newobj",
+                    "numinlets": 2,
+                    "numoutlets": 1,
+                    "outlettype": [ "" ],
+                    "patching_rect": [ 2105.0, 507.0, 73.0, 22.0 ],
+                    "text": "speedlim 20"
+                }
+            },
+            {
+                "box": {
                     "fontface": 2,
                     "id": "obj-154",
                     "maxclass": "comment",
@@ -9041,7 +9052,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 2201.0, 445.0, 72.0, 22.0 ],
+                    "patching_rect": [ 2185.5, 387.0, 72.0, 22.0 ],
                     "text": "0 0 1 7 0 $1"
                 }
             },
@@ -9946,7 +9957,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 2124.0, 119.0, 130.0, 33.0 ],
+                    "patching_rect": [ 2148.0, 162.5, 130.0, 33.0 ],
                     "presentation": 1,
                     "presentation_rect": [ 689.5, 327.0, 131.0, 33.0 ],
                     "text": "Note looper",
@@ -13199,13 +13210,15 @@
                     "fontname": "Lato",
                     "fontsize": 13.0,
                     "id": "obj-77",
+                    "linecount": 6,
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 763.25, 619.0, 221.0, 22.0 ],
+                    "patching_rect": [ 763.25, 619.0, 221.0, 100.0 ],
                     "presentation": 1,
-                    "presentation_rect": [ 505.0, 94.0, 549.0, 22.0 ],
-                    "text": "Release G: F in scale 0 sounds again.",
+                    "presentation_linecount": 3,
+                    "presentation_rect": [ 505.0, 94.0, 549.0, 53.0 ],
+                    "text": "The player can therefore play an evolving glissando chord. Play the starting note A#, then a second note that will be the glide's target, then first release A#, then the target note. Repeat this for different end pitches.",
                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                 }
             },
@@ -13222,7 +13235,7 @@
                     "presentation": 1,
                     "presentation_linecount": 2,
                     "presentation_rect": [ 503.5, 48.0, 552.0, 38.0 ],
-                    "text": "Monophony is enabled. Press the note F: F sounds in default equal-tempered scale (12-TET). Switch to scale 1 (some harmonics) and press G: the corresponding pitch in scale 1 sounds.",
+                    "text": "With glidetime and attack both set to 30 seconds we get long, swelling notes that also glide in pitch. glide_retrigger is set to 0, this prevents a retriggering of the ADSR.",
                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                 }
             },
@@ -13231,15 +13244,15 @@
                     "fontname": "Lato",
                     "fontsize": 13.0,
                     "id": "obj-75",
-                    "linecount": 7,
+                    "linecount": 9,
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 687.25, 557.0, 131.0, 116.0 ],
+                    "patching_rect": [ 687.25, 557.0, 131.0, 147.0 ],
                     "presentation": 1,
                     "presentation_linecount": 2,
                     "presentation_rect": [ 505.0, 8.0, 552.0, 38.0 ],
-                    "text": "[voice-alligator] can handle different scales/tunings while playing and remembers the pitches of played notes.",
+                    "text": "With a long attack time (30 s) and (hold) turned on, a key that is pressed shorter than the attack+decay time will still trigger the whole ADS part of the ADSR.",
                     "textcolor": [ 0.019607843137255, 0.011764705882353, 0.298039215686275, 1.0 ]
                 }
             },
@@ -14932,7 +14945,7 @@
             },
             {
                 "patchline": {
-                    "destination": [ "obj-182", 0 ],
+                    "destination": [ "obj-42", 0 ],
                     "source": [ "obj-185", 0 ]
                 }
             },
@@ -15631,6 +15644,12 @@
             },
             {
                 "patchline": {
+                    "destination": [ "obj-182", 0 ],
+                    "source": [ "obj-42", 0 ]
+                }
+            },
+            {
+                "patchline": {
                     "destination": [ "obj-179", 0 ],
                     "source": [ "obj-43", 1 ]
                 }
@@ -16068,14 +16087,6 @@
             "obj-277": [ "attack[2]", "attack", 0 ],
             "obj-83::obj-105::obj-19": [ "number[9]", "number[5]", 0 ],
             "obj-83::obj-1::obj-19": [ "number[2]", "number[5]", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "inherited_shortname": 1
         },
         "autosave": 0,

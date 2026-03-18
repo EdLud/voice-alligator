@@ -690,16 +690,21 @@ void operator()(audio_bundle input, audio_bundle output) {
 
             // At retrigger→attack transition: apply deferred freq, peak, sustain, initial
             if (stage_before != adsr::adsr_stage::attack && stage_after == adsr::adsr_stage::attack) {
+            // At retrigger→attack transition: apply deferred freq, peak, sustain, initial
                 if (voice_pending_freq[v].active) {
-                    float pvel = voice_pending_freq[v].vel_norm;
-                    float sl   = adsr_sustain_lvl.load(std::memory_order_relaxed);
-                    voice_adsr[v].initial(0.0);
-                    voice_adsr[v].peak   (pvel);
-                    voice_adsr[v].sustain(sl * pvel);
-                    voice_glide[v].current_freq  = voice_pending_freq[v].freq;
-                    voice_glide[v].target_freq   = voice_pending_freq[v].freq;
-                    voice_glide[v].active        = false;
-                    voice_pending_freq[v].active = false;
+                    // FIX: Apply safely as soon as we are in the active envelope stages, 
+                    // catching cases where retrigger_ms was 0 and we skipped the transition.
+                    if (stage_after == adsr::adsr_stage::attack || stage_after == adsr::adsr_stage::decay || stage_after == adsr::adsr_stage::sustain) {
+                        float pvel = voice_pending_freq[v].vel_norm;
+                        float sl   = adsr_sustain_lvl.load(std::memory_order_relaxed);
+                        voice_adsr[v].initial(0.0);
+                        voice_adsr[v].peak   (pvel);
+                        voice_adsr[v].sustain(sl * pvel);
+                        voice_glide[v].current_freq  = voice_pending_freq[v].freq;
+                        voice_glide[v].target_freq   = voice_pending_freq[v].freq;
+                        voice_glide[v].active        = false;
+                        voice_pending_freq[v].active = false;
+                    }
                 }
             }
 
@@ -756,7 +761,7 @@ void operator()(audio_bundle input, audio_bundle output) {
             }
             // ─────────────────────────────────────────────────────────────────
 
-         ch_freq   [i] = out_freq;
+        ch_freq   [i] = out_freq;
         ch_env    [i] = env;
         ch_impulse[i] = fire_impulse ? 1.f : 0.f; 
         ch_glide  [i] = live_glide  [v];
@@ -1021,15 +1026,13 @@ void handleNoteOff(Note& inc, lock& lock) {
     int mpit = inc.mpitch.back();
     Note nts;
 
-    for (auto& x : active_voices)
-
-    for (auto it = pending_voices.begin(); it != pending_voices.end(); ++it) {
-        if (it->second.mpitch.back() == mpit && it->second.stream == st) {
-            it->second.release_flag = true;
-            nts = it->second; lock.unlock();
-            outputFunction(nts, 0, 0); return;
-        }
-    }
+    // for (auto it = pending_voices.begin(); it != pending_voices.end(); ++it) {
+    //     if (it->second.mpitch.back() == mpit && it->second.stream == st) {
+    //         it->second.release_flag = true;
+    //         nts = it->second; lock.unlock();
+    //         outputFunction(nts, 0, 0); return;
+    //     }
+    // }
 
     if (!inc.sequencer_note_flag) {
         if (hold_attr && !sustain_attr) {
@@ -1129,6 +1132,8 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
 
         if (debug) cout << "note_on voice " << note.target << " freq=" << freq_out << " glide=" << glide_note << endl;
 
+        voice_done_flags[vi].store(0, std::memory_order_relaxed);
+        voice_cmd[vi].pending_off.store(0, std::memory_order_relaxed);
         voice_cmd[vi].freq .store(freq_out, std::memory_order_relaxed);
         voice_cmd[vi].vel  .store((float)note.vel / 127.f, std::memory_order_relaxed);
         voice_cmd[vi].steal.store((steal && !glide_note) ? 1 : 0, std::memory_order_relaxed);
@@ -1141,8 +1146,8 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
             voice_cmd[vi].impulse.store(1, std::memory_order_relaxed);
 }
         // Mirror original message outlet
-        out_msg.send("target", note.target);
-        out_msg.send("notes", freq_out, note.vel, "flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
+        // out_msg.send("target", note.target);
+        out_msg.send(note.target, freq_out, note.vel, "flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
 
         // Promote pending → active
         auto it = pending_voices.find(note.target);
@@ -1166,8 +1171,8 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
         }
 
         // Mirror original message outlet
-        out_msg.send("target", note.target);
-        out_msg.send("notes", (float)note.freq.back(), 0, "flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
+        // out_msg.send("target", note.target);
+        out_msg.send(note.target, (float)note.freq.back(), 0, "flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
     }
     else {
         // flags_only (hold / sustain update)
@@ -1175,8 +1180,8 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
         voice_cmd[vi].cmd.store((int)VoiceCmd::Type::flags_only, std::memory_order_release);
 
         // Mirror original message outlet
-        out_msg.send("target", note.target);
-        out_msg.send("flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
+        // out_msg.send("target", note.target);
+        out_msg.send(note.target, "flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
     }
 }
 

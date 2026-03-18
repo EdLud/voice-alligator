@@ -65,7 +65,7 @@
 		<br/><br/>
 
 		<u>Outlet 10 — message outlet</u><br/>
-		Outputs the same <m>target</m> / <m>notes</m> / <m>flags</m> messages as <o>voice-alligator</o> outlet 1. Primarily for usage with <o>voice-alligator-looper</o>.
+		Outputs the same messages as <o>voice-alligator</o> outlet 1. Primarily for usage with <o>voice-alligator-looper</o>.
 		<br/><br/>
 
 		<i><b>ADSR parameter changes</b></i>
@@ -93,7 +93,7 @@
 			<description>
 				Number of voices. Maximum: 1024. Default: 1.
 				<br/><br/>
-				Unlike <o>voice-alligator</o>, the number of voices cannot be changed after construction — the <m>voices</m> message is not supported.
+
 			</description>
 		</objarg>
 

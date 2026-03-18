@@ -19,15 +19,15 @@ long voice_alligator_multichanneloutputs(c74::max::t_object* x, long index, long
 
 class voice_alligator : public object<voice_alligator>, public vector_operator<> {
 public:
-MIN_DESCRIPTION{"voice allocator for poly~ object"};
+MIN_DESCRIPTION{"voice allocator for mc.poly~ object"};
 MIN_TAGS{"velocities, pitches, etc."};
 MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
-MIN_RELATED{"poly~"};
+MIN_RELATED{"mc.poly~"};
 MIN_FLAGS{documentation_flags::do_not_generate};
 
 inlet<> in1{this, "(list) midipitch, velocity, (stream), (mono_flag), (realpitch)"};
-inlet<> in2{this, "(multichannelsignal) adsr~ signals from poly~ voices, one channel per voice", "multichannelsignal"};
-outlet<> out1{this, "messages to poly~ object, [(notes), freq, velocity, (flags), glide, hold, sustain, sequencer, mono, stream]"};
+inlet<> in2{this, "(multichannelsignal) adsr~ signals from mc.poly~ voices, one channel per voice", "multichannelsignal"};
+outlet<> out1{this, "messages to mc.poly~ object, [(notes), freq, velocity, (flags), glide, hold, sustain, sequencer, mono, stream]"};
 
 // Register the MC channel count callback so Max knows how many channels in2 expects,
 // and set Z_MC_INLETS so the audio bundle receives all channels of the MC inlet.
@@ -55,7 +55,7 @@ struct Note
     // number pitchbend{0.0};  //for mpe
     // number timbre{0.0};     //for mpe
     int stream{1};      // steams are used for two purposes: a) having 2 or more seperate portamento notes b) having different priorities in regards to note stealing
-    int target{1};      // voice instance of poly~
+    int target{1};      // voice instance of mc.poly~
     bool mono_flag{false};
     bool sequencer_note_flag{false}; //if sequencer note: lock mono flag, don't set hold notes, don't be affected by sustain pedal
     bool sustain_flag{false};
@@ -162,7 +162,7 @@ private:
 };
 
 std::vector<Note> active_voices;
-std::unordered_map<int, Note> pending_voices; // target -> Note, sent to poly~ but ADSR not yet confirmed
+std::unordered_map<int, Note> pending_voices; // target -> Note, sent to mc.poly~ but ADSR not yet confirmed
 std::vector<int> inactive_voices;
 ScaleArray scale_array;
 
@@ -374,7 +374,7 @@ void operator()(audio_bundle input, audio_bundle output){
 }
 
 // Timer runs on the scheduler thread and drains adsr_transitions safely.
-timer<timer_options::defer_delivery> adsr_poll{this, MIN_FUNCTION{
+timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
     const int n = voices;
     for (int v = 0; v < n; ++v){
         int event = adsr_transitions[v].exchange(0, std::memory_order_relaxed);
@@ -403,41 +403,28 @@ timer<timer_options::defer_delivery> adsr_poll{this, MIN_FUNCTION{
                 pending_voices.erase(it);
             }
         }
-        else{ // event == -1
+       else{ // event == -1
             if(debug){cout << "ADSR off for target " << target << " → returning to inactive_voices" << endl;}
             auto noteIt = std::find_if(active_voices.begin(), active_voices.end(),
-                                       [target](const Note& n){ return n.target == target; });
+                                    [target](const Note& n){ return n.target == target; });
             if (noteIt != active_voices.end()){
                 inactive_voices.push_back(target);
                 active_voices.erase(noteIt);
                 if(debug){cout << "  done, inactive_voices size=" << inactive_voices.size() << endl;}
+            } else {
+                // FIX: The note went 0 -> >0 -> 0 so fast the '1' was overwritten.
+                // It's still in pending_voices. Clean it up so it doesn't leak.
+                auto pendingIt = pending_voices.find(target);
+                if (pendingIt != pending_voices.end()) {
+                    pending_voices.erase(pendingIt);
+                    // It was never removed from inactive_voices, so it's fully free again.
+                }
             }
         }
     }
-    adsr_poll.delay(1);
+    adsr_poll.delay(0); // reschedule to check again in 10ms; adjust as needed for responsiveness vs. CPU load
     return {};
 }};
-
-message<> voicesMessage{this, "voices", "set voices",
-        MIN_FUNCTION{
-            int voiceMessNr = voices;
-            if(args.size()) voiceMessNr = args[0];
-            if(voiceMessNr > 1024){
-            cerr << "maximum number of voices is 1024" << endl;    
-                return{};
-            } 
-                inactive_voices = {};
-                active_voices.clear();
-                pending_voices.clear();
-                std::fill(std::begin(adsr_active), std::end(adsr_active), false);
-                for (int i = 0; i < 1024; ++i) adsr_transitions[i].store(0, std::memory_order_relaxed);
-                for (int i = 1; i <= voiceMessNr; ++i){
-                    inactive_voices.push_back(i);
-                }
-            out1.send("voices", voiceMessNr);
-            return {};
-        }
-};
 
 bool mono_attr_was_set_on_load = false;
 
@@ -734,50 +721,109 @@ void handleNoteOnMono(Note &note, lock &lock){
 }
 
 void handleNoteOnPoly(Note &note, lock &lock){
-    int free_voice = -1;
+    int free_voice = findFreeVoice();
 
-    // CASE: FREE VOICE AVAILABLE
-    free_voice = findFreeVoice();
-    if(debug){cout << "handleNoteOnPoly: findFreeVoice=" << free_voice << " inactive_voices size=" << inactive_voices.size() << " active_voices size=" << active_voices.size() << " pending size=" << pending_voices.size() << endl;}
+    if(debug){
+        cout << "handleNoteOnPoly: findFreeVoice=" << free_voice 
+             << " inactive_voices size=" << inactive_voices.size() 
+             << " active_voices size=" << active_voices.size() 
+             << " pending size=" << pending_voices.size() << endl;
+    }
+
+    // ==========================================
+    // CASE 1: FREE VOICE AVAILABLE
+    // ==========================================
     if (free_voice != -1){
         note.target = free_voice;
         note.mono_flag = false;
-        // note.sustain_flag = sustain_attr;
         pending_voices[free_voice] = note;
-        if(debug){cout << "Found inactive voice with target " << free_voice << " and added new note with mpitch " << note.mpitch.back() << " to pending_voices" << endl;}
+        
+        if(debug){
+            cout << "Found inactive voice with target " << free_voice 
+                 << " and added new note with mpitch " << note.mpitch.back() 
+                 << " to pending_voices" << endl;
+        }
+        
         lock.unlock();
-        outputFunction(note, 1, 0); // -> spiele neue note mit freiem target, mono flag 0 und steal 0
+        outputFunction(note, 1, 0); // -> play new note with free target, steal 0
+        return;
     }
-    // CASE: NO FREE VOICE AVAILABLE, LOOK FOR STEALING CANDIDATES
-    else{
-        Note* noteToSteal = findNoteToSteal(note);
-        if (noteToSteal){ //we found a note to steal
-            if(debug){cout << "Found note to steal on target " << noteToSteal->target << " and mpitch " << noteToSteal->mpitch.back() << endl;}
-            noteToSteal->mpitch = note.mpitch;
-            noteToSteal->freq = note.freq;
-            noteToSteal->vel = note.vel;
-            noteToSteal->stream = note.stream;
-            noteToSteal->sequencer_note_flag = note.sequencer_note_flag;
-            noteToSteal->release_flag = false;
-            noteToSteal->hold_flag = false;
-            noteToSteal->sustain_flag = false;
-            // cout << "3target " << noteToSteal->target << " sustain " << sustain_attr << endl;
-            noteToSteal->mono_flag = false;
 
-            // Find the index of the element
-            size_t index = noteToSteal - &active_voices[0]; // Pointer arithmetic
-
-            // Move the element to the back of the vector
-            rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
-
-            if(debug){cout << "** changed stolen note content to new note content and moved it to back of active_voices **" << endl;}
-            lock.unlock();
-            outputFunction(active_voices.back(), 1, 1);
-            // -> spiele geklaute note mit geklautem target, mono flag 0 und steal 1
+    // ==========================================
+    // CASE 2: LOOK FOR STEALING CANDIDATES IN ACTIVE VOICES
+    // ==========================================
+    Note* noteToSteal = findNoteToSteal(note);
+    
+    if (noteToSteal){ 
+        if(debug){
+            cout << "Found note to steal in active_voices on target " << noteToSteal->target 
+                 << " and mpitch " << noteToSteal->mpitch.back() << endl;
         }
-        else{// nullpointer case
-            if(debug){cout << "** did not find note to steal **" << endl;}
+        
+        noteToSteal->mpitch = note.mpitch;
+        noteToSteal->freq = note.freq;
+        noteToSteal->vel = note.vel;
+        noteToSteal->stream = note.stream;
+        noteToSteal->sequencer_note_flag = note.sequencer_note_flag;
+        noteToSteal->release_flag = false;
+        noteToSteal->hold_flag = false;
+        noteToSteal->sustain_flag = false;
+        noteToSteal->mono_flag = false;
+
+        // Find the index of the element using pointer arithmetic
+        size_t index = noteToSteal - &active_voices[0]; 
+
+        // Move the element to the back of the vector (recent usage)
+        std::rotate(active_voices.begin() + index, active_voices.begin() + index + 1, active_voices.end());
+
+        if(debug){
+            cout << "** changed stolen note content and moved it to back of active_voices **" << endl;
         }
+        
+        // Copy the note before unlocking to prevent race conditions during output
+        Note note_to_send = active_voices.back(); 
+        lock.unlock();
+        outputFunction(note_to_send, 1, 1); // -> play stolen note, steal 1
+        return;
+    }
+
+    // ==========================================
+    // CASE 3: NO ACTIVE CANDIDATES -> STEAL FROM PENDING VOICES
+    // (This prevents dropped notes during extreme load testing)
+    // ==========================================
+    if (!pending_voices.empty()) {
+        // Grab the first pending voice available in the unordered_map
+        auto pending_it = pending_voices.begin();
+        int targetToSteal = pending_it->first;
+        
+        if(debug){
+            cout << "** active_voices empty/invalid, stealing from pending_voices on target " 
+                 << targetToSteal << " **" << endl;
+        }
+
+        // Update the pending note directly in the map
+        pending_it->second.mpitch = note.mpitch;
+        pending_it->second.freq = note.freq;
+        pending_it->second.vel = note.vel;
+        pending_it->second.stream = note.stream;
+        pending_it->second.sequencer_note_flag = note.sequencer_note_flag;
+        pending_it->second.release_flag = false;
+        pending_it->second.hold_flag = false;
+        pending_it->second.sustain_flag = false;
+        pending_it->second.mono_flag = false;
+        
+        // Copy the note before unlocking
+        Note note_to_send = pending_it->second; 
+        lock.unlock();
+        outputFunction(note_to_send, 1, 1); // -> play stolen pending note, steal 1
+        return;
+    }
+
+    // ==========================================
+    // CASE 4: EXHAUSTED (Failsafe)
+    // ==========================================
+    if(debug){
+        cout << "** did not find any note to steal (active or pending) **" << endl;
     }
 }
 
@@ -787,7 +833,7 @@ void handleNoteOff(Note &incoming_note, lock &lock){
     int incoming_note_mpitch_back = incoming_note.mpitch.back();
     Note note_to_send;
 
-    // If the note is still pending (ADSR not yet confirmed), send the note-off to poly~ and
+    // If the note is still pending (ADSR not yet confirmed), send the note-off to mc.poly~ and
     // mark release_flag so adsr_poll can clean up once the ADSR finishes.
     for (auto it = pending_voices.begin(); it != pending_voices.end(); ++it){
         if (it->second.mpitch.back() == incoming_note_mpitch_back && it->second.stream == incoming_note_stream){
@@ -795,7 +841,7 @@ void handleNoteOff(Note &incoming_note, lock &lock){
             it->second.release_flag = true;
             Note note_to_send = it->second;
             lock.unlock();
-            outputFunction(note_to_send, 0, 0); // send note-off to poly~ so ADSR starts its release
+            outputFunction(note_to_send, 0, 0); // send note-off to mc.poly~ so ADSR starts its release
             return;
         }
     }
@@ -914,7 +960,15 @@ void handleNoteOff(Note &incoming_note, lock &lock){
 
             default: break;
         } 
-        //if all of the above fails, we remove the mpitch and freq of the incoming depress and don't send out anything
+        // If the incoming pitch matches the note and only one key remains (or none after removal),
+        // release the note — covers the case where size==1 and the switch fell through.
+        if (note->mpitch.size() == 1 && note->mpitch.back() == incoming_note_mpitch_back) {
+            note->release_flag = true;
+            note_to_send = *note;
+            lock.unlock();
+            outputFunction(note_to_send, 0, 0);
+            return;
+        }
         note->remove_mpitch_and_freq_entry(incoming_note_mpitch_back);
         }
     }
@@ -1076,38 +1130,36 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
     if (note_on){
         // glide, hold, sustain, sequencerNote, mono, steal, stream
 
-        out1.send("target", note.target);
-        // out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
+        // out1.send("target", note.target);
         if(!flags_only) {
             if(debug){cout << "Outlet 1: target " << note.target    << " " << note.mpitch.back()    << " " << note.freq.back()    << " " << note.vel    << " " << note.mono_flag    << " " << steal    << " " << note.hold_flag    << " " << note.sustain_flag    << endl;}        
             if(note.mono_flag && !glide_note){ // if it's a (mono note on) we go to the newest freq / mpitch, if it's a (mono note off) the mono_note_priority attribute decides what to do
                 switch(mono_note_priority_attr){ //Last, Highest, Lowest
 
                 case mono_note_priority::LAST:
-                out1.send("notes", note.freq.back(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
+                out1.send(note.target, note.freq.back(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
                 break;
 
                 case mono_note_priority::HIGH:
-                out1.send("notes",  note.return_highest_freq(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
+                out1.send(note.target,  note.return_highest_freq(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
                 break;
 
                 case mono_note_priority::LOW:
-                out1.send("notes", note.return_lowest_freq(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
+                out1.send(note.target, note.return_lowest_freq(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
                 break;
                 default: break;
                 }
             }
                 else{
-                    out1.send("notes", note.freq.back(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
+                    out1.send(note.target, note.freq.back(), note.vel, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
                 }
         }
     }
     else{
-        out1.send("target", note.target);
-        // out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
-        if(!flags_only) out1.send("notes", note.freq.back(), 0, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
+        // out1.send("target", note.target);
+        if(!flags_only) out1.send(note.target, note.freq.back(), 0, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
         else{
-            out1.send("flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
+            out1.send(note.target, "flags", glide_note, note.hold_flag, note.sustain_flag, note.sequencer_note_flag, note.mono_flag, note.stream);
         }
         if(debug){cout << "Outlet 1: target " << note.target<< " " << note.mpitch.back()<< " " << note.freq.back()<< " " << 0<< " " << note.mono_flag<< " " << steal<< " " << note.hold_flag<< " " << note.sustain_flag<< endl;}
     }
@@ -1115,6 +1167,7 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
 
 
 function endHold = MIN_FUNCTION{
+
     if (inlet == 0){
         atom end_argument = "all"; // Default to "all" if no argument was provided
         unsigned long size = args.size();
@@ -1319,56 +1372,6 @@ message<> printscale{this, "printscale", "Print contents of scale_array to the m
             }
         }
 };
-
-// message<threadsafe::yes> mpe{this, "mpe",
-//     "Handle MPE-style per-note messages: [midinote type value]",
-//     MIN_FUNCTION {
-//         lock lock{m_mutex};
-
-//         if (args.size() < 2) {
-//             cerr << "MPE message must be [midinote type value]" << endl;
-//             return {};
-//         }
-
-//         number mpitch = args[0];
-//         symbol type = args[1];
-//         number value = 0.0;
-//         if (args.size() >= 3)
-//             value = static_cast<number>(args[2]);
-
-//         // find the note currently playing this exact midinote
-//         Note* note = findFirstNoteWithPredicate([=](const Note &n) {
-//             for (auto m : n.mpitch) {
-//                 if (m == mpitch)
-//                     return true;
-//             }
-//             return false;
-//         });
-
-//         if (!note)
-//             return {}; // ignore messages for inactive notes
-
-//         out1.send("target", note->target);
-
-//         if (type == "aftertouch") {
-//             note->aftertouch = value;
-//             out1.send("aftertouch", value);
-//         }
-//         else if (type == "pitchbend") {
-//             note->pitchbend = value;
-//             out1.send("pitchbend", value);
-//         }
-//         else if (type == "timbre") {
-//             note->timbre = value;
-//             out1.send("timbre", value);
-//         }
-//         else {
-//             cerr << "Unknown MPE control type: " << type << endl;
-//         }
-
-//         return {};
-//     }
-// };
 
 message<threadsafe::yes> list{this, "list", "Midipitch, Velocity, (stream), (mono_flag), (realpitch)", mainInletFunction};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};

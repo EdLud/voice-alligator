@@ -9,7 +9,7 @@
             "modernui": 1
         },
         "classnamespace": "box",
-        "rect": [ 54.0, 149.0, 1192.0, 617.0 ],
+        "rect": [ 54.0, 100.0, 1192.0, 617.0 ],
         "showrootpatcherontab": 0,
         "showontab": 0,
         "boxes": [
@@ -29,7 +29,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 26.0, 1192.0, 591.0 ],
+                        "rect": [ 54.0, 126.0, 1192.0, 591.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -38,7 +38,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 127.0, 149.0, 99.0, 20.0 ],
+                                    "patching_rect": [ 131.5, 138.0, 99.0, 20.0 ],
                                     "text": "^ message outlet"
                                 }
                             },
@@ -129,7 +129,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 54.0, 175.0, 1192.0, 591.0 ],
+                        "rect": [ 0.0, 26.0, 1192.0, 591.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -2713,14 +2713,6 @@
             "obj-8::obj-17": [ "number[1]", "number[6]", 0 ],
             "obj-8::obj-25": [ "number[2]", "number[14]", 0 ],
             "obj-8::obj-27": [ "number[3]", "number[3]", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "inherited_shortname": 1
         },
         "autosave": 0

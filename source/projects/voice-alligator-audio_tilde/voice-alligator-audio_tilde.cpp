@@ -792,7 +792,7 @@ void operator()(audio_bundle input, audio_bundle output) {
 
 // ─── Poll timer: drain voice_done_flags ──────────────────────────────────────
 
-timer<timer_options::defer_delivery> adsr_poll{this, MIN_FUNCTION{
+timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
     // ── Drain pending trigger from audio thread ───────────────────────────────
     if (pending_trigger_flag.exchange(0, std::memory_order_acquire)) {
         float pitch_val = pending_trigger_pitch.load(std::memory_order_relaxed);
@@ -926,7 +926,6 @@ message<threadsafe::yes> print_msg{this, "print",
 
 // ─── Voice allocation (scheduler thread) ─────────────────────────────────────
 
-// Must be called under m_mutex lock.
 void fireNoteOn(float freq, float vel_norm, int dur_samps) {
     if (!(bool)active_attr) return;
     if (debug) cout << "fireNoteOn freq=" << freq << " vel=" << vel_norm

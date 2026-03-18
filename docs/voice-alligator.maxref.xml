@@ -76,25 +76,16 @@
 
 		<i><b>Outlet — connected to <o>mc.poly~</o> or <o>voice-alligator-looper</o></b></i>
 		<br/><br/>
-		For each event, voice-alligator will output 2 separate messages. The order of these messages is always the same.
-		<br/><br/>
-		<u>First message:</u>
-		<br/><br/>
-		&#160;&#160;&#160;&#160;&#160;<m>"target", target</m>
-		<br/>
-		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;string&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;int
-		<br/><br/>
-		
-
-		This tells poly~ which voice instance the next messages will be directed to, until a new target is set.
+		For each event, voice-alligator will output one message.
+		<br/><br/>		
 
 		<br/><br/>
 		<u>Second message:</u>
 		<br/><br/>
-		&#160;&#160;&#160;&#160;&#160;<m>"notes", pitch, vel, "flags", glide, hold, sustain, sequencer, mono, stream</m>
+		&#160;&#160;&#160;&#160;&#160;<m>target, pitch, vel, "flags", glide, hold, sustain, sequencer, mono, stream</m>
 		<br/>
 		<i>
-		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;string
+		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;int
 		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;float
 		&#160;&#160;&#160;&#160;&#160;float
 		&#160;&#160;&#160;&#160;&#160;&#160;string
@@ -112,11 +103,12 @@
 
 		Depending on the attribute <m>output_mode</m> the pitch will either be a frequency in Hertz as float or a MIDI note as integer (ignoring scale definitions).
 		<br/><br/>
-		Not every event has the<m>"notes"</m> part of the message. If you release a key while <m>hold</m> or <m>sustain</m> is on, the note off will be ignored. In this case the voice is still informed that the status of the note has changed, but it will not receive a pitch/velocity pair, only flags. The message will look like this: 
+		Not every event has the [pitch, velocity] part of the message. If you release a key while <m>hold</m> or <m>sustain</m> is on, the note off will be ignored. In this case the voice is still informed that the status of the note has changed, but it will not receive a pitch/velocity pair, only flags. The message will look like this: 
 		<br/><br/>
-		&#160;&#160;&#160;&#160;&#160;<m>"flags", glide, hold, sustain, sequencer, mono, stream</m>
+		&#160;&#160;&#160;&#160;&#160;<m>target, "flags", glide, hold, sustain, sequencer, mono, stream</m>
 		<br/>
 		<i>
+		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;int
 		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;string
 		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;bool
 		&#160;&#160;&#160;&#160;&#160;&#160;&#160;bool
@@ -128,6 +120,8 @@
 		<br/><br/>
 		This type of event is also ignored by our  <openfilelink filename="voice-alligator-looper.maxhelp">Note Looper</openfilelink>. The Note Looper automatically ends all notes after each iteration, so hold / sustain notes that were started but not ended during recording will be automatically ended anyway.
 		<br/><br/>
+
+		<i>These messages are directed to all instances of mc.poly~. Using <m>target</m> messages (see mc.poly~ reference) is not supported and could lead to hanging notes.</i>
 	
 </discussion>
 
