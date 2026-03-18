@@ -126,7 +126,7 @@
 		<attribute name='duration' get='1' set='1' type='float' size='1'>
 			<digest>Note duration in milliseconds (default 1000)</digest>
 			<description>
-				How long each note plays before its release phase begins, in milliseconds. Sampled at the moment of each trigger, so changes take effect immediately on the next note.
+				How long each note plays before its release phase begins, in milliseconds. Sampled at the moment of each trigger, so changes take effect on the next note.
 				<br/><br/>
 				<i>default: 1000 ms</i>
 			</description>
@@ -135,7 +135,7 @@
 		<attribute name='active' get='1' set='1' type='bool' size='1'>
 			<digest>Activates note-on processing (default true)</digest>
 			<description>
-				When off, incoming triggers are ignored. Release and ADSR of already-playing voices are unaffected.
+				When off, incoming triggers are ignored. ADSR of already-playing voices is unaffected.
 				<br/><br/>
 				<i>default: true</i>
 			</description>

@@ -76,12 +76,9 @@
 
 		<i><b>Outlet — connected to <o>mc.poly~</o> or <o>voice-alligator-looper</o></b></i>
 		<br/><br/>
-		For each event, voice-alligator will output one message.
+		For each event, voice-alligator will output a message.
 		<br/><br/>		
 
-		<br/><br/>
-		<u>Second message:</u>
-		<br/><br/>
 		&#160;&#160;&#160;&#160;&#160;<m>target, pitch, vel, "flags", glide, hold, sustain, sequencer, mono, stream</m>
 		<br/>
 		<i>
@@ -401,7 +398,7 @@
 			<description> 
 				Debug on/off
 				<br/><br/>
-				If you encounter bugs (most commonly hanging notes), please report them in the <a class="reference external" href="https://cycling74.com/forums/voice-alligator-v100-release">forum thread</a> and include a minimal reproducible patch. 
+				If you encounter bugs, please report them in the <a class="reference external" href="https://cycling74.com/forums/voice-alligator-v100-release">forum thread</a> and include a minimal reproducible patch. 
 				
 				<br/><br/>
 				You can also make feature requests in the thread.
