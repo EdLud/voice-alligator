@@ -343,7 +343,7 @@
 		<attribute name='declick_ms' get='1' set='1' type='float' size='1'>
 			<digest>Declick ramp time in ms for retriggered voices (default 5)</digest>
 			<description>
-				When a voice is retriggered while its ADSR is still active, the envelope ramps to zero over this duration before the new attack begins. This prevents clicks when notes overlap. Impulses out of outlet 8 are fired at the bottom of this declick ramp.
+				When a voice is retriggered while its ADSR is still active, the envelope ramps to zero over this duration before the new attack begins. This prevents clicks when notes overlap. Impulses out of outlet 3 are fired at the bottom of this declick ramp.
 				<br/><br/>
 				<i>default: 5 ms</i>
 			</description>
@@ -385,7 +385,7 @@
 		<attribute name='glide_impulse' get='1' set='1' type='bool' size='1'>
 			<digest>Send impulse on outlet 8 when a glide note is triggered (default false)</digest>
 			<description>
-				Controls whether an impulse is sent on outlet 8 when a glide note is triggered.
+				Controls whether an impulse is sent on outlet 3 when a glide note is triggered.
 				<br/><br/>
 				<i>default: false</i>
 			</description>

@@ -219,6 +219,12 @@ double m_samplerate {44100.0};
 // Previous trigger signal — for rising edge detection (audio thread)
 float prev_trigger_sample {0.f};
 
+// Pending trigger: audio thread writes, poll timer reads and fires note-on
+std::atomic<int>   pending_trigger_flag  {0};
+std::atomic<float> pending_trigger_pitch {0.f};
+std::atomic<float> pending_trigger_vel   {0.f};
+std::atomic<int>   pending_trigger_dur   {0};
+
 // ─── ADSR parameter cache ─────────────────────────────────────────────────────
 
 std::atomic<float> adsr_attack       {10.f};
@@ -260,17 +266,8 @@ attribute<bool> active_attr{this, "active", true,
 attribute<bool> debug{this, "debug", false,
     description{"Debug on / off"}, visibility::show};
 
-enum class steal_mode : int { oldest, most_advanced, enum_count };
-enum_map steal_mode_range = {"oldest", "most_advanced"};
-
 attribute<bool> steal_attr{this, "steal", true,
     description{"Voice stealing on / off (default true)"}};
-
-attribute<steal_mode> steal_mode_attr{this, "steal_mode", steal_mode::oldest,
-    steal_mode_range,
-    description{"Voice stealing mode. "
-                "oldest (default): steal oldest releasing note, fall back to oldest active note. "
-                "most_advanced: steal the note closest to the end of its duration + release."}};
 
 attribute<bool> scale_attr{this, "scale", false,
     description{"If true, inlet 2 is a MIDI note number looked up in the scale array. "
@@ -460,8 +457,10 @@ void resetVoices(int n) {
     std::fill(std::begin(voice_ramp_step),           std::end(voice_ramp_step),           0.f);
     std::fill(std::begin(voice_ramp_frozen),         std::end(voice_ramp_frozen),         false);
     prev_trigger_sample = 0.f;
-    // Flush any pending triggers
-    { TriggerEvent evt; while (trigger_fifo.try_dequeue(evt)) {} }
+    pending_trigger_flag .store(0, std::memory_order_relaxed);
+    pending_trigger_pitch.store(0.f, std::memory_order_relaxed);
+    pending_trigger_vel  .store(0.f, std::memory_order_relaxed);
+    pending_trigger_dur  .store(0,   std::memory_order_relaxed);
     for (int i = 0; i < 1024; ++i) {
         voice_glide[i]         = VoiceGlide{};
         voice_vel_ramp[i]      = VoiceVelRamp{};
@@ -513,7 +512,7 @@ void operator()(audio_bundle input, audio_bundle output) {
     const double* pitch_buf = input.samples(1);  // inlet 2: pitch
     const double* vel_buf   = input.samples(2);  // inlet 3: velocity
 
-    // ── Rising-edge detection → post to poll timer via fifo ──────────────────
+    // ── Rising-edge detection → post to poll timer via atomics ───────────────
     for (int i = 0; i < frames; ++i) {
         float trig = (float)trig_buf[i];
         if (trig != 0.f && prev_trigger_sample == 0.f) {
@@ -523,7 +522,10 @@ void operator()(audio_bundle input, audio_bundle output) {
             int   dur_samps = (dur_ms > 0.f)
                 ? static_cast<int>((dur_ms / 1000.f) * (float)m_samplerate) : 0;
 
-            trigger_fifo.try_enqueue({pitch_val, vel_norm, dur_samps});
+            pending_trigger_pitch.store(pitch_val, std::memory_order_relaxed);
+            pending_trigger_vel  .store(vel_norm,  std::memory_order_relaxed);
+            pending_trigger_dur  .store(dur_samps, std::memory_order_relaxed);
+            pending_trigger_flag .store(1,         std::memory_order_release);
         }
         prev_trigger_sample = (float)trig_buf[i];
     }
@@ -791,23 +793,26 @@ void operator()(audio_bundle input, audio_bundle output) {
 // ─── Poll timer: drain voice_done_flags ──────────────────────────────────────
 
 timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
-    // ── Drain trigger fifo from audio thread — handles multiple triggers per vector
-    {
-        TriggerEvent evt;
-        while (trigger_fifo.try_dequeue(evt)) {
-            float freq_out = 0.f;
-            bool  use_sa   = (bool)scale_attr;
-            if (use_sa) {
-                int  midi = (int)std::round(evt.pitch);
-                auto val  = scale_array.get_value(midi);
-                freq_out  = val.has_value() ? (float)*val
-                          : (float)(440.0 * exp(0.057762265 * (midi - 69)));
-            } else {
-                freq_out = evt.pitch;
-            }
-            lock lk{m_mutex};
-            fireNoteOn(freq_out, evt.velocity, evt.dur_samps);
+    // ── Drain pending trigger from audio thread ───────────────────────────────
+    if (pending_trigger_flag.exchange(0, std::memory_order_acquire)) {
+        float pitch_val = pending_trigger_pitch.load(std::memory_order_relaxed);
+        float vel_norm  = pending_trigger_vel  .load(std::memory_order_relaxed);
+        int   dur_samps = pending_trigger_dur  .load(std::memory_order_relaxed);
+
+        // Resolve frequency (scale array lookup is scheduler-thread safe here)
+        float freq_out = 0.f;
+        bool  use_sa   = (bool)scale_attr;
+        if (use_sa) {
+            int  midi = (int)std::round(pitch_val);
+            auto val  = scale_array.get_value(midi);
+            freq_out  = val.has_value() ? (float)*val
+                      : (float)(440.0 * exp(0.057762265 * (midi - 69)));
+        } else {
+            freq_out = pitch_val;
         }
+
+        lock lk{m_mutex};
+        fireNoteOn(freq_out, vel_norm, dur_samps);
     }
 
     // ── Drain release flags (duration expired, ADSR now in release) ──────────
@@ -896,7 +901,6 @@ message<threadsafe::yes> print_msg{this, "print",
         cout << "  mono                = " << (bool)mono_attr << endl;
         cout << "  mono_steals_release = " << (bool)mono_steals_release_attr << endl;
         cout << "  steal               = " << (bool)steal_attr << endl;
-        cout << "  steal_mode          = " << (int)(steal_mode)steal_mode_attr << endl;
         cout << "  scale               = " << (bool)scale_attr << endl;
         cout << "  duration_ms         = " << duration_ms.load() << " ms" << endl;
         cout << "─── ADSR ────────────────────────" << endl;
@@ -945,30 +949,10 @@ void fireNoteOn(float freq, float vel_norm, int dur_samps) {
 Note* findNoteToSteal() {
     if (!(bool)steal_attr) return nullptr;
     if (active_voices.empty()) return nullptr;
-
-    if (steal_mode_attr == steal_mode::oldest) {
-        // Mode 0: steal oldest releasing note, fall back to oldest active note.
-        // active_voices is ordered oldest→newest (front is oldest).
-        for (auto& n : active_voices)
-            if (n.release_flag) return &n;
-        return &active_voices.front();
-    }
-    else {
-        // Mode 1: steal the voice with the least time remaining
-        // remaining ∝ (1.0 - ramp_value) / ramp_step — but ramp_step=0 means indefinite (no auto note-off).
-        // Ignore indefinite voices unless they're the only option.
-        Note* best = nullptr;
-        float best_remaining = std::numeric_limits<float>::max();
-        Note* fallback = &active_voices.front();
-        for (auto& n : active_voices) {
-            int vi = n.target - 1;
-            float step = voice_ramp_step[vi];
-            if (step <= 0.f) continue;  // indefinite duration — skip for now
-            float remaining = (1.0f - voice_ramp_value[vi]) / step;
-            if (remaining < best_remaining) { best_remaining = remaining; best = &n; }
-        }
-        return best ? best : fallback;
-    }
+    // Prefer releasing voices
+    for (auto it = active_voices.rbegin(); it != active_voices.rend(); ++it)
+        if (it->release_flag) return &(*it);
+    return &active_voices.front();
 }
 
 int findFreeVoice() {
@@ -1131,9 +1115,9 @@ private:
     mutex m_mutex;
 
     struct TriggerEvent {
-        float pitch;
-        float velocity;
-        int   dur_samps;
+    double pitch;
+    double velocity;
+    int    stream;   // <--- NEW: Maps directly to the MC channel index
     };
 
     fifo<TriggerEvent> trigger_fifo { 2048 };

@@ -165,11 +165,24 @@
 		<attribute name='steal' get='1' set='1' type='bool' size='1'>
 			<digest>Voice stealing on/off (default true)</digest>
 			<description>
-				When on, if no free voice is available the oldest active voice is stolen.
+				Allow notes to be stolen when no free voices are available. When off, new triggers are ignored if all voices are active.
 				<br/><br/>
 				<i>default: true</i>
 			</description>
 		</attribute>
+
+		<attribute name='steal_mode' get='1' set='1' type='int' size='1'>
+			<digest>Voice stealing mode: 0 oldest, 1 most advanced (default oldest)</digest>
+			<description>
+				Steal mode determines which voice is stolen when a new trigger arrives and no free voice is available.
+				<br/><br/>
+				<m>0</m> (oldest): steal the voice that has been active the longest, regardless of its current position in the ADSR envelope.<br/>
+				<m>1</m> (most advanced): steal the voice that is furthest along in its ADSR envelope, i.e. closest to the end of the release phase.
+				<br/><br/>
+				<i>default: 0 (oldest)</i>
+			</description>
+		</attribute>
+
 
 		<attribute name='scale' get='1' set='1' type='bool' size='1'>
 			<digest>Use scale array for pitch lookup (default false)</digest>

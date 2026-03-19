@@ -470,7 +470,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "signal" ],
-                    "patching_rect": [ 290.0, 205.0, 62.0, 22.0 ],
+                    "patching_rect": [ 290.0, 211.0, 62.0, 22.0 ],
                     "text": "phasor~ 4"
                 }
             },
@@ -718,7 +718,7 @@
                     "numinlets": 1,
                     "numoutlets": 2,
                     "outlettype": [ "signal", "int" ],
-                    "patching_rect": [ 290.0, 240.0, 41.0, 22.0 ],
+                    "patching_rect": [ 290.0, 238.0, 41.0, 22.0 ],
                     "text": "what~"
                 }
             },
@@ -913,6 +913,14 @@
         ],
         "parameters": {
             "obj-15": [ "mc.live.gain~", "mc.live.gain~", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0,
