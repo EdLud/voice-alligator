@@ -240,6 +240,8 @@ std::atomic<bool>  glide_retrigger{false};
 // ─── Duration attribute ───────────────────────────────────────────────────────
 
 std::atomic<float> duration_ms{1000.f};
+std::atomic<float> default_freq{440.f};
+std::atomic<float> default_vel {0.5f};
 
 attribute<number> duration_attr{this, "duration", 1000.0,
     description{"Note duration in milliseconds (default 1000)"},
@@ -247,6 +249,22 @@ attribute<number> duration_attr{this, "duration", 1000.0,
         float v = std::max(0.f, (float)(number)args[0]);
         duration_ms.store(v, std::memory_order_relaxed);
         return {(number)v};
+    }}
+};
+
+attribute<number> freq_attr{this, "freq", 440.0,
+    description{"Default frequency in Hz when inlet 2 is 0 or disconnected (default 440.0)"},
+    setter{MIN_FUNCTION{
+        default_freq.store((float)(number)args[0], std::memory_order_relaxed);
+        return args;
+    }}
+};
+
+attribute<number> vel_attr{this, "vel", 0.5,
+    description{"Default velocity 0.0-1.0 when inlet 3 is 0 or disconnected (default 0.5)"},
+    setter{MIN_FUNCTION{
+        default_vel.store((float)(number)args[0], std::memory_order_relaxed);
+        return args;
     }}
 };
 
@@ -519,6 +537,8 @@ void operator()(audio_bundle input, audio_bundle output) {
         if (trig != 0.f && prev_trigger_sample == 0.f) {
             float pitch_val = (float)pitch_buf[i];
             float vel_norm  = (float)vel_buf[i];
+            if (pitch_val == 0.f) pitch_val = default_freq.load(std::memory_order_relaxed);
+            if (vel_norm  == 0.f) vel_norm  = default_vel .load(std::memory_order_relaxed);
             float dur_ms    = duration_ms.load(std::memory_order_relaxed);
             int   dur_samps = (dur_ms > 0.f)
                 ? static_cast<int>((dur_ms / 1000.f) * (float)m_samplerate) : 0;
@@ -899,6 +919,8 @@ message<threadsafe::yes> print_msg{this, "print",
         cout << "  steal_mode          = " << (int)(steal_mode)steal_mode_attr << endl;
         cout << "  scale               = " << (bool)scale_attr << endl;
         cout << "  duration_ms         = " << duration_ms.load() << " ms" << endl;
+        cout << "  freq                = " << default_freq.load() << " Hz" << endl;
+        cout << "  vel                 = " << default_vel .load() << endl;
         cout << "─── ADSR ────────────────────────" << endl;
         cout << "  attack              = " << adsr_attack    .load() << " ms" << endl;
         cout << "  decay               = " << adsr_decay     .load() << " ms" << endl;
