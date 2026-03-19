@@ -168,7 +168,7 @@
 			<description>
 				Enables monophonic / portamento playing. Identical behaviour to <o>voice-alligator</o>.
 				<br/><br/>
-				Glide notes output 1.0 on outlet 3 (glide~) and do not fire an impulse on outlet 8. Whether the envelope is retriggered on a glide note is controlled by <m>glide_retrigger</m>.
+				Glide notes output 1.0 on outlet 3 (glide~) and do not fire an impulse on outlet 3. Whether the envelope is retriggered on a glide note is controlled by <m>glide_retrigger</m>.
 				<br/><br/>
 				<i>default: false</i>
 			</description>
@@ -383,7 +383,7 @@
 		</attribute>
 
 		<attribute name='glide_impulse' get='1' set='1' type='bool' size='1'>
-			<digest>Send impulse on outlet 8 when a glide note is triggered (default false)</digest>
+			<digest>Send impulse on outlet 3 when a glide note is triggered (default false)</digest>
 			<description>
 				Controls whether an impulse is sent on outlet 3 when a glide note is triggered.
 				<br/><br/>
