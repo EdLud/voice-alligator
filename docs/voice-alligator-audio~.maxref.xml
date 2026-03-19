@@ -165,7 +165,7 @@
 		<attribute name='steal' get='1' set='1' type='bool' size='1'>
 			<digest>Voice stealing on/off (default true)</digest>
 			<description>
-				Allow notes to be stolen when no free voices are available. When off, new triggers are ignored if all voices are active.
+				Enables voice stealing.
 				<br/><br/>
 				<i>default: true</i>
 			</description>
