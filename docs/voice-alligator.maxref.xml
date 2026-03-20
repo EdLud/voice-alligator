@@ -180,15 +180,6 @@
 			</description>
 		</method>
 
-		<method name='voices'>
-			<digest>Sets the number of voices </digest>
-			<description>
-				<m>voices <i>$1</i></m> sets the number of voices to <i>$1</i>. This will make voice-alligator output the message <m>voices <i>$1</i></m> to <o>mc.poly~</o>.
-				<br/><br/>
-				It is still advised to set the voices as arguments to voice-alligator and poly~, but this was included for convenience.
-			</description>
-		</method>
-
 		<method name='printscale'>
 			<digest>Print contents of the internal scale array to the max console</digest>
 			<description>Prints contents of scale_array to the max console, either in floating point midi when called with <m>printscale</m> or in hertz when called with <m>printscale freq</m>.

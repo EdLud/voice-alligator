@@ -443,10 +443,12 @@ attribute<bool, threadsafe::yes> mono_attr{
                 for (auto& note : active_voices){
                     if (note.mpitch.size() > 1){
                         note.mpitch = { note.mpitch.back() };
+                        note.mono_flag = false;
                     }
 
                     if (note.freq.size() > 1){
                         note.freq = { note.freq.back() };
+                        note.mono_flag = false;
                     }
                 }
             }

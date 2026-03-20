@@ -21,12 +21,12 @@
 
 		<i><b>Inlet 2 — pitch signal</b></i>
 		<br/><br/>
-		When <m>scale</m> is off (default): a raw frequency in Hz. When <m>scale</m> is on: a MIDI note number (rounded to the nearest integer and looked up in the internal scale array, identical to <o>voice-alligator</o>).
+		When <m>scale</m> is off (default): a raw frequency in Hz. When <m>scale</m> is on: a MIDI note number (rounded to the nearest integer and looked up in the internal scale array, identical to <o>voice-alligator</o>). When inlet 2 is silent at the moment of a trigger, a fallback frequency from the <m>freq</m> attribute is used instead.
 		<br/><br/>
 
 		<i><b>Inlet 3 — velocity signal</b></i>
 		<br/><br/>
-		Velocity sampled at the moment of the trigger.
+		Velocity sampled at the moment of the trigger. Normalised to the range 0–1, where 1 corresponds to the maximum velocity. If inlet 3 is silent at the moment of a trigger, a fallback velocity from the <m>vel</m> attribute is used instead.
 		<br/><br/>
 
 		<i><b>MC Signal Outlets</b></i>
@@ -54,16 +54,6 @@
 
 		<u>Outlet 6 — mono flag~</u><br/>
 		1.0 while the voice is in mono mode, 0.0 otherwise.
-		<br/><br/>
-
-		<i><b>Note duration and voice recycling</b></i>
-		<br/><br/>
-		After <m>duration</m> milliseconds, the note-off is triggered internally on the audio thread. The ADSR release phase then runs through completely before the voice is returned to the pool.
-		<br/><br/>
-
-		<i><b>Mono mode</b></i>
-		<br/><br/>
-		When <m>mono</m> is on, all triggers share a single persistent voice. Each trigger glides to the new pitch rather than allocating a new voice. If the mono voice is still in its release phase when a new trigger arrives, the behaviour depends on <m>mono_steals_release</m>: if off (default), a fresh poly voice is allocated and the release rings out; if on, the releasing voice is stolen and glides to the new pitch.
 		<br/><br/>
 
 		<i><b>ADSR parameter changes</b></i>
@@ -129,6 +119,24 @@
 				How long each note plays before its release phase begins, in milliseconds. Sampled at the moment of each trigger, so changes take effect on the next note.
 				<br/><br/>
 				<i>default: 1000 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='freq' get='1' set='1' type='float' size='1'>
+			<digest>Fallback Frequency (default 440.0)</digest>
+			<description>
+				If inlet 2 is silent at the moment of a trigger, this frequency is used instead.
+				<br/><br/>
+				<i>default: 440.0 Hz</i>
+			</description>
+		</attribute>
+
+		<attribute name='vel' get='1' set='1' type='float' size='1'>
+			<digest>Fallback Velocity (default 0.5)</digest>
+			<description>
+				If inlet 3 is silent at the moment of a trigger, this velocity is used instead.
+				<br/><br/>
+				<i>default: 0.5</i>
 			</description>
 		</attribute>
 

@@ -214,6 +214,12 @@ VoicePendingFreq voice_pending_freq[1024];
 // Audio → scheduler: set to 1 when ADSR finishes, drained by poll timer
 std::atomic<int> voice_done_flags[1024] {};
 
+// Generation counters — prevent adsr_poll from reclaiming a voice that was
+// re-allocated (stolen) after the old ADSR finished but before the poll ran.
+std::atomic<uint32_t> voice_alloc_gen[1024] {};  // incremented by scheduler on each note_on
+uint32_t              audio_note_gen [1024] {};   // audio-thread-only: gen captured at note_on consumption
+std::atomic<uint32_t> voice_done_gen [1024] {};   // audio stores audio_note_gen here when ADSR finishes
+
 double m_samplerate {44100.0};
 
 // ─── ADSR parameter cache ─────────────────────────────────────────────────────
@@ -445,6 +451,9 @@ void resetVoices(int n) {
     pending_voices.clear();
     for (int i = 0; i < 1024; ++i) {
         voice_done_flags[i].store(0, std::memory_order_relaxed);
+        voice_alloc_gen[i] .store(0, std::memory_order_relaxed);
+        voice_done_gen[i]  .store(0, std::memory_order_relaxed);
+        audio_note_gen[i]        = 0;
         voice_cmd[i].cmd        .store(0, std::memory_order_relaxed);
         voice_cmd[i].pending_off.store(0, std::memory_order_relaxed);
     }
@@ -505,6 +514,7 @@ void operator()(audio_bundle input, audio_bundle output) {
         int cmd = voice_cmd[v].cmd.exchange(0, std::memory_order_acquire);
 
         if (cmd == (int)VoiceCmd::Type::note_on) {
+            audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
             float new_freq  = voice_cmd[v].freq .load(std::memory_order_relaxed);
             float new_vel   = voice_cmd[v].vel  .load(std::memory_order_relaxed);
             bool  is_glide  = voice_cmd[v].glide.load(std::memory_order_relaxed) > 0.5f;
@@ -522,12 +532,6 @@ void operator()(audio_bundle input, audio_bundle output) {
             live_mono   [v] = voice_cmd[v].mono   .load(std::memory_order_relaxed);
             live_stream [v] = voice_cmd[v].stream .load(std::memory_order_relaxed);
 
-            static float last_stream[1024] = {0};
-            if (debug && last_stream[v] != live_stream[v]) {
-                cout << "audio: voice " << v+1 << " live_stream changed from " 
-                    << last_stream[v] << " to " << live_stream[v] << endl;
-                last_stream[v] = live_stream[v];
-            }
 
 
 
@@ -544,15 +548,12 @@ void operator()(audio_bundle input, audio_bundle output) {
                                         st == adsr::adsr_stage::early_release ||
                                         st == adsr::adsr_stage::inactive);
                     if (is_releasing) {
-                        if (debug) cout << "declick: voice " << v+1 << " was releasing (stage=" << (int)st << ") — double trigger" << endl;
-                        voice_adsr[v].trigger(true);   // m_active=false→true, goes to attack
-                        voice_adsr[v].trigger(true);   // m_active=true→true, goes to retrigger
+                        voice_adsr[v].trigger(true);
+                        voice_adsr[v].trigger(true);
                     } else {
-                        if (debug) cout << "declick: voice " << v+1 << " was active (stage=" << (int)st << ") — single trigger" << endl;
-                        voice_adsr[v].trigger(true);   // already active, goes to retrigger
+                        voice_adsr[v].trigger(true);
                     }
-                    if (debug) cout << "  stage after trigger=" << (int)voice_adsr[v].stage()
-                                    << " rtz=" << adsr_return_to_zero.load() << endl;
+
                     voice_pending_freq[v] = {true, new_freq, new_vel};
                 } else {
                     // No declick — apply everything immediately
@@ -672,9 +673,15 @@ void operator()(audio_bundle input, audio_bundle output) {
             env *= voice_vel_ramp[v].current;
 
             // Detect envelope finishing — notify scheduler to reclaim voice
-            if (audio_voice_active[v] && stage_after == adsr::adsr_stage::inactive) {
-                audio_voice_active[v] = false;
-                voice_done_flags[v].store(1, std::memory_order_release);
+            if (stage_after == adsr::adsr_stage::inactive) {
+                if (audio_voice_active[v]) {
+                    audio_voice_active[v] = false;
+                    voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
+                    voice_cmd[v].cmd.store(0, std::memory_order_relaxed);
+                    voice_done_flags[v].store(1, std::memory_order_release);
+                } else if (debug) {
+                    cout << "Voice " << v+1 << " ADSR inactive but audio_voice_active was already false" << endl;
+                }
             }
 
             // If sustain_level is 0 and the ADSR just entered sustain, the note has
@@ -682,8 +689,10 @@ void operator()(audio_bundle input, audio_bundle output) {
             if (stage_before == adsr::adsr_stage::decay && stage_after == adsr::adsr_stage::sustain) {
                 float sl = adsr_sustain_lvl.load(std::memory_order_relaxed);
                 if (sl <= 0.f && audio_voice_active[v]) {
-                    voice_adsr[v].trigger(false); // puts ADSR into release/early_release
+                    voice_adsr[v].trigger(false);
                     audio_voice_active[v] = false;
+                    voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
+                    voice_cmd[v].cmd.store(0, std::memory_order_relaxed);
                     voice_done_flags[v].store(1, std::memory_order_release);
                 }
             }
@@ -714,11 +723,6 @@ void operator()(audio_bundle input, audio_bundle output) {
                 if (transition || already_attack || legato_glide) {
                     fire_impulse       = true;
                     pending_impulse[v] = false;
-                    if (debug) cout << "impulse voice " << v+1
-                        << " env=" << env
-                        << " stage_before=" << (int)stage_before
-                        << " stage_after=" << (int)stage_after
-                        << " i=" << i << endl;
                 }
             }
 
@@ -783,10 +787,15 @@ timer<timer_options::defer_delivery> adsr_poll{this, MIN_FUNCTION{
     for (int v = 0; v < n; ++v) {
         if (!voice_done_flags[v].exchange(0, std::memory_order_acquire)) continue;
 
+        // If a new note-on was issued for this voice after the ADSR finished,
+        // this done flag is stale — skip reclaim.
+        if (voice_done_gen[v].load(std::memory_order_relaxed)
+            != voice_alloc_gen[v].load(std::memory_order_relaxed)) continue;
+
         const int target = v + 1;
         lock lock{m_mutex};
 
-        if (debug) cout << "Voice " << target << " ADSR done → inactive" << endl;
+
 
         live_freq   [v] = 0.f;
         live_glide  [v] = 0.f;
@@ -801,9 +810,10 @@ timer<timer_options::defer_delivery> adsr_poll{this, MIN_FUNCTION{
                                [target](const Note& n){ return n.target == target; });
         if (it != active_voices.end()) active_voices.erase(it);
         pending_voices.erase(target);
-        inactive_voices.push_back(target);
+        if (std::find(inactive_voices.begin(), inactive_voices.end(), target) == inactive_voices.end())
+            inactive_voices.push_back(target);
 
-        if (debug) cout << "  inactive_voices size=" << inactive_voices.size() << endl;
+
     }
     adsr_poll.delay(1);
     return {};
@@ -834,14 +844,14 @@ bool mono_attr_was_set_on_load = false;
 attribute<bool, threadsafe::yes> mono_attr{this, "mono", false, description{"Monophony on / off"},
     setter{MIN_FUNCTION{
         bool v = args[0];
-        if (!v) {
-            if (mono_attr_was_set_on_load) lock lock{m_mutex};
-            mono_attr_was_set_on_load = true;
+        if (!v && mono_attr_was_set_on_load) {
+            lock lock{m_mutex};
             for (auto& note : active_voices) {
                 if (note.mpitch.size() > 1) note.mpitch = {note.mpitch.back()};
                 if (note.freq.size()   > 1) note.freq   = {note.freq.back()};
             }
         }
+        mono_attr_was_set_on_load = true;
         return {v};
     }}
 };
@@ -884,11 +894,10 @@ function mainInletFunction = MIN_FUNCTION{
         unsigned long argsize = args.size();
 
         if (debug && argsize < 4) cout << "Note: " << mpitch << " " << vel << endl;
-
         Note current_note = newNote(mpitch, vel);
 
         if (argsize >= 3) current_note.stream = (int)args[2];
-        if (debug) cout << "  stream set to " << current_note.stream << endl;
+
         if (argsize >= 4) {
             current_note.mono_flag            = (int)args[3];
             current_note.sequencer_note_flag  = true;
@@ -907,7 +916,6 @@ function mainInletFunction = MIN_FUNCTION{
             if (inactive_channels.count(current_note.stream)
              || (inactive_channels.empty() && !active_attr)) return {};
             if (output_mode_attr == output_mode::freq && argsize < 4 && !scale_array.get_value(mpitch)) {
-                if (debug) cout << "mpitch " << mpitch << " not in scale_array" << endl;
                 return {};
             }
             handleNoteOn(current_note, lock);
@@ -931,6 +939,22 @@ Note newNote(int mpitch, int vel) {
     return n;
 }
 
+// ─── Helpers called UNDER the lock before outputFunction ──────────────────────
+// Must be called before lock.unlock() so adsr_poll (which runs on a different
+// thread) cannot race with the data-structure modifications.
+
+void prepareVoiceForNoteOn(int vi) {
+    voice_alloc_gen[vi].fetch_add(1, std::memory_order_relaxed);
+    voice_done_flags[vi].store(0, std::memory_order_relaxed);
+}
+
+void promoteToActive(Note& note) {
+    active_voices.push_back(note);
+    pending_voices.erase(note.target);
+    auto vit = std::find(inactive_voices.begin(), inactive_voices.end(), note.target);
+    if (vit != inactive_voices.end()) inactive_voices.erase(vit);
+}
+
 // ─── Note on / off routing ────────────────────────────────────────────────────
 
 void handleNoteOn(Note& note, lock& lock) {
@@ -950,7 +974,8 @@ void handleNoteOnMono(Note& note, lock& lock) {
             if (mono_note_priority_attr == mono_note_priority::HIGH && mt->return_highest_mpitch() > note.mpitch.back()) return;
             mt->mpitch.push_back(note.mpitch.back());
             mt->freq.push_back(note.freq.back());
-            mt->vel = note.vel; 
+            mt->vel = note.vel;
+            prepareVoiceForNoteOn(mt->target - 1);
             nts = *mt; lock.unlock();
             outputFunction(nts, 1, 1, false, true); return;
         }
@@ -958,6 +983,7 @@ void handleNoteOnMono(Note& note, lock& lock) {
         if (auto* mt = findFirstNoteWithPredicate([=](const Note& n){
                 return n.mono_flag && n.stream == st && !n.release_flag; })) {
             mt->vel = note.vel; mt->mpitch = note.mpitch; mt->freq = note.freq;
+            prepareVoiceForNoteOn(mt->target - 1);
             nts = *mt; lock.unlock();
             outputFunction(nts, 1, 1, false, true); return;
         }
@@ -968,9 +994,11 @@ void handleNoteOnMono(Note& note, lock& lock) {
                 return n.mono_flag && n.stream == st && n.release_flag; })) {
             if (mono_note_priority_attr == mono_note_priority::LOW  && !note.sequencer_note_flag && mt->return_lowest_mpitch()  < note.mpitch.back()) return;
             if (mono_note_priority_attr == mono_note_priority::HIGH && !note.sequencer_note_flag && mt->return_highest_mpitch() > note.mpitch.back()) return;
-            mt->release_flag = false; 
+            mt->release_flag = false;
             mt->mpitch = {note.mpitch.back()}; mt->freq = {note.freq.back()};
-            mt->vel = note.vel; nts = *mt; lock.unlock();
+            mt->vel = note.vel;
+            prepareVoiceForNoteOn(mt->target - 1);
+            nts = *mt; lock.unlock();
             outputFunction(nts, 1, 1, false, true); return;
         }
     }
@@ -978,7 +1006,8 @@ void handleNoteOnMono(Note& note, lock& lock) {
     int fv = findFreeVoice();
     if (fv != -1) {
         note.target = fv; note.mono_flag = true;
-        pending_voices[fv] = note;
+        prepareVoiceForNoteOn(fv - 1);
+        promoteToActive(note);
         lock.unlock(); outputFunction(note, 1, 0); return;
     }
     Note* s = findNoteToSteal(note);
@@ -988,6 +1017,7 @@ void handleNoteOnMono(Note& note, lock& lock) {
         s->release_flag = false; s->hold_flag = false; s->mono_flag = true; s->sustain_flag = false;
         size_t idx = s - &active_voices[0];
         rotate(active_voices.begin()+idx, active_voices.begin()+idx+1, active_voices.end());
+        prepareVoiceForNoteOn(active_voices.back().target - 1);
         nts = active_voices.back(); lock.unlock(); outputFunction(nts, 1, 1);
     }
     // If steal also failed (e.g. all remaining voices are held), fall through to poly
@@ -1000,8 +1030,9 @@ void handleNoteOnMono(Note& note, lock& lock) {
 void handleNoteOnPoly(Note& note, lock& lock) {
     int fv = findFreeVoice();
     if (fv != -1) {
-        note.target = fv; note.mono_flag = false; 
-        pending_voices[fv] = note;
+        note.target = fv; note.mono_flag = false;
+        prepareVoiceForNoteOn(fv - 1);
+        promoteToActive(note);
         lock.unlock(); outputFunction(note, 1, 0);
     } else {
         Note* s = findNoteToSteal(note);
@@ -1011,7 +1042,9 @@ void handleNoteOnPoly(Note& note, lock& lock) {
             s->release_flag = false; s->hold_flag = false; s->sustain_flag = false; s->mono_flag = false;
             size_t idx = s - &active_voices[0];
             rotate(active_voices.begin()+idx, active_voices.begin()+idx+1, active_voices.end());
-            lock.unlock(); outputFunction(active_voices.back(), 1, 1);
+            prepareVoiceForNoteOn(active_voices.back().target - 1);
+            Note nts = active_voices.back();
+            lock.unlock(); outputFunction(nts, 1, 1);
         }
     }
 }
@@ -1020,8 +1053,6 @@ void handleNoteOff(Note& inc, lock& lock) {
     int st   = inc.stream;
     int mpit = inc.mpitch.back();
     Note nts;
-
-    for (auto& x : active_voices)
 
     for (auto it = pending_voices.begin(); it != pending_voices.end(); ++it) {
         if (it->second.mpitch.back() == mpit && it->second.stream == st) {
@@ -1094,12 +1125,21 @@ void handleNoteOff(Note& inc, lock& lock) {
             }
         }
         n->remove_mpitch_and_freq_entry(mpit);
+        // If that was the last pitch, the voice must be released —
+        // the switch cases above only handle size>1, so size==1 falls through here.
+        if (n->mpitch.empty()) {
+            n->release_flag = true;
+            nts = *n;
+            lock.unlock();
+            outputFunction(nts, 0, 0);
+        }
     }
 }
 
 // ─── Output function ──────────────────────────────────────────────────────────
 // Writes a typed command into the per-voice staging slot for the audio thread.
-// Also promotes pending → active for note_on commands.
+// Called AFTER lock.unlock() — must NOT access active_voices/pending_voices/inactive_voices.
+// Data-structure modifications (promotion, gen increment) happen under the lock at each call site.
 
 void outputFunction(const Note note, bool note_on, bool steal, bool flags_only = false, bool glide_note = false) {
     int vi = note.target - 1;
@@ -1111,8 +1151,7 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
         voice_cmd[vi].sustain.store(note.sustain_flag        ? 1.f : 0.f, std::memory_order_relaxed);
         voice_cmd[vi].seq    .store(note.sequencer_note_flag ? 1.f : 0.f, std::memory_order_relaxed);
         voice_cmd[vi].mono   .store(note.mono_flag           ? 1.f : 0.f, std::memory_order_relaxed);
-        if (debug) cout << "outputFunction: voice " << note.target << " stream=" << note.stream << endl;
-        voice_cmd[vi].stream .store((float)note.stream, std::memory_order_relaxed); 
+        voice_cmd[vi].stream .store((float)note.stream, std::memory_order_relaxed);
     };
 
     if (note_on && !flags_only) {
@@ -1127,39 +1166,27 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
             freq_out = (float)note.freq.back();
         }
 
-        if (debug) cout << "note_on voice " << note.target << " freq=" << freq_out << " glide=" << glide_note << endl;
-
         voice_cmd[vi].freq .store(freq_out, std::memory_order_relaxed);
         voice_cmd[vi].vel  .store((float)note.vel / 127.f, std::memory_order_relaxed);
         voice_cmd[vi].steal.store((steal && !glide_note) ? 1 : 0, std::memory_order_relaxed);
         store_flags();
+        // NOTE: voice_alloc_gen increment, voice_done_flags clear, and
+        // pending→active promotion are done UNDER the lock in the call site
+        // (before lock.unlock) to avoid racing with adsr_poll on the main thread.
         voice_cmd[vi].cmd.store((int)VoiceCmd::Type::note_on, std::memory_order_release);
 
         if (!glide_note) {
             voice_cmd[vi].impulse.store(1, std::memory_order_relaxed);
         } else if (glide_impulse_attr) {
             voice_cmd[vi].impulse.store(1, std::memory_order_relaxed);
-}
-        // Mirror original message outlet
-        // out_msg.send("target", note.target);
-        out_msg.send(note.target, freq_out, note.vel, "flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
-
-        // Promote pending → active
-        auto it = pending_voices.find(note.target);
-        if (it != pending_voices.end()) {
-            active_voices.push_back(it->second);
-            pending_voices.erase(it);
-            auto vit = std::find(inactive_voices.begin(), inactive_voices.end(), note.target);
-            if (vit != inactive_voices.end()) inactive_voices.erase(vit);
         }
+        out_msg.send(note.target, freq_out, note.vel, "flags", (int)glide_note, (int)note.hold_flag, (int)note.sustain_flag, (int)note.sequencer_note_flag, (int)note.mono_flag, note.stream);
     }
     else if (!note_on && !flags_only) {
-        if (debug) cout << "note_off voice " << note.target << endl;
         store_flags();
-        // If a note-on is already pending (not yet consumed by audio thread), don't overwrite it.
-        // Instead mark pending_off so the audio thread processes both in order.
         if (voice_cmd[vi].cmd.load(std::memory_order_acquire) == (int)VoiceCmd::Type::note_on) {
             voice_cmd[vi].pending_off.store(1, std::memory_order_relaxed);
+            if (debug) cout << "ANOMALY: pending_off set for voice " << note.target << endl;
         } else {
             voice_cmd[vi].pending_off.store(0, std::memory_order_relaxed);
             voice_cmd[vi].cmd.store((int)VoiceCmd::Type::note_off, std::memory_order_release);
