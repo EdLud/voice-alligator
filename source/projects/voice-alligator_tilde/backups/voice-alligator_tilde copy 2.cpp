@@ -779,16 +779,12 @@ void operator()(audio_bundle input, audio_bundle output) {
 timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
     const int n = voices;
     for (int v = 0; v < n; ++v) {
-        if (!voice_done_flags[v].load(std::memory_order_acquire)) continue;
+        if (!voice_done_flags[v].exchange(0, std::memory_order_acquire)) continue;
 
         // If a new note-on was issued for this voice after the ADSR finished,
-        // this done flag is stale — skip reclaim and leave the flag set
-        // so it can be re-checked once the new note's ADSR finishes.
+        // this done flag is stale — skip reclaim.
         if (voice_done_gen[v].load(std::memory_order_relaxed)
             != voice_alloc_gen[v].load(std::memory_order_relaxed)) continue;
-
-        // Generation matches — consume the flag and reclaim the voice.
-        voice_done_flags[v].store(0, std::memory_order_relaxed);
 
         const int target = v + 1;
         lock lock{m_mutex};
@@ -1092,12 +1088,11 @@ void handleNoteOff(Note& inc, lock& lock) {
             return x.stream==st && x.mpitch.size()==1 && x.mpitch.back()==mpit
                 && !x.hold_flag && !x.sustain_flag && !x.release_flag; })) {
         int vi = n->target - 1;
-        int expected_on = (int)VoiceCmd::Type::note_on;
         if (vi >= 0 && vi < 1024 &&
-            voice_cmd[vi].cmd.compare_exchange_strong(expected_on, 0,
-                std::memory_order_acq_rel, std::memory_order_relaxed)) {
-            // Atomically verified note_on was still pending and cleared it.
-            // Safe to reclaim — audio never saw this note.
+            voice_cmd[vi].cmd.load(std::memory_order_acquire) == (int)VoiceCmd::Type::note_on) {
+            // Note-on hasn't been consumed by audio yet — cancel it entirely
+            // to free the voice immediately instead of occupying it for the full release time.
+            voice_cmd[vi].cmd.store(0, std::memory_order_relaxed);
             nts = *n;
             active_voices.erase(active_voices.begin() + (n - &active_voices[0]));
             inactive_voices.push_back(nts.target);
@@ -1145,10 +1140,9 @@ void handleNoteOff(Note& inc, lock& lock) {
         // the switch cases above only handle size>1, so size==1 falls through here.
         if (n->mpitch.empty()) {
             int vi = n->target - 1;
-            int expected_on2 = (int)VoiceCmd::Type::note_on;
             if (vi >= 0 && vi < 1024 &&
-                voice_cmd[vi].cmd.compare_exchange_strong(expected_on2, 0,
-                    std::memory_order_acq_rel, std::memory_order_relaxed)) {
+                voice_cmd[vi].cmd.load(std::memory_order_acquire) == (int)VoiceCmd::Type::note_on) {
+                voice_cmd[vi].cmd.store(0, std::memory_order_relaxed);
                 nts = *n;
                 active_voices.erase(active_voices.begin() + (n - &active_voices[0]));
                 inactive_voices.push_back(nts.target);
@@ -1214,17 +1208,12 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
     }
     else if (!note_on && !flags_only) {
         store_flags();
-        // Set pending_off BEFORE checking cmd to avoid TOCTOU race with audio thread.
-        // If audio consumes note_on between our check and our store, the pending_off
-        // ensures the release still happens.
-        voice_cmd[vi].pending_off.store(1, std::memory_order_release);
-        if (voice_cmd[vi].cmd.load(std::memory_order_acquire) != (int)VoiceCmd::Type::note_on) {
-            // Audio already consumed the note_on (or no note_on was pending).
-            // Write note_off directly; clear the pending_off we just set.
+        if (voice_cmd[vi].cmd.load(std::memory_order_acquire) == (int)VoiceCmd::Type::note_on) {
+            voice_cmd[vi].pending_off.store(1, std::memory_order_relaxed);
+            if (debug) cout << "ANOMALY: pending_off set for voice " << note.target << endl;
+        } else {
             voice_cmd[vi].pending_off.store(0, std::memory_order_relaxed);
             voice_cmd[vi].cmd.store((int)VoiceCmd::Type::note_off, std::memory_order_release);
-        } else if (debug) {
-            cout << "pending_off set for voice " << note.target << endl;
         }
 
         // Mirror original message outlet
@@ -1234,12 +1223,7 @@ void outputFunction(const Note note, bool note_on, bool steal, bool flags_only =
     else {
         // flags_only (hold / sustain update)
         store_flags();
-        // Only write flags_only if no other command is pending.
-        // store_flags() already wrote the individual flag atomics, so the audio
-        // thread will read the updated values when it processes any pending
-        // note_on or note_off — overwriting those commands would lose them.
-        if (voice_cmd[vi].cmd.load(std::memory_order_acquire) == 0)
-            voice_cmd[vi].cmd.store((int)VoiceCmd::Type::flags_only, std::memory_order_release);
+        voice_cmd[vi].cmd.store((int)VoiceCmd::Type::flags_only, std::memory_order_release);
 
         // Mirror original message outlet
         // out_msg.send("target", note.target);
@@ -1370,25 +1354,17 @@ message<> print{this, "print", "Print active voices and all parameter settings t
         if (active_voices.empty()) cout << "No notes in active_voices" << endl;
         else {
             cout << active_voices.size() << " notes{" << endl;
-            for (auto& n:active_voices) {
-                int vi = n.target - 1;
+            for (auto& n:active_voices)
                 cout << "  target=" << n.target << " mpitch=" << n.mpitch.back()
                      << " vel=" << n.vel << " mono=" << n.mono_flag
                      << " hold=" << n.hold_flag << " sustain=" << n.sustain_flag
-                     << " release=" << n.release_flag;
-                if (vi >= 0 && vi < 1024)
-                    cout << " alloc_gen=" << voice_alloc_gen[vi].load(std::memory_order_relaxed)
-                         << " done_gen=" << voice_done_gen[vi].load(std::memory_order_relaxed)
-                         << " done_flag=" << voice_done_flags[vi].load(std::memory_order_relaxed)
-                         << " audio_active=" << (int)audio_voice_active[vi];
-                cout << endl;
-            }
+                     << " release=" << n.release_flag << endl;
             cout << "}" << endl;
         }
         cout << inactive_voices.size() << " inactive voice(s)" << endl;
 
         // ── Parameters ────────────────────────────────────────────────────────
-        cout << "─── pparameters ───────────────────────────────" << endl;
+        cout << "─── parameters ───────────────────────────────" << endl;
         cout << "  voices              = " << voices << endl;
         cout << "  active              = " << (bool)active_attr << endl;
         cout << "  mono                = " << (bool)mono_attr << endl;

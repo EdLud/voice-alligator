@@ -9,8 +9,19 @@
             "modernui": 1
         },
         "classnamespace": "box",
-        "rect": [ 34.0, 87.0, 1212.0, 679.0 ],
+        "rect": [ 34.0, 87.0, 712.0, 679.0 ],
         "boxes": [
+            {
+                "box": {
+                    "id": "obj-4",
+                    "maxclass": "newobj",
+                    "numinlets": 1,
+                    "numoutlets": 2,
+                    "outlettype": [ "int", "bang" ],
+                    "patching_rect": [ 364.0, 68.0, 32.0, 22.0 ],
+                    "text": "t 1 b"
+                }
+            },
             {
                 "box": {
                     "id": "obj-115",
@@ -133,17 +144,6 @@
                     "outlettype": [ "" ],
                     "patching_rect": [ 254.0, 101.0, 52.0, 22.0 ],
                     "text": "gate 1 0"
-                }
-            },
-            {
-                "box": {
-                    "id": "obj-119",
-                    "maxclass": "message",
-                    "numinlets": 2,
-                    "numoutlets": 1,
-                    "outlettype": [ "" ],
-                    "patching_rect": [ 362.0, 75.0, 29.5, 22.0 ],
-                    "text": "1"
                 }
             },
             {
@@ -3460,7 +3460,7 @@
             },
             {
                 "patchline": {
-                    "destination": [ "obj-119", 0 ],
+                    "destination": [ "obj-4", 0 ],
                     "source": [ "obj-116", 0 ]
                 }
             },
@@ -3476,12 +3476,6 @@
                     "destination": [ "obj-8", 0 ],
                     "midpoints": [ 36.5, 294.0, 36.5, 294.0 ],
                     "source": [ "obj-118", 0 ]
-                }
-            },
-            {
-                "patchline": {
-                    "destination": [ "obj-50", 1 ],
-                    "source": [ "obj-119", 0 ]
                 }
             },
             {
@@ -3616,13 +3610,6 @@
             },
             {
                 "patchline": {
-                    "destination": [ "obj-27", 0 ],
-                    "midpoints": [ 131.5, 276.0, 131.5, 276.0 ],
-                    "source": [ "obj-3", 0 ]
-                }
-            },
-            {
-                "patchline": {
                     "destination": [ "obj-6", 0 ],
                     "hidden": 1,
                     "midpoints": [ 350.25, 672.0, 243.0, 672.0, 243.0, 534.0, 93.5, 534.0 ],
@@ -3667,6 +3654,18 @@
                     "destination": [ "obj-38", 0 ],
                     "midpoints": [ 227.5, 204.0, 227.5, 204.0 ],
                     "source": [ "obj-39", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-50", 1 ],
+                    "source": [ "obj-4", 0 ]
+                }
+            },
+            {
+                "patchline": {
+                    "destination": [ "obj-55", 0 ],
+                    "source": [ "obj-4", 1 ]
                 }
             },
             {
@@ -4104,6 +4103,14 @@
             "obj-34::obj-109": [ "number[5]", "number[5]", 0 ],
             "obj-34::obj-83": [ "number[6]", "number[6]", 0 ],
             "obj-63": [ "number[3]", "number[3]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0,

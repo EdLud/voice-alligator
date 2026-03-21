@@ -57,7 +57,7 @@
             },
             {
                 "box": {
-                    "attr": "glide_impulse",
+                    "attr": "glide_retrigger",
                     "id": "obj-56",
                     "maxclass": "attrui",
                     "numinlets": 1,
@@ -1030,8 +1030,8 @@
                     "numinlets": 1,
                     "numoutlets": 10,
                     "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "" ],
-                    "patching_rect": [ 217.0, 167.0, 257.5, 22.0 ],
-                    "text": "voice-alligator~ 1 @release 2000"
+                    "patching_rect": [ 217.0, 167.0, 184.0, 22.0 ],
+                    "text": "voice-alligator~ 4 @release 2000"
                 }
             },
             {
@@ -1226,7 +1226,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-31", 1 ],
-                    "midpoints": [ 332.5, 218.55078125, 755.5, 218.55078125 ],
+                    "midpoints": [ 299.8333333333333, 218.55078125, 755.5, 218.55078125 ],
                     "order": 0,
                     "source": [ "obj-1", 4 ]
                 }
@@ -1240,7 +1240,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-45", 0 ],
-                    "midpoints": [ 332.5, 217.72265625, 589.5, 217.72265625 ],
+                    "midpoints": [ 299.8333333333333, 217.72265625, 589.5, 217.72265625 ],
                     "order": 1,
                     "source": [ "obj-1", 4 ]
                 }
@@ -1671,14 +1671,6 @@
             "obj-11": [ "filter_freq[1]", "filter_freq", 0 ],
             "obj-68": [ "mc.live.gain~[23]", "mc.live.gain~", 0 ],
             "obj-9": [ "live.tab[2]", "live.tab", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "inherited_shortname": 1
         },
         "autosave": 0

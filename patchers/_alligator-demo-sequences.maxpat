@@ -8328,7 +8328,7 @@
                                     "args": [ "mono" ]
                                 },
                                 {
-                                    "time": 5.0,
+                                    "time": 20.0,
                                     "message": "note",
                                     "args": [ 70, 60 ]
                                 },
@@ -8467,7 +8467,7 @@
                                     "args": [ 0 ]
                                 }
                             ],
-                            "length": 40605.0,
+                            "length": 40620.0,
                             "loop": 0,
                             "trackspeed": 1.0
                         }
