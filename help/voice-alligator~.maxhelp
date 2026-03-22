@@ -1724,9 +1724,30 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 26.0, 1154.0, 653.0 ],
+                        "rect": [ 92.0, 113.0, 1154.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
+                            {
+                                "box": {
+                                    "id": "obj-94",
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 76.0, 611.0, 179.0, 20.0 ],
+                                    "text": "change waveform on new note>"
+                                }
+                            },
+                            {
+                                "box": {
+                                    "id": "obj-91",
+                                    "maxclass": "newobj",
+                                    "numinlets": 2,
+                                    "numoutlets": 1,
+                                    "outlettype": [ "multichannelsignal" ],
+                                    "patching_rect": [ 259.5, 610.0, 54.0, 22.0 ],
+                                    "text": "mc.sah~"
+                                }
+                            },
                             {
                                 "box": {
                                     "hidden": 1,
@@ -2009,7 +2030,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 423.0, 861.0, 150.0, 20.0 ]
+                                    "patching_rect": [ 423.0, 904.0, 150.0, 20.0 ]
                                 }
                             },
                             {
@@ -2906,7 +2927,7 @@
                                 "box": {
                                     "attack_time": 7.0,
                                     "decay_slope": 0.0,
-                                    "decay_time": 250.0,
+                                    "decay_time": 3.5599999427795415,
                                     "enable_final": 0,
                                     "enable_initial": 0,
                                     "enable_peak": 0,
@@ -2917,8 +2938,8 @@
                                     "outlettype": [ "", "", "", "", "", "", "", "", "", "" ],
                                     "patching_rect": [ 614.0, 215.0, 296.0, 119.0 ],
                                     "release_slope": 0.0,
-                                    "release_time": 150.0,
-                                    "sustain": 0.5,
+                                    "release_time": 1360.0,
+                                    "sustain": 0.15,
                                     "sustain_exponent": 2.0
                                 }
                             },
@@ -3124,7 +3145,7 @@
                                     "numinlets": 3,
                                     "numoutlets": 1,
                                     "outlettype": [ "multichannelsignal" ],
-                                    "patching_rect": [ 259.0, 610.0, 157.0, 22.0 ],
+                                    "patching_rect": [ 259.0, 653.0, 157.0, 22.0 ],
                                     "text": "mc.selector~ 2 1"
                                 }
                             },
@@ -3258,7 +3279,7 @@
                                     "numoutlets": 4,
                                     "outlettype": [ "multichannelsignal", "", "float", "list" ],
                                     "parameter_enable": 1,
-                                    "patching_rect": [ 259.0, 723.0, 49.0, 92.0 ],
+                                    "patching_rect": [ 259.0, 766.0, 49.0, 92.0 ],
                                     "saved_attribute_attributes": {
                                         "valueof": {
                                             "parameter_longname": "mc.live.gain~[23]",
@@ -3280,7 +3301,7 @@
                                     "maxclass": "mc.ezdac~",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 259.0, 823.0, 45.0, 45.0 ]
+                                    "patching_rect": [ 259.0, 866.0, 45.0, 45.0 ]
                                 }
                             },
                             {
@@ -5811,7 +5832,7 @@
                                     "numoutlets": 3,
                                     "outlettype": [ "", "", "int" ],
                                     "parameter_enable": 0,
-                                    "patching_rect": [ 408.0, 815.0, 20.0, 20.0 ],
+                                    "patching_rect": [ 408.0, 858.0, 20.0, 20.0 ],
                                     "rounded": 60.0,
                                     "text": "1",
                                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -5831,7 +5852,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 308.0, 823.0, 110.0, 25.0 ],
+                                    "patching_rect": [ 308.0, 866.0, 110.0, 25.0 ],
                                     "text": "Turn on audio"
                                 }
                             },
@@ -5952,7 +5973,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "multichannelsignal" ],
-                                    "patching_rect": [ 259.0, 665.0, 92.0, 22.0 ],
+                                    "patching_rect": [ 259.0, 708.0, 92.0, 22.0 ],
                                     "text": "mc.mixdown~ 1"
                                 }
                             },
@@ -5963,7 +5984,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "multichannelsignal" ],
-                                    "patching_rect": [ 259.0, 638.0, 114.22222222222223, 22.0 ],
+                                    "patching_rect": [ 259.0, 681.0, 114.22222222222223, 22.0 ],
                                     "text": "mc.*~"
                                 }
                             },
@@ -5974,7 +5995,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 1,
                                     "outlettype": [ "multichannelsignal" ],
-                                    "patching_rect": [ 259.0, 694.0, 55.0, 22.0 ],
+                                    "patching_rect": [ 259.0, 737.0, 55.0, 22.0 ],
                                     "text": "mc.dup~"
                                 }
                             }
@@ -6031,8 +6052,14 @@
                             },
                             {
                                 "patchline": {
-                                    "destination": [ "obj-5", 0 ],
-                                    "midpoints": [ 178.5, 605.5, 268.5, 605.5 ],
+                                    "destination": [ "obj-91", 1 ],
+                                    "source": [ "obj-1", 2 ]
+                                }
+                            },
+                            {
+                                "patchline": {
+                                    "destination": [ "obj-91", 0 ],
+                                    "midpoints": [ 178.5, 605.5, 269.0, 605.5 ],
                                     "source": [ "obj-10", 0 ]
                                 }
                             },
@@ -6802,6 +6829,13 @@
                                     "midpoints": [ 178.5, 549.0, 178.5, 549.0 ],
                                     "source": [ "obj-9", 0 ]
                                 }
+                            },
+                            {
+                                "patchline": {
+                                    "destination": [ "obj-5", 0 ],
+                                    "midpoints": [ 269.0, 640.5, 268.5, 640.5 ],
+                                    "source": [ "obj-91", 0 ]
+                                }
                             }
                         ],
                         "styles": [
@@ -6836,7 +6870,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 92.0, 113.0, 1154.0, 653.0 ],
+                        "rect": [ 0.0, 26.0, 1154.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -8535,14 +8569,6 @@
             "obj-39::obj-73": [ "number[1]", "number", 0 ],
             "obj-39::obj-9": [ "live.tab[2]", "live.tab", 0 ],
             "obj-49::obj-17": [ "mc.live.gain~", "mc.live.gain~", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "parameter_overrides": {
                 "obj-1::obj-17::obj-264": {
                     "parameter_longname": "live.numbox[3]"
