@@ -317,11 +317,16 @@ voice_alligator(const atoms& args = {}){
                 active_voices.clear();
                 pending_voices.clear();
                 std::fill(std::begin(adsr_active), std::end(adsr_active), false);
-                for (int i = 0; i < 1024; ++i) adsr_transitions[i].store(0, std::memory_order_relaxed);
+                std::fill(std::begin(audio_note_gen), std::end(audio_note_gen), 0);
+                for (int i = 0; i < 1024; ++i) {
+                    adsr_transitions[i].store(0, std::memory_order_relaxed);
+                    voice_alloc_gen[i].store(0, std::memory_order_relaxed);
+                    voice_done_gen[i].store(0, std::memory_order_relaxed);
+                }
                 for (int i = 1; i <= voicenr; ++i){
                     inactive_voices.push_back(i);
                 }
-};
+}
 
 // DSP operator: reads the multichannel ADSR signal from inlet 2.
 // Channel index (0-based) maps to voice target (1-based): channel 0 = target 1, etc.
@@ -331,6 +336,11 @@ voice_alligator(const atoms& args = {}){
 // Values: 0 = no event, -1 = ADSR finished (went below threshold after being active).
 // Fixed size matching the max voice cap of 1024; only indices [0, voices-1] are used.
 std::atomic<int> adsr_transitions[1024] {};
+
+// Generation counters to prevent stale ADSR transitions from reclaiming reused voices.
+std::atomic<uint32_t> voice_alloc_gen[1024] {};  // incremented by scheduler on each allocation/steal/reuse
+std::atomic<uint32_t> voice_done_gen[1024] {};   // written by audio when ADSR finishes
+uint32_t              audio_note_gen[1024] {};    // audio-thread-only: captured when ADSR starts
 
 // Threshold below which ADSR is considered silent. adsr~ tapers asymptotically so exact 0.0 is unreliable.
 static constexpr double ADSR_THRESHOLD = 1e-5;
@@ -360,13 +370,17 @@ void operator()(audio_bundle input, audio_bundle output){
 
         if (!was_active && went_active && !still_active){
             // Entire note life within one vector — signal both start and end atomically
-            adsr_transitions[v].store(2, std::memory_order_relaxed);
+            audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
+            voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
+            adsr_transitions[v].store(2, std::memory_order_release);
         }
         else if (!was_active && went_active){
+            audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
             adsr_transitions[v].store(1, std::memory_order_relaxed);  // pending → active
         }
         else if ((was_active) && !still_active){
-            adsr_transitions[v].store(-1, std::memory_order_relaxed); // active → done
+            voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
+            adsr_transitions[v].store(-1, std::memory_order_release); // active → done
         }
 
         adsr_active[v] = still_active;
@@ -396,6 +410,11 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
         }
         else if (event == 2){
             // ADSR fired and finished within the same vector — promote pending straight to inactive
+            if (voice_done_gen[v].load(std::memory_order_relaxed)
+                != voice_alloc_gen[v].load(std::memory_order_relaxed)) {
+                if(debug){cout << "ADSR blip for target " << target << " — gen mismatch, skipping" << endl;}
+                continue;
+            }
             auto it = pending_voices.find(target);
             if (it != pending_voices.end()){
                 if(debug){cout << "ADSR blip for target " << target << " → note complete, returning to inactive_voices" << endl;}
@@ -404,6 +423,11 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
             }
         }
        else{ // event == -1
+            if (voice_done_gen[v].load(std::memory_order_relaxed)
+                != voice_alloc_gen[v].load(std::memory_order_relaxed)) {
+                if(debug){cout << "ADSR off for target " << target << " — gen mismatch, skipping" << endl;}
+                continue;
+            }
             if(debug){cout << "ADSR off for target " << target << " → returning to inactive_voices" << endl;}
             auto noteIt = std::find_if(active_voices.begin(), active_voices.end(),
                                     [target](const Note& n){ return n.target == target; });
@@ -422,7 +446,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
             }
         }
     }
-    adsr_poll.delay(1); // reschedule to check again in 1ms; adjust as needed for responsiveness vs. CPU load
+    adsr_poll.delay(0); // reschedule to check again in 10ms; adjust as needed for responsiveness vs. CPU load
     return {};
 }};
 
@@ -434,26 +458,23 @@ attribute<bool, threadsafe::yes> mono_attr{
     setter{
         MIN_FUNCTION{
             bool mono_true = args[0];
-             if(!mono_attr_was_set_on_load){
-                mono_attr_was_set_on_load = true;
-                return {mono_true};
-                }
             if (!mono_true){
-                lock lock{m_mutex}; //skip first lock
-                //When Monophony is being turned off we don't need multiple pitches in our Note objects, 
-                //so we set the mpitch & freq lists to contain only the last element
-
-                for (auto& note : active_voices){
-                    if (note.mpitch.size() > 1){
-                        note.mpitch = { note.mpitch.back() };
-                        note.mono_flag = false;
-                    }
-
-                    if (note.freq.size() > 1){
-                        note.freq = { note.freq.back() };
-                        note.mono_flag = false;
+                if(mono_attr_was_set_on_load) {
+                    lock lock{m_mutex};
+                    //When Monophony is being turned off we don't need multiple pitches in our Note objects,
+                    //so we set the mpitch & freq lists to contain only the last element
+                    for (auto& note : active_voices){
+                        if (note.mpitch.size() > 1){
+                            note.mpitch = { note.mpitch.back() };
+                            note.mono_flag = false;
+                        }
+                        if (note.freq.size() > 1){
+                            note.freq = { note.freq.back() };
+                            note.mono_flag = false;
+                        }
                     }
                 }
+                mono_attr_was_set_on_load = true;
             }
             return {mono_true};
         }
@@ -667,6 +688,7 @@ void handleNoteOnMono(Note &note, lock &lock){
         
             //delete mpitch list, push_back new mpitch, generate note on on old target
             if(debug){cout << "Mono key was pressed, released mono voice of stream " << mono_target_note->stream<< " found with target " << mono_target_note->target << endl;}
+            voice_alloc_gen[mono_target_note->target - 1].fetch_add(1, std::memory_order_relaxed);
             mono_target_note->release_flag = false;
             // mono_target_note->sustain_flag = sustain_attr;
             mono_target_note->mpitch.clear();
@@ -686,6 +708,7 @@ void handleNoteOnMono(Note &note, lock &lock){
     if (free_voice != -1){
         note.target = free_voice;
         note.mono_flag = true;
+        voice_alloc_gen[free_voice - 1].fetch_add(1, std::memory_order_relaxed);
         pending_voices[free_voice] = note;
         if(debug){cout << "Found inactive voice with target " << free_voice << " and added new mono note to pending_voices" << endl;}
         lock.unlock();
@@ -697,6 +720,7 @@ void handleNoteOnMono(Note &note, lock &lock){
         Note *noteToSteal = findNoteToSteal(note);
         if (noteToSteal){
             if(debug){cout << "** found note to steal **\n";}
+            voice_alloc_gen[noteToSteal->target - 1].fetch_add(1, std::memory_order_relaxed);
             noteToSteal->mpitch = note.mpitch;
             noteToSteal->freq = note.freq;
             noteToSteal->vel = note.vel;
@@ -741,6 +765,7 @@ void handleNoteOnPoly(Note &note, lock &lock){
     if (free_voice != -1){
         note.target = free_voice;
         note.mono_flag = false;
+        voice_alloc_gen[free_voice - 1].fetch_add(1, std::memory_order_relaxed);
         pending_voices[free_voice] = note;
         
         if(debug){
@@ -759,12 +784,12 @@ void handleNoteOnPoly(Note &note, lock &lock){
     // ==========================================
     Note* noteToSteal = findNoteToSteal(note);
     
-    if (noteToSteal){ 
+    if (noteToSteal){
         if(debug){
-            cout << "Found note to steal in active_voices on target " << noteToSteal->target 
+            cout << "Found note to steal in active_voices on target " << noteToSteal->target
                  << " and mpitch " << noteToSteal->mpitch.back() << endl;
         }
-        
+        voice_alloc_gen[noteToSteal->target - 1].fetch_add(1, std::memory_order_relaxed);
         noteToSteal->mpitch = note.mpitch;
         noteToSteal->freq = note.freq;
         noteToSteal->vel = note.vel;
@@ -807,6 +832,7 @@ void handleNoteOnPoly(Note &note, lock &lock){
         }
 
         // Update the pending note directly in the map
+        voice_alloc_gen[targetToSteal - 1].fetch_add(1, std::memory_order_relaxed);
         pending_it->second.mpitch = note.mpitch;
         pending_it->second.freq = note.freq;
         pending_it->second.vel = note.vel;
@@ -1411,6 +1437,12 @@ message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
         inactive_voices.clear();
         for (int i = 1; i <= voices; ++i) inactive_voices.push_back(i);
         std::fill(std::begin(adsr_active), std::end(adsr_active), false);
+        std::fill(std::begin(audio_note_gen), std::end(audio_note_gen), 0);
+        for (int i = 0; i < 1024; ++i) {
+            adsr_transitions[i].store(0, std::memory_order_relaxed);
+            voice_alloc_gen[i].store(0, std::memory_order_relaxed);
+            voice_done_gen[i].store(0, std::memory_order_relaxed);
+        }
     }
 
     adsr_poll.delay(1);
