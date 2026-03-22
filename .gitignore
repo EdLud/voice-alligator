@@ -13,7 +13,7 @@ tests
 *.o
 *.dylib
 tmp
-.DS_Store
+*.DS_Store
 .vs
 .vscode/
 other/
