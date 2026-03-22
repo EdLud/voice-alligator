@@ -684,7 +684,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "multichannelsignal" ],
-                    "patching_rect": [ 9.0, 600.0, 92.0, 22.0 ],
+                    "patching_rect": [ 9.0, 593.0, 92.0, 22.0 ],
                     "text": "mc.mixdown~ 1"
                 }
             },
@@ -2000,7 +2000,7 @@
                     "maxclass": "ezdac~",
                     "numinlets": 2,
                     "numoutlets": 0,
-                    "patching_rect": [ 9.0, 632.5, 45.0, 45.0 ]
+                    "patching_rect": [ 9.0, 626.0, 45.0, 45.0 ]
                 }
             },
             {
@@ -2012,7 +2012,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 56.0, 642.5, 110.0, 25.0 ],
+                    "patching_rect": [ 56.0, 636.0, 110.0, 25.0 ],
                     "text": "Turn on audio"
                 }
             },
@@ -2023,7 +2023,7 @@
                     "numinlets": 1,
                     "numoutlets": 2,
                     "outlettype": [ "multichannelsignal", "multichannelsignal" ],
-                    "patching_rect": [ 9.0, 569.0, 272.0, 22.0 ],
+                    "patching_rect": [ 9.0, 562.0, 272.0, 22.0 ],
                     "text": "mc.poly~ alligator-example-voice 8 @args demos",
                     "varname": "poly~_AA"
                 }
@@ -2137,7 +2137,7 @@
                     "numoutlets": 3,
                     "outlettype": [ "", "", "int" ],
                     "parameter_enable": 0,
-                    "patching_rect": [ 160.0, 634.0, 20.0, 20.0 ],
+                    "patching_rect": [ 160.0, 627.0, 20.0, 20.0 ],
                     "rounded": 60.0,
                     "text": "1",
                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ]
@@ -2295,7 +2295,7 @@
                 "patchline": {
                     "destination": [ "obj-23", 0 ],
                     "hidden": 1,
-                    "midpoints": [ 18.5, 560.0, 1080.01953125, 560.0, 1080.01953125, 94.0, 18.5, 94.0 ],
+                    "midpoints": [ 18.5, 555.6484375, 1080.01953125, 555.6484375, 1080.01953125, 94.0, 18.5, 94.0 ],
                     "order": 1,
                     "source": [ "obj-6", 0 ]
                 }
@@ -2332,6 +2332,14 @@
             "obj-23::obj-277": [ "attack[1]", "attack", 0 ],
             "obj-23::obj-83::obj-105::obj-19": [ "number[9]", "number[5]", 0 ],
             "obj-23::obj-83::obj-1::obj-19": [ "number[2]", "number[5]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "parameter_overrides": {
                 "obj-23::obj-264": {
                     "parameter_longname": "live.numbox[1]"

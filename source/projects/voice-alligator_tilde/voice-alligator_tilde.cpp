@@ -740,7 +740,14 @@ void operator()(audio_bundle input, audio_bundle output) {
                     t_curved = std::pow(t, exp);
                 }
 
-                out_freq = sf + t_curved * (tf - sf);
+                // Interpolate in log-frequency space for perceptually linear glide
+                if (sf > 0.f && tf > 0.f) {
+                    const float log_sf = std::log(sf);
+                    const float log_tf = std::log(tf);
+                    out_freq = std::exp(log_sf + t_curved * (log_tf - log_sf));
+                } else {
+                    out_freq = sf + t_curved * (tf - sf);
+                }
 
                 ++voice_glide[v].samples_done;
                 if (voice_glide[v].samples_done >= voice_glide[v].samples_total) {
@@ -754,7 +761,7 @@ void operator()(audio_bundle input, audio_bundle output) {
             }
             // ─────────────────────────────────────────────────────────────────
 
-         ch_freq   [i] = out_freq;
+        ch_freq   [i] = out_freq;
         ch_env    [i] = env;
         ch_impulse[i] = fire_impulse ? 1.f : 0.f; 
         ch_glide  [i] = live_glide  [v];
@@ -810,8 +817,6 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
         pending_voices.erase(target);
         if (std::find(inactive_voices.begin(), inactive_voices.end(), target) == inactive_voices.end())
             inactive_voices.push_back(target);
-
-
     }
     adsr_poll.delay(1);
     return {};
@@ -1420,6 +1425,13 @@ message<> print{this, "print", "Print active voices and all parameter settings t
         cout << "  glide_impulse       = " << (bool)glide_impulse_attr << endl;
         cout << "  debug               = " << (bool)debug << endl;
         cout << "──────────────────────────────────────────────" << endl;
+        return {};
+    }
+};
+
+message<> dblclick{this, "dblclick", "Print info on double-click",
+    MIN_FUNCTION{
+        print();
         return {};
     }
 };

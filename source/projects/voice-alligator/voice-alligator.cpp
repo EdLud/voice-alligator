@@ -1347,6 +1347,13 @@ message<> print{this, "print", "Print info to the max console",
     }
 };
 
+message<> dblclick{this, "dblclick", "Print info on double-click",
+    MIN_FUNCTION{
+        print();
+        return {};
+    }
+};
+
 message<> printscale{this, "printscale", "Print contents of scale_array to the max console as midi or freq (default midi)",
         MIN_FUNCTION{
 
