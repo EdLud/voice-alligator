@@ -35,6 +35,28 @@
                         "boxes": [
                             {
                                 "box": {
+                                    "id": "obj-43",
+                                    "linecount": 3,
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 346.0, 286.5, 166.0, 47.0 ],
+                                    "text": "^set different release times / curves for the notes that will be fired on a single impulse "
+                                }
+                            },
+                            {
+                                "box": {
+                                    "id": "obj-33",
+                                    "maxclass": "message",
+                                    "numinlets": 2,
+                                    "numoutlets": 1,
+                                    "outlettype": [ "" ],
+                                    "patching_rect": [ 333.5, 265.0, 230.0, 22.0 ],
+                                    "text": "release 50 1500 150, release_curve 0 0.5"
+                                }
+                            },
+                            {
+                                "box": {
                                     "id": "obj-41",
                                     "maxclass": "comment",
                                     "numinlets": 1,
@@ -119,7 +141,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 930.0, 411.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 951.0, 414.0, 19.0, 20.0 ],
                                     "text": "8"
                                 }
                             },
@@ -129,7 +151,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 930.0, 342.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 951.0, 345.0, 19.0, 20.0 ],
                                     "text": "7"
                                 }
                             },
@@ -139,7 +161,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 930.0, 273.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 951.0, 276.0, 19.0, 20.0 ],
                                     "text": "6"
                                 }
                             },
@@ -149,7 +171,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 930.0, 204.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 951.0, 207.0, 19.0, 20.0 ],
                                     "text": "5"
                                 }
                             },
@@ -159,7 +181,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 740.0, 413.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 761.0, 416.0, 19.0, 20.0 ],
                                     "text": "4"
                                 }
                             },
@@ -169,7 +191,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 740.0, 343.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 761.0, 346.0, 19.0, 20.0 ],
                                     "text": "3"
                                 }
                             },
@@ -179,7 +201,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 740.0, 273.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 761.0, 276.0, 19.0, 20.0 ],
                                     "text": "2"
                                 }
                             },
@@ -189,7 +211,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 740.0, 204.0, 19.0, 20.0 ],
+                                    "patching_rect": [ 761.0, 207.0, 19.0, 20.0 ],
                                     "text": "1"
                                 }
                             },
@@ -217,7 +239,7 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 473.0, 162.0, 221.0, 33.0 ],
+                                    "patching_rect": [ 473.0, 159.0, 221.0, 33.0 ],
                                     "text": "< this list sets voice-alligator-audio~\nto output 3 notes on a single impulse"
                                 }
                             },
@@ -457,7 +479,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 25.0, 23.0, 531.0, 85.0 ],
-                                    "text": "We could also only use the ADSR and define the frequencies of our synth differently.\n\nIn this example the order of the output pitches are somewhat random because we disassociate the ADSR from the pitch of the note. So the pitch(es) we hear on the next trigger is actually determined by the voice allocation."
+                                    "text": "We could also only use the ADSR and define the frequencies of our synth differently.\n\nIn this example the order of the pitches is somewhat random because we disassociate the ADSR from the pitch of the note. So the pitch(es) we hear on the next trigger are actually determined by the voice allocation."
                                 }
                             },
                             {
@@ -499,8 +521,8 @@
                                     "numinlets": 3,
                                     "numoutlets": 5,
                                     "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal" ],
-                                    "patching_rect": [ 286.0, 197.0, 184.0, 22.0 ],
-                                    "text": "voice-alligator-audio~ 8 @steal 0"
+                                    "patching_rect": [ 286.0, 197.0, 133.0, 22.0 ],
+                                    "text": "voice-alligator-audio~ 8"
                                 }
                             },
                             {
@@ -525,7 +547,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 8,
                                     "outlettype": [ "signal", "signal", "signal", "signal", "signal", "signal", "signal", "signal" ],
-                                    "patching_rect": [ 575.0, 203.0, 100.0, 22.0 ],
+                                    "patching_rect": [ 596.0, 206.0, 100.0, 22.0 ],
                                     "text": "mc.unpack~ 8"
                                 }
                             },
@@ -536,7 +558,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 575.0, 203.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 596.0, 206.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 0.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -549,7 +571,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 575.0, 273.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 596.0, 276.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 70.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -562,7 +584,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 575.0, 343.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 596.0, 346.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 140.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -575,7 +597,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 575.0, 413.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 596.0, 416.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 210.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -588,7 +610,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 765.0, 203.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 786.0, 206.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 280.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -601,7 +623,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 765.0, 273.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 786.0, 276.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 350.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -614,7 +636,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 765.0, 343.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 786.0, 346.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 420.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -627,7 +649,7 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 765.0, 413.0, 184.0, 68.0 ],
+                                    "patching_rect": [ 786.0, 416.0, 184.0, 68.0 ],
                                     "presentation": 1,
                                     "presentation_rect": [ 0.0, 490.0, 184.0, 68.0 ],
                                     "range": [ -0.01, 1.1 ]
@@ -638,7 +660,7 @@
                             {
                                 "patchline": {
                                     "destination": [ "obj-22", 0 ],
-                                    "midpoints": [ 336.75, 235.83203125, 508.296875, 235.83203125, 508.296875, 199.42578125, 584.5, 199.42578125 ],
+                                    "midpoints": [ 324.0, 235.83203125, 508.296875, 235.83203125, 508.296875, 199.42578125, 605.5, 199.42578125 ],
                                     "order": 0,
                                     "source": [ "obj-1", 1 ]
                                 }
@@ -742,6 +764,12 @@
                                 "patchline": {
                                     "destination": [ "obj-17", 0 ],
                                     "source": [ "obj-32", 0 ]
+                                }
+                            },
+                            {
+                                "patchline": {
+                                    "destination": [ "obj-1", 0 ],
+                                    "source": [ "obj-33", 0 ]
                                 }
                             },
                             {
@@ -2121,6 +2149,17 @@
                                         "boxes": [
                                             {
                                                 "box": {
+                                                    "id": "obj-3",
+                                                    "maxclass": "newobj",
+                                                    "numinlets": 1,
+                                                    "numoutlets": 1,
+                                                    "outlettype": [ "" ],
+                                                    "patching_rect": [ 210.5, 317.0, 159.0, 22.0 ],
+                                                    "text": "loadmess release_curve 0.3"
+                                                }
+                                            },
+                                            {
+                                                "box": {
                                                     "id": "obj-2",
                                                     "maxclass": "newobj",
                                                     "numinlets": 1,
@@ -2231,6 +2270,12 @@
                                                 "patchline": {
                                                     "destination": [ "obj-49", 0 ],
                                                     "source": [ "obj-28", 0 ]
+                                                }
+                                            },
+                                            {
+                                                "patchline": {
+                                                    "destination": [ "obj-49", 0 ],
+                                                    "source": [ "obj-3", 0 ]
                                                 }
                                             },
                                             {
@@ -2528,7 +2573,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 7.0, 6.0, 535.0, 132.0 ],
-                                    "text": "Streams are also mirrored in voice-alligator-audio~. For example, if we trigger two fresh notes with a single trigger these notes will now have stream indexes 1 and 2.\n\nIf we send              , to enable monophony for all streams, and if we queue\nnew notes while notes are still in sustain, a glide will be performed.\n\nWe could also send               , to enable monophony for the first note/stream of this \ntwo-note chord only."
+                                    "text": "Streams are also mirrored in voice-alligator-audio~. For example, if we trigger two fresh notes with a impulse these notes will now have stream indexes 1 and 2.\n\nIf we send              , to enable monophony for all streams, and if we queue\nnew notes while notes are still in sustain, a glide will be performed.\n\nWe could also send               , to enable monophony for the first note/stream of this \ntwo-note chord only."
                                 }
                             },
                             {
@@ -3904,12 +3949,12 @@
                                     "fontface": 0,
                                     "fontsize": 14.0,
                                     "id": "obj-9",
-                                    "linecount": 16,
+                                    "linecount": 17,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 11.0, 9.0, 540.0, 257.0 ],
-                                    "text": "voice-alligator-audio~ has an internal storage for its parameter settings. They can\nbe printed to the console using a        message or double-clicking on the object.\n\nA single parameter of voice-alligator-audio~ can be set with a list.\n\nThe longest of the parameter lists will decide how many notes are triggered on a\nsingle impulse to inlet 1. This was included to allow sample-accurate triggering of\nchords.\n\nNot every parameter of voice-alligator-audio~ has this list functionality. All attributes concerning microtonal scaling or how and when to steal notes will apply to all voices.\n\nThe parameters pitch and vel are special because they can also be controlled by the audio ins, a non-zero value to those inlets will override the list provided by one of those two messages. The length of either a pitch or a vel list may still determine how many notes are fired per trigger, should it be the longest list."
+                                    "patching_rect": [ 11.0, 9.0, 540.0, 272.0 ],
+                                    "text": "voice-alligator-audio~ has an internal storage for its parameter settings. They can\nbe printed to the console using a        message or double-clicking on the object.\n\nA single parameter of voice-alligator-audio~ can be set with a list.\n\nThe longest of the parameter lists will decide how many notes are triggered on a\nsingle impulse to inlet 1. This was included to allow sample-accurate triggering of\nchords.\n\nNot every parameter of voice-alligator-audio~ has this list functionality. All attributes concerning microtonal scaling or how and when to steal notes will apply to all voices.\n\nThe parameters pitch and vel are special because they can also be controlled by the audio ins, a non-zero value to those inlets in the moment of the trigger will override the list provided by one of those two messages. The length of either a pitch or a vel list may still determine how many notes are fired per trigger, should it be the longest list."
                                 }
                             },
                             {
