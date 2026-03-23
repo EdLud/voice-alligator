@@ -9,8 +9,27 @@
 		<br/><br/>
 		Notes are triggered by a rising edge (i.e. a <o>click~</o>) on inlet 1. Pitch and velocity are sampled at the moment of the trigger. If a non-zero signal is present on inlets 2 or 3, it overrides the corresponding <m>pitch</m> / <m>vel</m> list values.
 		<br/><br/>
-		Most parameters (pitch, velocity, ADSR, glide, mono) are set via list messages. Each list entry maps to one stream position; lists wrap around with modulo indexing. The number of notes triggered per rising edge equals the length of the longest list (minimum 1).
+		Most parameters (pitch, velocity, ADSR, glide, mono) are set via list messages (i.e. <m>attack 1000 500</m>).
 		<br/><br/>
+
+		By default, all parameter lists have one entry. The current settings can be printed to the console using a <m>print</m> message or double-clicking the object. 
+		<br/><br/>
+		
+		<b>voice-alligator-audio~</b> can sample-accurately trigger 2 or more voices simultaneously with a single impulse, with per-voice pitch, velocity, ADSR envelope, and glide settings. The longest of the parameter lists will decide how many voices are started on a single trigger to inlet 1.
+		<br/><br/>
+
+		Each voice is allocated to a stream position. For example, if the longest list has 3 entries, up to 3 voices can be triggered simultaneously: one for stream 1 (list index 1), one for stream 2 (list index 2), and one for stream 3 (list index 3). When a list has fewer entries than the longest list, values wrap around with modulo indexing.
+
+		<br/><br/>
+		So for example if we initialize the object and send it a message <m>attack 1000 500 300, vel 0.5 0.2</m>, on the next impulse it will trigger 3 notes. 
+		<br/><br/>
+		Note 1: <b>attack 1000ms and vel 0.5</b>
+		<br/>
+		Note 2: <b>attack 500ms and vel 0.2</b>
+		<br/>
+		Note 3: <b>attack 300ms and vel 0.5</b>
+		<br/><br/>
+
 		The envelope is a one-shot ADSR: attack, decay, sustain hold (<m>sustain_dur</m>), then release. The total ramp length equals attack + decay + sustain_dur + release.
 	</description>
 
@@ -56,7 +75,8 @@
 
 		<i><b>Stream-based voice allocation</b></i>
 		<br/><br/>
-		Each list position corresponds to a stream. On each trigger, each stream either allocates a new voice or — if <m>mono</m> is enabled for that stream — glides the existing voice to the new pitch. When a list shrinks between triggers, orphaned streams release their voices.
+		Each list position corresponds to a stream. On each trigger, each stream either allocates a new voice or — if <m>mono</m> is enabled for that stream — glides the existing voice to the new pitch. 
+		<!-- When a list shrinks between triggers, orphaned streams release their voices. -->
 		<br/><br/>
 
 		<i><b>ADSR parameter changes</b></i>
@@ -99,7 +119,7 @@
 			</arglist>
 			<digest>Set pitch list (Hz or MIDI note numbers)</digest>
 			<description>
-				A list of frequencies (Hz) or MIDI note numbers (when <m>scale</m> is on). Each entry corresponds to a stream position. The number of notes triggered per rising edge equals the length of the longest parameter list (minimum 1). When the pitch list is shorter than other lists, values wrap around with modulo indexing.
+				A list of frequencies (Hz) or MIDI note numbers (when <m>scale</m> is on). Each entry corresponds to a stream position. The number of notes triggered per rising edge equals the length of the longest parameter list (minimum 1).
 				<br/><br/>
 				<i>default: 440.0 Hz</i>
 			</description>
@@ -111,7 +131,7 @@
 			</arglist>
 			<digest>Set velocity list (0–1)</digest>
 			<description>
-				A list of velocities normalised to 0–1. Wraps with modulo indexing.
+				A list of velocities normalised to 0–1.
 				<br/><br/>
 				<i>default: 0.5</i>
 			</description>
@@ -128,6 +148,20 @@
 				Example: <m>mono 1 0 0</m> — stream 0 glides, streams 1 and 2 always allocate new voices.
 				<br/><br/>
 				<i>default: 0 (off) for all streams</i>
+			</description>
+		</method>
+
+		<method name='mono_steals_release'>
+			<arglist>
+				<arg name='flags' optional='0' type='list' />
+			</arglist>
+			<digest>Set per-stream mono steals release (0/1)</digest>
+			<description>
+				A list of 0/1 flags. When mono is on and a voice on the same stream is in its release phase, this flag determines whether the new note glides the releasing voice (1) or allocates a fresh voice (0).
+				<br/><br/>
+				Only relevant when <m>mono</m> is enabled for the stream.
+				<br/><br/>
+				<i>default: 0 (off) — releasing voices are not glided</i>
 			</description>
 		</method>
 
@@ -149,7 +183,7 @@
 			</arglist>
 			<digest>Set attack time list (ms)</digest>
 			<description>
-				Per-stream attack times in milliseconds. Wraps with modulo indexing.
+				Per-stream attack times in milliseconds.
 				<br/><br/>
 				<i>default: 10 ms</i>
 			</description>
@@ -161,7 +195,7 @@
 			</arglist>
 			<digest>Set decay time list (ms)</digest>
 			<description>
-				Per-stream decay times in milliseconds. Wraps with modulo indexing.
+				Per-stream decay times in milliseconds.
 				<br/><br/>
 				<i>default: 100 ms</i>
 			</description>
@@ -197,7 +231,7 @@
 			</arglist>
 			<digest>Set release time list (ms)</digest>
 			<description>
-				Per-stream release times in milliseconds. Wraps with modulo indexing.
+				Per-stream release times in milliseconds.
 				<br/><br/>
 				<i>default: 300 ms</i>
 			</description>
@@ -259,7 +293,7 @@
 			<description>
 				Per-stream glide time in milliseconds. 0 = instant snap.
 				<br/><br/>
-				<i>default: 0 ms</i>
+				<i>default: 30 ms</i>
 			</description>
 		</method>
 
@@ -323,14 +357,14 @@
 		<method name='reset'>
 			<digest>Reset all lists and defaults</digest>
 			<description>
-				Clears all parameter lists (pitch, vel, mono, attack, decay, sustain, sustain_dur, release, attack_curve, decay_curve, release_curve, return_to_zero, glidetime, glide_curve, glide_retrigger, glide_impulse) and restores default values (pitch 440 Hz, vel 0.5, active on, debug off). Also clears the stream-to-voice mapping.
+				Clears all parameter lists (pitch, vel, mono, attack, decay, sustain, sustain_dur, release, attack_curve, decay_curve, release_curve, return_to_zero, glidetime, glide_curve, glide_retrigger, glide_impulse) and restores default values.
 			</description>
 		</method>
 
 		<method name='print'>
-			<digest>Print active voices and all parameter settings to console</digest>
+			<digest>print parameter settings to console</digest>
 			<description>
-				Prints active voices, inactive voices, stream mapping, and the current value of every parameter to the Max console.
+				Prints the current value(s) of every parameter to the Max console.
 			</description>
 		</method>
 
@@ -366,7 +400,7 @@
 			<digest>Use scale array for pitch lookup (default false)</digest>
 			<description>
 				When off (default), <m>pitch</m> values and inlet 2 are treated as raw frequencies in Hz.<br/>
-				When on, values are rounded to the nearest integer and used as MIDI note numbers to look up a frequency in the internal scale array. Use <m>scale_def</m> to define the tuning.
+				When on, values are rounded to the nearest integer and used as MIDI note numbers to look up a frequency in the internal scale array. Use <m>scale_def</m> (see <o>voice-alligator</o> reference) to define the tuning.
 				<br/><br/>
 				<i>default: false</i>
 			</description>

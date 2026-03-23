@@ -200,6 +200,7 @@ std::vector<float> msg_glide_curve_list;
 std::vector<float> msg_glide_retrigger_list;
 std::vector<float> msg_glide_impulse_list;
 std::vector<float> msg_mono_list;
+std::vector<float> msg_mono_steals_release_list;
 
 // Stream → voice mapping (scheduler thread only)
 std::vector<int> stream_voice_map;
@@ -446,6 +447,14 @@ message<> mono_msg{this, "mono", "Set per-stream mono/glide enable list (0/1)",
         return {};
     }
 };
+message<> mono_steals_release_msg{this, "mono_steals_release", "Set per-stream mono steals release list (0/1)",
+    MIN_FUNCTION{
+        msg_mono_steals_release_list.clear();
+        for (const auto& a : args)
+            msg_mono_steals_release_list.push_back((float)(number)a > 0.5f ? 1.f : 0.f);
+        return {};
+    }
+};
 message<> reset_msg{this, "reset", "Reset all lists and defaults",
     MIN_FUNCTION{
         msg_freq_list.clear();
@@ -464,6 +473,7 @@ message<> reset_msg{this, "reset", "Reset all lists and defaults",
         msg_glide_retrigger_list.clear();
         msg_glide_impulse_list.clear();
         msg_mono_list.clear();
+        msg_mono_steals_release_list.clear();
         default_freq.store(440.f, std::memory_order_relaxed);
         default_vel .store(0.5f,  std::memory_order_relaxed);
         stream_voice_map.clear();
@@ -687,9 +697,27 @@ void operator()(audio_bundle input, audio_bundle output) {
                 bool rtz       = p.return_to_zero;
                 bool do_declick = is_steal || (rtz && audio_voice_active[v]);
                 if (do_declick) {
-                    applyADSRTimingOnly(v);
+                    if (is_steal) {
+                        // For steals: only set retrigger time, don't change other ADSR
+                        // params — changing release mid-release can cause the ADSR to
+                        // jump to inactive, skipping the declick entirely.
+                        voice_adsr[v].retrigger(adsr_retrigger_ms.load(std::memory_order_relaxed), m_samplerate);
+                        voice_adsr[v].return_to_zero(true);
+                    } else {
+                        applyADSRTimingOnly(v);
+                    }
+                    // During release, m_active is false (trigger(false) was called
+                    // to start release). A single trigger(true) would skip retrigger
+                    // and jump straight to attack. Double-trigger forces the retrigger
+                    // path: first call sets m_active=true, second call enters retrigger
+                    // with m_retrigger_start = m_last_output (current release level).
                     voice_adsr[v].trigger(true);
+                    if (voice_adsr[v].stage() != adsr::adsr_stage::retrigger
+                        && last_env_output[v] > 0.001f) {
+                        voice_adsr[v].trigger(true);  // force retrigger
+                    }
                     if (voice_adsr[v].stage() == adsr::adsr_stage::attack) {
+                        // Retrigger completed instantly (already at ~0)
                         voice_adsr[v].initial(last_env_output[v]);
                         voice_adsr[v].peak   (new_vel);
                         voice_adsr[v].sustain(p.sustain * new_vel);
@@ -699,6 +727,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                         voice_ramp_value [v] = 0.f;
                         voice_ramp_frozen[v] = false;
                     } else {
+                        // Declick in progress — defer freq/vel until retrigger→attack
                         voice_ramp_frozen[v] = true;
                         voice_pending_freq[v] = {true, new_freq, new_vel};
                     }
@@ -937,6 +966,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
         const auto snap_glide_crv = msg_glide_curve_list;
         const auto snap_glide_rt  = msg_glide_retrigger_list;
         const auto snap_glide_imp = msg_glide_impulse_list;
+        const auto snap_mono_sr   = msg_mono_steals_release_list;
 
         const ParamSnap psnap{snap_attack, snap_decay, snap_sustain, snap_sus_dur,
                               snap_release, snap_atk_crv, snap_dec_crv, snap_rel_crv,
@@ -1003,28 +1033,25 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                 // ── Stream logic: glide if mono, else allocate new ────────
                 bool stream_mono = !snap_mono.empty()
                     && snap_mono[i % snap_mono.size()] > 0.5f;
+                bool steals_release = !snap_mono_sr.empty()
+                    && snap_mono_sr[i % snap_mono_sr.size()] > 0.5f;
 
                 int existing_target = stream_voice_map[i];
-                bool has_active = false;
+                bool do_glide = false;
                 if (stream_mono && existing_target > 0) {
                     auto it = std::find_if(active_voices.begin(), active_voices.end(),
-                        [existing_target](const Note& n){ return n.target == existing_target && !n.release_flag; });
-                    if (it != active_voices.end()) has_active = true;
+                        [existing_target](const Note& n){ return n.target == existing_target; });
+                    if (it != active_voices.end()) {
+                        if (!it->release_flag)
+                            do_glide = true;                // active, not releasing → glide
+                        else if (steals_release)
+                            do_glide = true;                // releasing but mono_steals_release → glide
+                    }
                 }
 
-                if (has_active) {
+                if (do_glide) {
                     glideVoice(existing_target, freq_out, vel_out, np);
                 } else {
-                    // Release old voice on this stream if mono and it exists
-                    if (stream_mono && existing_target > 0) {
-                        auto it = std::find_if(active_voices.begin(), active_voices.end(),
-                            [existing_target](const Note& n){ return n.target == existing_target && !n.release_flag; });
-                        if (it != active_voices.end()) {
-                            int vi = existing_target - 1;
-                            voice_cmd[vi].cmd.store((int)VoiceCmd::Type::note_off, std::memory_order_release);
-                            it->release_flag = true;
-                        }
-                    }
                     int nv = allocateNewVoice(freq_out, vel_out, np, (int)(i + 1));
                     stream_voice_map[i] = nv;
                 }
@@ -1116,12 +1143,12 @@ message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index value ..
 };
 
 void printParamList(const char* name, const std::vector<float>& list, float def, const char* unit) {
-    cout << "  " << name;
-    for (int p = 20 - (int)strlen(name); p > 0; --p) cout << " ";
-    cout << "= ";
+    cout << name;
+    if (unit[0] != '\0') cout << " (" << (unit + 1) << ")";  // skip leading space in unit
+    cout << ": ";
     if (list.empty()) cout << def << " (default)";
-    else { for (auto v : list) cout << v << " "; }
-    cout << unit << endl;
+    else { for (size_t j = 0; j < list.size(); ++j) { if (j) cout << " "; cout << list[j]; } }
+    cout << endl;
 }
 
 message<threadsafe::yes> print_msg{this, "print",
@@ -1148,9 +1175,10 @@ message<threadsafe::yes> print_msg{this, "print",
         // cout << "  steal               = " << (bool)steal_attr << endl;
         // cout << "  steal_mode          = " << (int)(steal_mode)steal_mode_attr << endl;
         // cout << "  scale               = " << (bool)scale_attr << endl;
-        printParamList("pitch",           msg_freq_list,           default_freq.load(), "");
+        printParamList("pitch",           msg_freq_list,           default_freq.load(), (bool)scale_attr ? " MIDI" : " Hz");
         printParamList("vel",             msg_vel_list,            default_vel.load(), "");
         printParamList("mono",            msg_mono_list,           0.f, "");
+        printParamList("mono_steals_release", msg_mono_steals_release_list, 0.f, "");
         // cout << "─── ADSR ──────────────────────" << endl;
         printParamList("attack",          msg_attack_list,         DEF_ATTACK,       " ms");
         printParamList("decay",           msg_decay_list,          DEF_DECAY,        " ms");
