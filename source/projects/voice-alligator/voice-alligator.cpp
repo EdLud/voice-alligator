@@ -327,9 +327,11 @@ voice_alligator(const atoms& args = {}){
 // Channel index (0-based) maps to voice target (1-based): channel 0 = target 1, etc.
 // A voice is "started"  when its ADSR first goes above zero  → promote pending → active.
 // A voice is "finished" when its ADSR returns to zero after being active  → return to inactive pool.
-// Audio thread writes transition events here — no locking needed.
-// Values: 0 = no event, -1 = ADSR finished (went below threshold after being active).
+// Audio thread writes transition flags here using fetch_or — no events are lost.
+// Bit 0 (1): ADSR went active   Bit 1 (2): ADSR went inactive
 // Fixed size matching the max voice cap of 1024; only indices [0, voices-1] are used.
+static constexpr int ADSR_STARTED  = 1;  // bit 0
+static constexpr int ADSR_FINISHED = 2;  // bit 1
 std::atomic<int> adsr_transitions[1024] {};
 
 // Threshold below which ADSR is considered silent. adsr~ tapers asymptotically so exact 0.0 is unreliable.
@@ -354,19 +356,19 @@ void operator()(audio_bundle input, audio_bundle output){
             if (samples[i] > peak) peak = samples[i];
         const double last = frames > 0 ? samples[frames - 1] : 0.0;
 
-        const bool was_active  = adsr_active[v];
-        const bool went_active = (peak  > ADSR_THRESHOLD); // fired at any point this vector
-        const bool still_active = (last > ADSR_THRESHOLD); // still on at end of vector
+        const bool was_active   = adsr_active[v];
+        const bool went_active  = (peak > ADSR_THRESHOLD);
+        const bool still_active = (last > ADSR_THRESHOLD);
 
+        // Use fetch_or so consecutive events accumulate instead of overwriting
         if (!was_active && went_active && !still_active){
-            // Entire note life within one vector — signal both start and end atomically
-            adsr_transitions[v].store(2, std::memory_order_relaxed);
+            adsr_transitions[v].fetch_or(ADSR_STARTED | ADSR_FINISHED, std::memory_order_relaxed);
         }
         else if (!was_active && went_active){
-            adsr_transitions[v].store(1, std::memory_order_relaxed);  // pending → active
+            adsr_transitions[v].fetch_or(ADSR_STARTED, std::memory_order_relaxed);
         }
-        else if ((was_active) && !still_active){
-            adsr_transitions[v].store(-1, std::memory_order_relaxed); // active → done
+        else if (was_active && !still_active){
+            adsr_transitions[v].fetch_or(ADSR_FINISHED, std::memory_order_relaxed);
         }
 
         adsr_active[v] = still_active;
@@ -377,13 +379,39 @@ void operator()(audio_bundle input, audio_bundle output){
 timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
     const int n = voices;
     for (int v = 0; v < n; ++v){
-        int event = adsr_transitions[v].exchange(0, std::memory_order_relaxed);
-        if (event == 0) continue;
+        int flags = adsr_transitions[v].exchange(0, std::memory_order_relaxed);
+        if (flags == 0) continue;
 
+        const bool started  = (flags & ADSR_STARTED)  != 0;
+        const bool finished = (flags & ADSR_FINISHED) != 0;
         const int target = v + 1;
         lock lock{m_mutex};
 
-        if (event == 1){
+        if (started && finished){
+            // ADSR fired and finished before we could read — blip.
+            // If in pending: discard (target was never removed from inactive_voices).
+            // If in active: only recycle if the note is actually released.
+            // If release_flag is false, the voice was re-triggered (steal/glide)
+            // and this FINISHED is stale from the old note's release tail.
+            auto pit = pending_voices.find(target);
+            if (pit != pending_voices.end()){
+                if(debug){cout << "ADSR blip for target " << target << " → note complete, returning to inactive_voices" << endl;}
+                pending_voices.erase(pit);
+            } else {
+                auto ait = std::find_if(active_voices.begin(), active_voices.end(),
+                                        [target](const Note& n){ return n.target == target; });
+                if (ait != active_voices.end()){
+                    if (ait->release_flag) {
+                        if(debug){cout << "ADSR blip for active target " << target << " → returning to inactive_voices" << endl;}
+                        inactive_voices.push_back(target);
+                        active_voices.erase(ait);
+                    } else {
+                        if(debug){cout << "ADSR blip for target " << target << " ignored — voice was re-triggered (release_flag=false)" << endl;}
+                    }
+                }
+            }
+        }
+        else if (started){
             // ADSR went non-zero: promote pending → active, pop from inactive_voices
             auto it = pending_voices.find(target);
             if (it != pending_voices.end()){
@@ -394,26 +422,23 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                 pending_voices.erase(it);
             }
         }
-        else if (event == 2){
-            // ADSR fired and finished within the same vector — promote pending straight to inactive
-            auto it = pending_voices.find(target);
-            if (it != pending_voices.end()){
-                if(debug){cout << "ADSR blip for target " << target << " → note complete, returning to inactive_voices" << endl;}
-                // target already in inactive_voices (was never popped), just discard from pending
-                pending_voices.erase(it);
-            }
-        }
-       else{ // event == -1
-            if(debug){cout << "ADSR off for target " << target << " → returning to inactive_voices" << endl;}
+        else if (finished){
             auto noteIt = std::find_if(active_voices.begin(), active_voices.end(),
                                     [target](const Note& n){ return n.target == target; });
             if (noteIt != active_voices.end()){
-                inactive_voices.push_back(target);
-                active_voices.erase(noteIt);
-                if(debug){cout << "  done, inactive_voices size=" << inactive_voices.size() << endl;}
+                // Only recycle if the note was actually released.
+                // If release_flag is false, the voice was re-triggered (mono_steals_release
+                // or steal) and this FINISHED event is stale from the old note's release.
+                if (noteIt->release_flag) {
+                    if(debug){cout << "ADSR off for target " << target << " → returning to inactive_voices" << endl;}
+                    inactive_voices.push_back(target);
+                    active_voices.erase(noteIt);
+                    if(debug){cout << "  done, inactive_voices size=" << inactive_voices.size() << endl;}
+                } else {
+                    if(debug){cout << "ADSR off for target " << target << " ignored — voice was re-triggered (release_flag=false)" << endl;}
+                }
             } else {
-                // FIX: The note went 0 -> >0 -> 0 so fast the '1' was overwritten.
-                // It's still in pending_voices. Clean it up so it doesn't leak.
+                // The note finished so fast it was never promoted from pending.
                 auto pendingIt = pending_voices.find(target);
                 if (pendingIt != pending_voices.end()) {
                     pending_voices.erase(pendingIt);
@@ -422,7 +447,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
             }
         }
     }
-    adsr_poll.delay(1); // reschedule to check again in 1ms; adjust as needed for responsiveness vs. CPU load
+    adsr_poll.delay(1);
     return {};
 }};
 

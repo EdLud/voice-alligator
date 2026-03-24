@@ -30,7 +30,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 34.0, 79.0, 1212.0, 687.0 ],
+                        "rect": [ 0.0, 26.0, 1212.0, 687.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -474,12 +474,12 @@
                                 "box": {
                                     "fontsize": 14.0,
                                     "id": "obj-14",
-                                    "linecount": 5,
+                                    "linecount": 6,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 25.0, 23.0, 531.0, 85.0 ],
-                                    "text": "We could also only use the ADSR and define the frequencies of our synth differently.\n\nIn this example the order of the pitches is somewhat random because we disassociate the ADSR from the pitch of the note. So the pitch(es) we hear on the next trigger are actually determined by the voice allocation."
+                                    "patching_rect": [ 25.0, 23.0, 531.0, 100.0 ],
+                                    "text": "It is also possible to only use the ADSR and define the frequencies of our synth differently.\n\nIn this example the order of the pitches can become somewhat random because we disassociate the ADSR from the pitch of the note. So the pitch(es) we hear on the next trigger are actually determined by the voice allocation."
                                 }
                             },
                             {
@@ -4237,7 +4237,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 26.0, 1212.0, 687.0 ],
+                        "rect": [ 34.0, 79.0, 1212.0, 687.0 ],
                         "showontab": 1,
                         "boxes": [
                             {

@@ -7,7 +7,7 @@
 	<description>
 		<b>voice-alligator-audio~</b> is the audio-input companion to <o>voice-alligator~</o>. Rather than receiving MIDI-style messages, it is driven entirely by signals: a trigger impulse, a pitch signal, and a velocity signal.
 		<br/><br/>
-		Notes are triggered by a rising edge (i.e. a <o>click~</o>) on inlet 1. Pitch and velocity are sampled at the moment of the trigger. If a non-zero signal is present on inlets 2 or 3, it overrides the corresponding <m>pitch</m> / <m>vel</m> list values.
+		Notes are triggered by a rising edge (i.e. a <o>click~</o>) on inlet 1. Pitch and velocity are sampled at the moment of the trigger on inlets 2 and 3 respectively.
 		<br/><br/>
 		Most parameters (pitch, velocity, ADSR, glide, mono) are set via list messages (i.e. <m>attack 1000 500</m>).
 		<br/><br/>
@@ -16,6 +16,9 @@
 		<br/><br/>
 		
 		<b>voice-alligator-audio~</b> can sample-accurately trigger 2 or more voices simultaneously with a single impulse, with per-voice pitch, velocity, ADSR envelope, and glide settings. The longest of the parameter lists will decide how many voices are started on a single trigger to inlet 1.
+		<br/><br/>
+
+		If a non-zero signal is present on inlets 2 or 3 at the time of the trigger, it overrides the corresponding <m>pitch</m> / <m>vel</m> list values.
 		<br/><br/>
 
 		Each voice is allocated to a stream position. For example, if the longest list has 3 entries, up to 3 voices can be triggered simultaneously: one for stream 1 (list index 1), one for stream 2 (list index 2), and one for stream 3 (list index 3). When a list has fewer entries than the longest list, values wrap around with modulo indexing.
@@ -145,7 +148,7 @@
 			<description>
 				A list of 0/1 flags controlling per-stream monophonic glide behaviour. When mono is enabled for a stream, a retrigger glides the existing voice to the new pitch instead of allocating a fresh voice. When mono is off (default), every trigger allocates a new voice.
 				<br/><br/>
-				Example: <m>mono 1 0 0</m> — stream 0 glides, streams 1 and 2 always allocate new voices.
+				Example: <m>mono 1 0 0</m> — stream 1 glides, streams 2 and 3 always allocate new voices.
 				<br/><br/>
 				<i>default: 0 (off) for all streams</i>
 			</description>
@@ -273,7 +276,7 @@
 			</description>
 		</method>
 
-		<method name='return_to_zero'>
+		<!-- <method name='return_to_zero'>
 			<arglist>
 				<arg name='flags' optional='0' type='list' />
 			</arglist>
@@ -283,7 +286,7 @@
 				<br/><br/>
 				<i>default: 1 (on)</i>
 			</description>
-		</method>
+		</method> -->
 
 		<method name='glidetime'>
 			<arglist>
@@ -291,7 +294,7 @@
 			</arglist>
 			<digest>Set glide time list (ms)</digest>
 			<description>
-				Per-stream glide time in milliseconds. 0 = instant snap.
+				Per-stream glide time in milliseconds.
 				<br/><br/>
 				<i>default: 30 ms</i>
 			</description>
@@ -357,7 +360,7 @@
 		<method name='reset'>
 			<digest>Reset all lists and defaults</digest>
 			<description>
-				Clears all parameter lists (pitch, vel, mono, attack, decay, sustain, sustain_dur, release, attack_curve, decay_curve, release_curve, return_to_zero, glidetime, glide_curve, glide_retrigger, glide_impulse) and restores default values.
+				Clears all parameter lists (pitch, vel, mono, attack, decay, sustain, sustain_dur, release, attack_curve, decay_curve, release_curve, glidetime, glide_curve, glide_retrigger, glide_impulse) and restores default values.
 			</description>
 		</method>
 
@@ -414,6 +417,15 @@
 				<i>default: 5 ms</i>
 			</description>
 		</attribute>
+
+		<!-- <attribute name='declick_only' get='1' set='1' type='int' size='1'>
+			<digest>Output declick ramp only on outlet 2</digest>
+			<description>
+				When enabled, outlet 2 outputs 1.0 while the voice is active. On a steal, it ramps from 1.0 to 0.0 over <at>declick_ms</at>, then snaps back to 1.0. This is useful for applying your own amplitude envelope externally while still getting click-free voice stealing.
+				<br/><br/>
+				<i>default: 0 (off)</i>
+			</description>
+		</attribute> -->
 
 		<attribute name='scale_def_mode' get='1' set='1' type='int' size='1'>
 			<digest>Scale definition mode: 0 MIDI, 1 frequency (default frequency)</digest>

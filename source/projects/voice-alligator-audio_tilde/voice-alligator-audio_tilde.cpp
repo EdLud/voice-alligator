@@ -85,37 +85,8 @@ struct Note {
     number vel{80};
     std::vector<number> freq;
     std::vector<int>    mpitch;
-    int  stream{1};
     int  target{1};
-    bool mono_flag{false};
-    bool sequencer_note_flag{false};
-    bool sustain_flag{false};
-    bool hold_flag{false};
     bool release_flag{false};
-
-    int    return_lowest_mpitch()  const { return *std::min_element(mpitch.begin(), mpitch.end()); }
-    int    return_highest_mpitch() const { return *std::max_element(mpitch.begin(), mpitch.end()); }
-    number return_lowest_freq()    const { return *std::min_element(freq.begin(),  freq.end());  }
-    number return_highest_freq()   const { return *std::max_element(freq.begin(),  freq.end());  }
-
-    void remove_mpitch_and_freq_entry(int p) {
-        for (auto it = mpitch.begin(); it != mpitch.end(); ++it) {
-            if (*it == p) {
-                size_t i = it - mpitch.begin();
-                mpitch.erase(mpitch.begin() + i);
-                freq.erase  (freq.begin()   + i);
-                break;
-            }
-        }
-    }
-    void remove_highest_mpitch_entry() {
-        size_t i = std::max_element(mpitch.begin(), mpitch.end()) - mpitch.begin();
-        mpitch.erase(mpitch.begin() + i); freq.erase(freq.begin() + i);
-    }
-    void remove_lowest_mpitch_entry() {
-        size_t i = std::min_element(mpitch.begin(), mpitch.end()) - mpitch.begin();
-        mpitch.erase(mpitch.begin() + i); freq.erase(freq.begin() + i);
-    }
 };
 
 // ─── ScaleArray ───────────────────────────────────────────────────────────────
@@ -276,6 +247,11 @@ VoiceGlide voice_glide[1024];
 std::atomic<int> voice_done_flags   [1024] {};
 std::atomic<int> voice_release_flags[1024] {};  // set when ADSR enters release phase
 
+// Per-voice declick-only ramp (1→0 over declick_ms on steal, then snap to 1)
+float voice_declick_value[1024] {};  // current ramp value
+float voice_declick_step [1024] {};  // step per sample (negative during ramp-down)
+bool  voice_declick_snapping[1024] {}; // true = waiting to snap back to 1
+
 double m_samplerate {44100.0};
 
 // Previous trigger signal — for rising edge detection (audio thread)
@@ -283,7 +259,7 @@ float prev_trigger_sample {0.f};
 
 // ─── Global params (audio thread reads directly) ──────────────────────────────
 
-std::atomic<float> adsr_retrigger_ms {5.f};  // declick_ms — stays as attribute
+std::atomic<float> adsr_retrigger_ms {5.f};  // declick_ms
 
 // ─── Default fallbacks (used when lists are empty and signal is zero) ─────────
 
@@ -399,14 +375,7 @@ message<> release_curve_msg{this, "release_curve", "Set release curve list (-1 t
         return {};
     }
 };
-message<> return_to_zero_msg{this, "return_to_zero", "Set return-to-zero list (0/1)",
-    MIN_FUNCTION{
-        msg_return_to_zero_list.clear();
-        for (const auto& a : args)
-            msg_return_to_zero_list.push_back((float)(number)a > 0.5f ? 1.f : 0.f);
-        return {};
-    }
-};
+// return_to_zero is always on — not exposed to the user
 message<> glidetime_msg{this, "glidetime", "Set glide time list (ms)",
     MIN_FUNCTION{
         msg_glidetime_list.clear();
@@ -477,8 +446,6 @@ message<> reset_msg{this, "reset", "Reset all lists and defaults",
         default_freq.store(440.f, std::memory_order_relaxed);
         default_vel .store(0.5f,  std::memory_order_relaxed);
         stream_voice_map.clear();
-        m_active = true;
-        m_debug  = false;
         return {};
     }
 };
@@ -525,6 +492,9 @@ attribute<number> declick_ms_attr{this, "declick_ms", 5.0,
         return {(number)v};
     }}
 };
+
+// attribute<bool> declick_only_attr{this, "declick_only", false,
+//     description{"When true, outlet 2 outputs 1.0 while active and ramps 1→0 over declick_ms on steal, then snaps back to 1."}};
 
 // ── Scale attributes ──────────────────────────────────────────────────────────
 
@@ -591,6 +561,9 @@ void resetVoices(int n) {
     std::fill(std::begin(voice_sustain_dur_remaining),   std::end(voice_sustain_dur_remaining),   0);
     std::fill(std::begin(voice_sustain_dur_active),      std::end(voice_sustain_dur_active),      false);
     std::fill(std::begin(voice_ramp_value),              std::end(voice_ramp_value),              0.f);
+    std::fill(std::begin(voice_declick_value),            std::end(voice_declick_value),            0.f);
+    std::fill(std::begin(voice_declick_step),             std::end(voice_declick_step),             0.f);
+    std::fill(std::begin(voice_declick_snapping),         std::end(voice_declick_snapping),         false);
     std::fill(std::begin(voice_ramp_step),               std::end(voice_ramp_step),               0.f);
     std::fill(std::begin(voice_ramp_frozen),             std::end(voice_ramp_frozen),             false);
     prev_trigger_sample = 0.f;
@@ -618,7 +591,7 @@ void applyADSRParams(int v, float vel_norm = 1.f) {
     voice_adsr[v].decay_curve   (p.decay_curve);
     voice_adsr[v].release_curve (p.release_curve);
     voice_adsr[v].retrigger     (adsr_retrigger_ms.load(std::memory_order_relaxed), sr);
-    voice_adsr[v].return_to_zero(p.return_to_zero);
+    voice_adsr[v].return_to_zero(true);
     voice_adsr[v].initial       (0.0);
     voice_adsr[v].peak          (vel_norm);
     voice_adsr[v].end           (0.0);
@@ -634,7 +607,7 @@ void applyADSRTimingOnly(int v) {
     voice_adsr[v].decay_curve   (p.decay_curve);
     voice_adsr[v].release_curve (p.release_curve);
     voice_adsr[v].retrigger     (adsr_retrigger_ms.load(std::memory_order_relaxed), sr);
-    voice_adsr[v].return_to_zero(p.return_to_zero);
+    voice_adsr[v].return_to_zero(true);
     voice_adsr[v].end           (0.0);
 }
 
@@ -679,7 +652,6 @@ void operator()(audio_bundle input, audio_bundle output) {
             p.attack_curve    = voice_cmd[v].p_attack_curve   .load(std::memory_order_relaxed);
             p.decay_curve     = voice_cmd[v].p_decay_curve    .load(std::memory_order_relaxed);
             p.release_curve   = voice_cmd[v].p_release_curve  .load(std::memory_order_relaxed);
-            p.return_to_zero  = voice_cmd[v].p_return_to_zero .load(std::memory_order_relaxed) != 0;
             p.glide_time_ms   = voice_cmd[v].p_glide_time_ms  .load(std::memory_order_relaxed);
             p.glide_curvature = voice_cmd[v].p_glide_curvature.load(std::memory_order_relaxed);
             p.glide_retrigger = voice_cmd[v].p_glide_retrigger.load(std::memory_order_relaxed) != 0;
@@ -694,8 +666,21 @@ void operator()(audio_bundle input, audio_bundle output) {
             voice_is_glide[v] = is_glide;
 
             if (!is_glide) {
-                bool rtz       = p.return_to_zero;
-                bool do_declick = is_steal || (rtz && audio_voice_active[v]);
+                bool do_declick = is_steal || audio_voice_active[v];
+
+                // // declick_only ramp: start 1→0 on steal, set to 1 on fresh note
+                // if (is_steal && audio_voice_active[v]) {
+                //     float dc_ms = adsr_retrigger_ms.load(std::memory_order_relaxed);
+                //     int dc_samps = std::max(1, static_cast<int>((dc_ms / 1000.f) * (float)m_samplerate));
+                //     voice_declick_value[v] = 1.f;
+                //     voice_declick_step[v]  = -1.f / (float)dc_samps;
+                //     voice_declick_snapping[v] = false;
+                // } else {
+                //     voice_declick_value[v] = 1.f;
+                //     voice_declick_step[v]  = 0.f;
+                //     voice_declick_snapping[v] = false;
+                // }
+
                 if (do_declick) {
                     if (is_steal) {
                         // For steals: only set retrigger time, don't change other ADSR
@@ -919,6 +904,15 @@ void operator()(audio_bundle input, audio_bundle output) {
                 out_freq = voice_glide[v].current_freq;
             }
 
+            // // Advance declick-only ramp
+            // if (voice_declick_step[v] != 0.f) {
+            //     voice_declick_value[v] += voice_declick_step[v];
+            //     if (voice_declick_value[v] <= 0.f) {
+            //         voice_declick_value[v] = 1.f;  // snap back to 1
+            //         voice_declick_step[v]  = 0.f;
+            //     }
+            // }
+
             ch_freq   [i] = out_freq;
             ch_env    [i] = env;
             ch_impulse[i] = fire_impulse ? 1.f : 0.f;
@@ -961,7 +955,6 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
         const auto snap_atk_crv   = msg_attack_curve_list;
         const auto snap_dec_crv   = msg_decay_curve_list;
         const auto snap_rel_crv   = msg_release_curve_list;
-        const auto snap_rtz       = msg_return_to_zero_list;
         const auto snap_glidetime = msg_glidetime_list;
         const auto snap_glide_crv = msg_glide_curve_list;
         const auto snap_glide_rt  = msg_glide_retrigger_list;
@@ -970,7 +963,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
 
         const ParamSnap psnap{snap_attack, snap_decay, snap_sustain, snap_sus_dur,
                               snap_release, snap_atk_crv, snap_dec_crv, snap_rel_crv,
-                              snap_rtz, snap_glidetime, snap_glide_crv, snap_glide_rt,
+                              snap_glidetime, snap_glide_crv, snap_glide_rt,
                               snap_glide_imp};
 
         TriggerEvent evt;
@@ -982,7 +975,12 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
             float vel_default  = default_vel .load(std::memory_order_relaxed);
 
             // Note count = longest list (minimum 1)
-            size_t n_notes = std::max({snap_freq.size(), snap_vel.size(), snap_mono.size()});
+            size_t n_notes = std::max({snap_freq.size(), snap_vel.size(), snap_mono.size(),
+                snap_mono_sr.size(), snap_attack.size(), snap_decay.size(),
+                snap_sustain.size(), snap_sus_dur.size(), snap_release.size(),
+                snap_atk_crv.size(), snap_dec_crv.size(), snap_rel_crv.size(),
+                snap_glidetime.size(), snap_glide_crv.size(),
+                snap_glide_rt.size(), snap_glide_imp.size()});
             if (n_notes == 0) n_notes = 1;
 
             size_t old_streams = stream_voice_map.size();
@@ -1228,7 +1226,6 @@ struct ParamSnap {
     const std::vector<float>& atk_crv;
     const std::vector<float>& dec_crv;
     const std::vector<float>& rel_crv;
-    const std::vector<float>& rtz;
     const std::vector<float>& glidetime;
     const std::vector<float>& glide_crv;
     const std::vector<float>& glide_rt;
@@ -1245,7 +1242,7 @@ static NoteParams lookupStreamParams(size_t i, const ParamSnap& s) {
     np.attack_curve    = getP(s.atk_crv,   i, DEF_ATTACK_CURVE);
     np.decay_curve     = getP(s.dec_crv,   i, DEF_DECAY_CURVE);
     np.release_curve   = getP(s.rel_crv,   i, DEF_RELEASE_CURVE);
-    np.return_to_zero  = getP(s.rtz,       i, DEF_RETURN_TO_ZERO);
+    np.return_to_zero  = 1.f;  // always on
     np.glide_time_ms   = getP(s.glidetime, i, DEF_GLIDETIME);
     np.glide_curvature = getP(s.glide_crv, i, DEF_GLIDE_CURVE);
     np.glide_retrigger = getP(s.glide_rt,  i, DEF_GLIDE_RETRIGGER);
@@ -1344,8 +1341,6 @@ int allocateNewVoice(float freq, float vel_norm, const NoteParams& np, int strea
     note.freq      = {freq};
     note.mpitch    = {(int)std::round(freq)};
     note.vel       = vel_norm;
-    note.stream    = stream_idx;
-    note.mono_flag = false;
 
     int fv = findFreeVoice();
     if (fv != -1) {
@@ -1367,9 +1362,7 @@ int allocateNewVoice(float freq, float vel_norm, const NoteParams& np, int strea
         s->freq         = note.freq;
         s->mpitch       = note.mpitch;
         s->vel          = note.vel;
-        s->stream       = stream_idx;
         s->release_flag = false;
-        s->mono_flag    = false;
         size_t idx = s - &active_voices[0];
         rotate(active_voices.begin()+idx, active_voices.begin()+idx+1, active_voices.end());
         int target = active_voices.back().target;
