@@ -317,7 +317,13 @@ voice_alligator(const atoms& args = {}){
                 active_voices.clear();
                 pending_voices.clear();
                 std::fill(std::begin(adsr_active), std::end(adsr_active), false);
-                for (int i = 0; i < 1024; ++i) adsr_transitions[i].store(0, std::memory_order_relaxed);
+                std::fill(std::begin(audio_note_gen), std::end(audio_note_gen), 0u);
+                std::fill(std::begin(orphan_noteoff_sent), std::end(orphan_noteoff_sent), false);
+                for (int i = 0; i < 1024; ++i) {
+                    adsr_transitions[i].store(0, std::memory_order_relaxed);
+                    voice_alloc_gen[i] .store(0, std::memory_order_relaxed);
+                    voice_done_gen[i]  .store(0, std::memory_order_relaxed);
+                }
                 for (int i = 1; i <= voicenr; ++i){
                     inactive_voices.push_back(i);
                 }
@@ -333,6 +339,16 @@ voice_alligator(const atoms& args = {}){
 static constexpr int ADSR_STARTED  = 1;  // bit 0
 static constexpr int ADSR_FINISHED = 2;  // bit 1
 std::atomic<int> adsr_transitions[1024] {};
+
+// Generation counters: prevent stale ADSR-off events from reclaiming re-triggered voices.
+// voice_alloc_gen: incremented by scheduler each time a note-on is sent for a voice.
+// voice_done_gen:  audio thread stores audio_note_gen when ADSR goes inactive.
+// audio_note_gen:  audio thread's local copy, updated when ADSR goes active.
+// Poll timer only reclaims a voice if voice_done_gen == voice_alloc_gen.
+std::atomic<uint32_t> voice_alloc_gen[1024] {};
+std::atomic<uint32_t> voice_done_gen [1024] {};
+uint32_t              audio_note_gen [1024] {};
+bool                  orphan_noteoff_sent[1024] {};  // true once we've sent a safety note-off for an orphaned voice
 
 // Threshold below which ADSR is considered silent. adsr~ tapers asymptotically so exact 0.0 is unreliable.
 static constexpr double ADSR_THRESHOLD = 1e-5;
@@ -360,15 +376,27 @@ void operator()(audio_bundle input, audio_bundle output){
         const bool went_active  = (peak > ADSR_THRESHOLD);
         const bool still_active = (last > ADSR_THRESHOLD);
 
-        // Use fetch_or so consecutive events accumulate instead of overwriting
+        // Use fetch_or so consecutive events accumulate instead of overwriting.
+        // Update generation counters for stale-event detection.
         if (!was_active && went_active && !still_active){
+            audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
+            voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
             adsr_transitions[v].fetch_or(ADSR_STARTED | ADSR_FINISHED, std::memory_order_relaxed);
         }
         else if (!was_active && went_active){
+            audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
             adsr_transitions[v].fetch_or(ADSR_STARTED, std::memory_order_relaxed);
         }
         else if (was_active && !still_active){
+            voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
             adsr_transitions[v].fetch_or(ADSR_FINISHED, std::memory_order_relaxed);
+        }
+        else if (was_active && still_active){
+            // Voice continuously active — a steal may have happened while the
+            // ADSR stayed above threshold (no restart transition detected).
+            // Keep audio_note_gen in sync so that when the ADSR eventually
+            // finishes, voice_done_gen will match the current voice_alloc_gen.
+            audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
         }
 
         adsr_active[v] = still_active;
@@ -387,26 +415,34 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
         const int target = v + 1;
         lock lock{m_mutex};
 
+        // Generation check: only reclaim a voice if the done generation matches
+        // the alloc generation. A mismatch means the voice was re-triggered and
+        // this FINISHED event is stale from the old note.
+        const bool gen_matches = voice_done_gen[v].load(std::memory_order_relaxed)
+                              == voice_alloc_gen[v].load(std::memory_order_relaxed);
+
         if (started && finished){
             // ADSR fired and finished before we could read — blip.
-            // If in pending: discard (target was never removed from inactive_voices).
-            // If in active: only recycle if the note is actually released.
-            // If release_flag is false, the voice was re-triggered (steal/glide)
-            // and this FINISHED is stale from the old note's release tail.
+            // If in pending: discard if gen matches (target was never removed from inactive_voices).
+            // If in active: only recycle if gen matches AND release_flag is true.
             auto pit = pending_voices.find(target);
             if (pit != pending_voices.end()){
-                if(debug){cout << "ADSR blip for target " << target << " → note complete, returning to inactive_voices" << endl;}
-                pending_voices.erase(pit);
+                if (gen_matches) {
+                    if(debug){cout << "ADSR blip for target " << target << " → note complete, returning to inactive_voices" << endl;}
+                    pending_voices.erase(pit);
+                } else {
+                    if(debug){cout << "ADSR blip for pending target " << target << " ignored — gen mismatch" << endl;}
+                }
             } else {
                 auto ait = std::find_if(active_voices.begin(), active_voices.end(),
                                         [target](const Note& n){ return n.target == target; });
                 if (ait != active_voices.end()){
-                    if (ait->release_flag) {
+                    if (gen_matches && ait->release_flag) {
                         if(debug){cout << "ADSR blip for active target " << target << " → returning to inactive_voices" << endl;}
                         inactive_voices.push_back(target);
                         active_voices.erase(ait);
                     } else {
-                        if(debug){cout << "ADSR blip for target " << target << " ignored — voice was re-triggered (release_flag=false)" << endl;}
+                        if(debug){cout << "ADSR blip for target " << target << " ignored — " << (!gen_matches ? "gen mismatch" : "voice re-triggered") << endl;}
                     }
                 }
             }
@@ -426,16 +462,17 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
             auto noteIt = std::find_if(active_voices.begin(), active_voices.end(),
                                     [target](const Note& n){ return n.target == target; });
             if (noteIt != active_voices.end()){
-                // Only recycle if the note was actually released.
-                // If release_flag is false, the voice was re-triggered (mono_steals_release
-                // or steal) and this FINISHED event is stale from the old note's release.
-                if (noteIt->release_flag) {
+                // Reclaim only if generation matches AND the note was actually released.
+                // gen mismatch = voice was re-triggered (steal), ADSR-off is stale.
+                // release_flag false = voice was re-triggered (glide/mono_steals_release),
+                // ADSR may have briefly dipped during the transition.
+                if (gen_matches && noteIt->release_flag) {
                     if(debug){cout << "ADSR off for target " << target << " → returning to inactive_voices" << endl;}
                     inactive_voices.push_back(target);
                     active_voices.erase(noteIt);
                     if(debug){cout << "  done, inactive_voices size=" << inactive_voices.size() << endl;}
                 } else {
-                    if(debug){cout << "ADSR off for target " << target << " ignored — voice was re-triggered (release_flag=false)" << endl;}
+                    if(debug){cout << "ADSR off for target " << target << " ignored — " << (!gen_matches ? "gen mismatch" : "voice re-triggered (release_flag=false)") << endl;}
                 }
             } else {
                 // The note finished so fast it was never promoted from pending.
@@ -447,6 +484,51 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
             }
         }
     }
+
+    // Sweep: reclaim active voices whose ADSR is silent and note was released.
+    // Catches: (1) hold notes where ADSR finished before endhold/end set release_flag,
+    // (2) voices where a gen mismatch prevents the event-based path from reclaiming
+    //     (e.g. audio thread missed a very brief ADSR cycle due to DSP chain timing).
+    // Safe because: release_flag=true means the note was explicitly released,
+    // and adsr_active=false means mc.poly~'s envelope is at zero.
+    {
+        lock lock{m_mutex};
+        for (auto it = active_voices.begin(); it != active_voices.end(); ){
+            int v = it->target - 1;
+            if (v < 0 || v >= n) { ++it; continue; }
+            if (it->release_flag && !adsr_active[v]) {
+                if(debug){cout << "Sweep: reclaiming stale active voice target " << it->target << endl;}
+                inactive_voices.push_back(it->target);
+                it = active_voices.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    // Safety net: detect orphaned voices (ADSR active but not tracked).
+    // Send a single note-off to mc.poly~ so the voice eventually goes silent.
+    for (int v = 0; v < n; ++v){
+        if (!adsr_active[v]) {
+            orphan_noteoff_sent[v] = false;  // reset when ADSR goes silent
+            continue;
+        }
+        if (orphan_noteoff_sent[v]) continue;  // already sent, wait for ADSR to finish
+        int target = v + 1;
+        bool in_active, in_pending;
+        {
+            lock lock{m_mutex};
+            in_active = std::any_of(active_voices.begin(), active_voices.end(),
+                [target](const Note& n){ return n.target == target; });
+            in_pending = pending_voices.count(target) > 0;
+        }
+        if (!in_active && !in_pending) {
+            if(debug){cout << "Sweep: orphaned voice " << target << " — sending note-off" << endl;}
+            out1.send(target, 0., 0, "flags", false, false, false, false, false, 0);
+            orphan_noteoff_sent[v] = true;
+        }
+    }
+
     adsr_poll.delay(1);
     return {};
 }};
@@ -701,7 +783,7 @@ void handleNoteOnMono(Note &note, lock &lock){
             mono_target_note->vel = note.vel;
             note_to_send = *mono_target_note;
             lock.unlock();
-            outputFunction(note_to_send, 1, 1, false, true); // -> spiele neue note mit diesem gefundenen target, mono flag 1 und steal 1
+            outputFunction(note_to_send, 1, 1, false, true);
             return;
             }
         }
@@ -1156,6 +1238,13 @@ Note* findNoteToSteal(const Note &incoming_note){
 void outputFunction(const Note note, bool note_on, bool steal, bool flags_only = false, bool glide_note = false){
     // in this context "note on" means something different than in other contexts:
     // a note-off to [voice-alligator] will be a note-on if there is still a key on the same stream pressed in monophony.
+
+    // Increment generation counter when the ADSR will restart (new notes, steals).
+    // Skip for glide notes — the ADSR stays above threshold, so audio_note_gen
+    // never updates, and incrementing here would prevent the voice from ever
+    // being reclaimed. mono_steals_release is handled separately (see below).
+    if (note_on && !glide_note && note.target >= 1 && note.target <= 1024)
+        voice_alloc_gen[note.target - 1].fetch_add(1, std::memory_order_relaxed);
     
     if (note_on){
         // glide, hold, sustain, sequencerNote, mono, steal, stream
@@ -1345,16 +1434,32 @@ message<> print{this, "print", "Print info to the max console",
             {
                 cout << k << " ";
             }
+            int v = i.target - 1;
             cout << "], vel " << i.vel
                     << ", mono " << (i.mono_flag)
                     << ", hold " << (i.hold_flag)
                      << ", sustain " << (i.sustain_flag)
                     << ", release " << (i.release_flag)
-                    << ", sequencer_note: " << (i.sequencer_note_flag);
+                    << ", sequencer_note: " << (i.sequencer_note_flag)
+                    << ", alloc_gen " << voice_alloc_gen[v].load(std::memory_order_relaxed)
+                    << ", done_gen " << voice_done_gen[v].load(std::memory_order_relaxed)
+                    << ", adsr_active " << adsr_active[v];
             cout << endl;
         }
         cout << "}" << endl; 
     }
+
+        if (!pending_voices.empty()){
+            cout << pending_voices.size() << " notes in pending_voices{" << endl;
+            for (auto &kv : pending_voices){
+                auto &n = kv.second;
+                cout << "  target " << kv.first
+                     << ", mpitch " << n.mpitch.back()
+                     << ", release " << n.release_flag
+                     << endl;
+            }
+            cout << "}" << endl;
+        }
 
         if (inactive_voices.empty())
         {
@@ -1368,6 +1473,30 @@ message<> print{this, "print", "Print info to the max console",
         {
             cout << "There are " << inactive_voices.size() << " inactive voices available" << endl;
         }
+
+        // Diagnostic: check for voices whose ADSR is still active but aren't tracked
+        {
+            int orphaned = 0;
+            const int n = voices;
+            for (int v = 0; v < n; ++v){
+                if (adsr_active[v]){
+                    int target = v + 1;
+                    bool in_active = std::any_of(active_voices.begin(), active_voices.end(),
+                        [target](const Note& n){ return n.target == target; });
+                    bool in_pending = pending_voices.count(target) > 0;
+                    if (!in_active && !in_pending){
+                        cout << "WARNING: voice " << target << " has active ADSR but is not tracked"
+                             << " (alloc_gen=" << voice_alloc_gen[v].load(std::memory_order_relaxed)
+                             << " done_gen=" << voice_done_gen[v].load(std::memory_order_relaxed)
+                             << ")" << endl;
+                        orphaned++;
+                    }
+                }
+            }
+            if (orphaned > 0)
+                cout << orphaned << " orphaned voice(s) detected" << endl;
+        }
+
     return {};
     }
 };
@@ -1443,6 +1572,13 @@ message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
         inactive_voices.clear();
         for (int i = 1; i <= voices; ++i) inactive_voices.push_back(i);
         std::fill(std::begin(adsr_active), std::end(adsr_active), false);
+        std::fill(std::begin(audio_note_gen), std::end(audio_note_gen), 0u);
+        std::fill(std::begin(orphan_noteoff_sent), std::end(orphan_noteoff_sent), false);
+        for (int i = 0; i < 1024; ++i) {
+            adsr_transitions[i].store(0, std::memory_order_relaxed);
+            voice_alloc_gen[i] .store(0, std::memory_order_relaxed);
+            voice_done_gen[i]  .store(0, std::memory_order_relaxed);
+        }
     }
 
     adsr_poll.delay(1);

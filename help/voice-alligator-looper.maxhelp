@@ -9,7 +9,7 @@
             "modernui": 1
         },
         "classnamespace": "box",
-        "rect": [ 54.0, 100.0, 1192.0, 617.0 ],
+        "rect": [ 54.0, 100.0, 817.0, 617.0 ],
         "showrootpatcherontab": 0,
         "showontab": 0,
         "boxes": [
@@ -29,7 +29,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 26.0, 1192.0, 591.0 ],
+                        "rect": [ 0.0, 26.0, 817.0, 591.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -129,7 +129,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 54.0, 126.0, 1192.0, 591.0 ],
+                        "rect": [ 54.0, 126.0, 817.0, 591.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -2481,7 +2481,7 @@
                                     "numoutlets": 3,
                                     "outlettype": [ "", "", "int" ],
                                     "parameter_enable": 0,
-                                    "patching_rect": [ 613.0, 123.0, 20.0, 20.0 ],
+                                    "patching_rect": [ 613.0, 175.0, 20.0, 20.0 ],
                                     "rounded": 60.0,
                                     "text": "3",
                                     "textcolor": [ 0.34902, 0.34902, 0.34902, 1.0 ],
@@ -2571,12 +2571,13 @@
                                     "fontname": "Arial",
                                     "fontsize": 13.0,
                                     "id": "obj-54",
-                                    "linecount": 5,
+                                    "linecount": 2,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 622.0, 135.0, 172.0, 98.0 ],
-                                    "text": "click record, record a short sequence, click again\n\n(repeat until you find something you like)"
+                                    "patching_rect": [ 622.0, 187.0, 172.0, 55.0 ],
+                                    "presentation_linecount": 2,
+                                    "text": "click record, record a short sequence, click again"
                                 }
                             },
                             {
@@ -2923,6 +2924,14 @@
             "obj-8::obj-17": [ "number[1]", "number[6]", 0 ],
             "obj-8::obj-25": [ "number[2]", "number[14]", 0 ],
             "obj-8::obj-27": [ "number[3]", "number[3]", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0
