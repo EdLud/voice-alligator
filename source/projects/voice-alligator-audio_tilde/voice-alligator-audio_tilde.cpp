@@ -983,6 +983,11 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                 snap_glide_rt.size(), snap_glide_imp.size()});
             if (n_notes == 0) n_notes = 1;
 
+            if (m_debug) cout << "trigger: n_notes=" << n_notes
+                << " sus_dur_sz=" << snap_sus_dur.size()
+                << " freq_sz=" << snap_freq.size()
+                << " vel_sz=" << snap_vel.size() << endl;
+
             size_t old_streams = stream_voice_map.size();
             if (n_notes > stream_voice_map.size())
                 stream_voice_map.resize(n_notes, 0);
@@ -1051,6 +1056,11 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                     glideVoice(existing_target, freq_out, vel_out, np);
                 } else {
                     int nv = allocateNewVoice(freq_out, vel_out, np, (int)(i + 1));
+                    if (m_debug && nv == 0)
+                        cout << "  stream " << i << ": allocateNewVoice FAILED"
+                             << " inactive=" << inactive_voices.size()
+                             << " active=" << active_voices.size()
+                             << " pending=" << pending_voices.size() << endl;
                     stream_voice_map[i] = nv;
                 }
             }
@@ -1350,7 +1360,10 @@ int allocateNewVoice(float freq, float vel_norm, const NoteParams& np, int strea
                                 [fv](const Note& n){ return n.target == fv; });
         if (ait != active_voices.end()) {
             *ait = note;
-            sendNoteOn(*ait, true, false, np);
+            // Rotate to back so findNoteToSteal's "oldest" doesn't pick it again
+            size_t idx = std::distance(active_voices.begin(), ait);
+            std::rotate(active_voices.begin() + idx, active_voices.begin() + idx + 1, active_voices.end());
+            sendNoteOn(active_voices.back(), true, false, np);
         } else {
             pending_voices[fv] = note;
             sendNoteOn(note, false, false, np);
