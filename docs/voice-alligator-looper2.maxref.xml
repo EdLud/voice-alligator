@@ -1,0 +1,268 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+
+
+<c74object name='voice-alligator-looper2'>
+
+	<digest>Note Looper for voice-alligator</digest>
+	<description>
+
+This Note Looper records note events from <o>voice-alligator</o> and plays them back in a loop on a configurable stream.<br/><br/>
+
+It remembers exact pitches, velocities, portamento / glide settings, and timing of a musical sequence. Notes held when recording stops are handled gracefully via overlap detection, and notes that span the loop boundary (wrapping notes) are preserved across cycles.<br/><br/>
+
+Recorded loops can be quantized to a rhythmic grid, overdubbed, permutated, transposed, and played back at variable speed. Volume and pitch jitter add humanization.<br/><br/>
+
+If the note looper is set to a higher stream than an input going into voice-alligator, it will by default not steal notes from that input.<br/><br/>
+
+	</description>
+
+
+	<!--METADATA-->
+
+	<metadatalist>
+		<metadata name='author'>Edis Ludwig</metadata>
+		<metadata name='tag'>voice-alligator</metadata>
+		<metadata name='tag'>looper</metadata>
+		<metadata name='tag'>sequencer</metadata>
+	</metadatalist>
+
+
+
+	<!--INLETS-->
+	<inletlist>
+
+		<inlet id="0" type="list">
+			<digest>messages from voice-alligator, commands</digest>
+			<description>
+				Receives output from <o>voice-alligator</o> for recording. Also accepts the looper's own messages and attributes.
+			</description>
+		</inlet>
+		<inlet id="1" type="list">
+			<digest>auxiliary input for parameter recording</digest>
+			<description>
+				Auxiliary input for parameter recording (not yet implemented).
+			</description>
+		</inlet>
+
+	</inletlist>
+
+
+	<!--OUTLETS-->
+	<outletlist>
+
+		<outlet id="0" type="list">
+			<digest>note data to voice-alligator</digest>
+			<description>
+				Sends recorded note data back to <o>voice-alligator</o> in sequencer format: target, velocity, stream, glide_flag, frequency.
+			</description>
+		</outlet>
+
+		<outlet id="1" type="list">
+			<digest>auxiliary output for parameter playback</digest>
+			<description>
+				Auxiliary output for recorded parameter data (not yet implemented).
+			</description>
+		</outlet>
+
+		<outlet id="2" type="list">
+			<digest>notifications</digest>
+			<description>
+				Outputs status notifications:<br/>
+				<b>play 1 / 0</b> — playback started or stopped<br/>
+				<b>record 1 / 0</b> — recording started or stopped<br/>
+				<b>overdub 1 / 0</b> — overdub started or stopped<br/>
+				<b>quantize_done</b> — quantization completed<br/>
+			</description>
+		</outlet>
+
+	</outletlist>
+
+
+	<!--ARGUMENTS-->
+
+	<objarglist>
+
+		<objarg name='stream' optional='1' type='int'>
+			<digest>stream to output to (default 2)</digest>
+			<description>Sets which stream the looper will output to. Higher streams have lower priority in voice-alligator's voice allocation.
+				<br/><br/>
+				<i>default 2</i></description>
+		</objarg>
+
+	</objarglist>
+
+
+	<!--MESSAGES-->
+
+	<methodlist>
+
+		<method name='list'>
+			<digest>messages from voice-alligator</digest>
+			<description>
+				Messages from <o>voice-alligator</o>. These are lists that start with <b>"target"</b> followed by pitch, velocity, <b>"flags"</b>, and flag values. The looper parses these to record note-on, note-off, and glide events with their exact timing and pitch.
+			</description>
+		</method>
+
+		<method name='record'>
+			<digest>record 1/0: start or stop recording</digest>
+			<description>
+				<b>record 1</b> starts recording. If playback is active, it is stopped first and all sounding notes are killed. Any previously recorded events are cleared.<br/><br/>
+				<b>record 0</b> stops recording and determines the loop length. If <b>autoplay</b> is enabled, playback starts immediately. Notes still held when recording stops become overlap notes whose note-off is captured when the player releases the key.
+			</description>
+		</method>
+
+		<method name='play'>
+			<digest>play 1/0: start or stop playback</digest>
+			<description>
+				<b>play 1</b> starts looped playback of the recorded sequence.<br/><br/>
+				<b>play 0</b> stops playback and sends note-offs for all potentially sounding voices.
+			</description>
+		</method>
+
+		<method name='clear'>
+			<digest>clear the recorded loop</digest>
+			<description>
+				Stops playback and clears all recorded events, resetting the looper to its initial state.
+			</description>
+		</method>
+
+		<method name='overdub'>
+			<digest>overdub [1/0] [next|now] [N|inf]</digest>
+			<description>
+				Enables or disables overdub recording on top of an existing loop.<br/><br/>
+				<b>overdub 1 next</b> — arm overdub; recording starts on the next note-on.<br/>
+				<b>overdub 1 now</b> — start overdub immediately (notes currently held are ignored).<br/>
+				<b>overdub 1 next N</b> — arm overdub for N loop cycles, then stop automatically.<br/>
+				<b>overdub 1 now inf</b> — overdub indefinitely until manually stopped.<br/>
+				<b>overdub 0</b> — stop overdub and merge recorded events into the loop.
+			</description>
+		</method>
+
+		<method name='permutate'>
+			<digest>permutate [N]: shuffle note positions</digest>
+			<description>
+				Randomly rearranges the timing of recorded notes while preserving their durations.<br/><br/>
+				<b>permutate 0</b> — full shuffle of all note positions.<br/>
+				<b>permutate N</b> (N &gt; 0) — perform N random slot swaps.
+			</description>
+		</method>
+
+	</methodlist>
+
+
+	<!--ATTRIBUTES-->
+
+	<attributelist>
+
+		<attribute name='speed' get='0' set='1' type='float' size='1'>
+			<digest>playback speed as ratio</digest>
+			<description>Sets the playback speed as a ratio. 1.0 is normal speed, 2.0 is double speed, 0.5 is half speed.
+				<br/><br/>
+				<i>default 1.0</i></description>
+		</attribute>
+
+		<attribute name='record_pressed' get='0' set='1' type='bool' size='1'>
+			<digest>inject pressed notes as note-ons on record start</digest>
+			<description>If a note is being held when recording starts, transform it into a note-on at the beginning of the loop. This makes timing a loop easier since you can hold a note before pressing record.
+				<br/><br/>
+				<i>default true</i></description>
+		</attribute>
+
+		<attribute name='autoplay' get='0' set='1' type='bool' size='1'>
+			<digest>auto-start playback when recording stops</digest>
+			<description>When enabled, playback starts automatically as soon as recording stops (provided notes were recorded).
+				<br/><br/>
+				<i>default true</i></description>
+		</attribute>
+
+		<attribute name='autostop_play' get='0' set='1' type='bool' size='1'>
+			<digest>stop playback when recording starts</digest>
+			<description>When enabled, playback is stopped when recording is turned on. When disabled, playback is always stopped before recording regardless (to prevent timer conflicts), but this attribute controls whether the stop notification is sent.
+				<br/><br/>
+				<i>default false</i></description>
+		</attribute>
+
+		<attribute name='vol' get='0' set='1' type='float' size='1'>
+			<digest>volume of output as percentage</digest>
+			<description>Multiplies recorded velocities by the given percentage.
+				<br/><br/>
+				<i>default 100.0</i></description>
+		</attribute>
+
+		<attribute name='volJitter' get='0' set='1' type='int' size='1'>
+			<digest>volume jitter as percentage</digest>
+			<description>Randomly subtracts up to N% from each note's velocity on playback, adding humanization.
+				<br/><br/>
+				<i>default 0</i></description>
+		</attribute>
+
+		<attribute name='transpose' get='0' set='1' type='float' size='1'>
+			<digest>transpose in semitones</digest>
+			<description>Transposes all recorded notes by the given number of semitones. Fractional values are supported for microtonal transposition.
+				<br/><br/>
+				<i>default 0.0</i></description>
+		</attribute>
+
+		<attribute name='pitchJitter' get='0' set='1' type='float' size='1'>
+			<digest>pitch jitter in semitones</digest>
+			<description>Randomly offsets each note's pitch by up to +/- N semitones on playback.
+				<br/><br/>
+				<i>default 0.0</i></description>
+		</attribute>
+
+		<attribute name='quantize' get='0' set='1' type='symbol' size='1'>
+			<digest>quantization grid</digest>
+			<description>Sets the quantization grid and triggers quantization when set during runtime. Accepted values are standard note divisions: <b>1n</b>, <b>2n</b>, <b>4n</b>, <b>8n</b>, <b>16n</b>, <b>32n</b>, and their dotted and triplet variants (e.g. <b>8nd</b>, <b>8nt</b>). Only note-on start times are quantized; durations are preserved.
+				<br/><br/>
+				<i>default 8n</i></description>
+		</attribute>
+
+		<attribute name='quantize_mode' get='0' set='1' type='symbol' size='1'>
+			<digest>when to apply quantization</digest>
+			<description>Controls when quantization takes effect:<br/>
+				<b>next</b> — apply immediately, skipping events that have already elapsed in the current loop cycle.<br/>
+				<b>wrap</b> — apply at the next loop wrap point for a seamless transition.
+				<br/><br/>
+				<i>default next</i></description>
+		</attribute>
+
+		<attribute name='autoquantize' get='0' set='1' type='bool' size='1'>
+			<digest>auto-quantize on record stop and overdub wrap</digest>
+			<description>When enabled, automatically quantizes the loop when recording stops or when an overdub cycle wraps.
+				<br/><br/>
+				<i>default false</i></description>
+		</attribute>
+
+		<attribute name='autotempo' get='0' set='1' type='bool' size='1'>
+			<digest>auto-detect BPM for quantization</digest>
+			<description>When enabled, the BPM for quantization is detected automatically from Max's global transport. When disabled, the value of the <b>bpm</b> attribute is used instead.
+				<br/><br/>
+				<i>default true</i></description>
+		</attribute>
+
+		<attribute name='bpm' get='0' set='1' type='float' size='1'>
+			<digest>BPM for quantization</digest>
+			<description>Sets the BPM used for quantization when <b>autotempo</b> is off.
+				<br/><br/>
+				<i>default 120.0</i></description>
+		</attribute>
+
+		<attribute name='debug' get='0' set='1' type='bool' size='1'>
+			<digest>enable debug output</digest>
+			<description>Prints detailed event-level debug info to the Max console: note-on/off events during recording and playback, loop wrap decisions, quantization results, and playback start/stop notifications.
+				<br/><br/>
+				<i>default false</i></description>
+		</attribute>
+
+	</attributelist>
+
+
+	<!--RELATED-->
+
+	<seealsolist>
+		<seealso name='voice-alligator' />
+		<seealso name='voice-alligator-looper' />
+	</seealsolist>
+
+
+</c74object>
