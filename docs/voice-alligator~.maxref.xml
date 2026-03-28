@@ -109,7 +109,7 @@
 			<description>
 				Identical to <o>voice-alligator</o> inlet 1. Full syntax:
 				<br/><br/>
-				&#160;&#160;&#160;&#160;&#160;<m>midipitch, velocity, (stream), (mono_flag), (realpitch)</m>
+				&#160;&#160;&#160;&#160;&#160;<m>midipitch, velocity, (stream), (glide_flag), (realpitch)</m>
 				<br/><br/>
 				See the <o>voice-alligator</o> reference for full documentation of all arguments.
 			</description>

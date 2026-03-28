@@ -38,7 +38,7 @@
 		<i><b>Inlet 1 - Queueing a Note</b></i>
 		<br/><br/>
 		The full message syntax for queueing a single note is as follows:<br/><br/>
-		&#160;&#160;&#160;&#160;&#160;<m>midipitch, velocity, (stream), (monoflag), (realpitch)</m><br/>
+		&#160;&#160;&#160;&#160;&#160;<m>midipitch, velocity, (stream), (glide_flag), (realpitch)</m><br/>
 		<i>
 		&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;int&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;float&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;int&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;bool&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;float
 		</i>
@@ -46,17 +46,17 @@
 		The first two arguments are required, while the remaining arguments are optional.
 		<br/><br/>
 		<b>The third argument (stream):</b>
-		<br/><br/> 
+		<br/><br/>
 		This specifies the priority of the note. By default, notes on stream <i>n</i> cannot steal notes from higher stream (higher stream means lower priority with regards to stealing). Monophony is applied to one stream at a time, so we can play two or more portamento melodies on different streams simultaneously. If no stream was provided, stream 1 is chosen.
 		<br/><br/>
-		<b>The fourth argument (mono_flag):</b>
+		<b>The fourth argument (glide_flag):</b>
 		<br/><br/>
 		When provided, this argument treats the incoming note as a <i>Sequencer Note.</i>
 		<br/><br/>
-		<i>Sequencer Notes</i> could originate from note-generating sources, 
-		such as the Note Looper or a sequencer, 
-		and are designed to allow the player to play over them. The mono-flag will decide if the instrument performs a glide, so 
-		they ignore <m>mono</m>, <m>hold</m>, <m>sustain</m>, and <m>mono_note_priority</m> settings but are still affected by <m>mono_steals_release</m>.
+		<i>Sequencer Notes</i> could originate from note-generating sources,
+		such as the Note Looper or a sequencer,
+		and are designed to allow the player to play over them. The glide flag controls whether the note performs a glide on an existing voice (1) or allocates a fresh voice (0).
+		They ignore <m>mono</m>, <m>hold</m>, <m>sustain</m>, and <m>mono_note_priority</m> settings but are still affected by <m>mono_steals_release</m>.
 		<br/><br/>
 		<b>The fifth argument (realpitch):</b>
 		<br/><br/>

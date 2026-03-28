@@ -6195,12 +6195,12 @@
                                 "box": {
                                     "bgcolor": [ 0.090196078431373, 0.545098039215686, 0.0, 0.18 ],
                                     "id": "obj-4",
-                                    "linecount": 4,
+                                    "linecount": 5,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 495.0, 363.0, 157.0, 60.0 ],
-                                    "text": "set the monoflag, telling voice-alligator that this is>   a \"Sequencer Note\" (see reference)"
+                                    "patching_rect": [ 495.0, 363.0, 157.0, 74.0 ],
+                                    "text": "set the glide-flag, telling voice-alligator that this is>   a \"Sequencer Note\" (see reference) and forcing it to output a glide"
                                 }
                             },
                             {
@@ -6851,7 +6851,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 738.0, 320.0, 129.0, 25.0 ],
-                                    "text": "change mono flag"
+                                    "text": "change glide flag"
                                 }
                             },
                             {
@@ -11526,6 +11526,7 @@
                                                             {
                                                                 "box": {
                                                                     "id": "obj-19",
+                                                                    "linecount": 2,
                                                                     "maxclass": "newobj",
                                                                     "numinlets": 1,
                                                                     "numoutlets": 4,
@@ -12612,6 +12613,7 @@
                                             {
                                                 "box": {
                                                     "id": "obj-38",
+                                                    "linecount": 2,
                                                     "maxclass": "newobj",
                                                     "numinlets": 1,
                                                     "numoutlets": 4,
@@ -13434,6 +13436,14 @@
             "obj-71::obj-66": [ "number", "number", 0 ],
             "obj-71::obj-73": [ "number[1]", "number", 0 ],
             "obj-71::obj-9": [ "live.tab", "live.tab", 0 ],
+            "parameterbanks": {
+                "0": {
+                    "index": 0,
+                    "name": "",
+                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
+                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
+                }
+            },
             "inherited_shortname": 1
         },
         "autosave": 0,

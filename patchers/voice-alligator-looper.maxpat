@@ -9,7 +9,7 @@
             "modernui": 1
         },
         "classnamespace": "box",
-        "rect": [ 127.0, 87.0, 1028.0, 586.0 ],
+        "rect": [ 179.0, 87.0, 1028.0, 586.0 ],
         "boxes": [
             {
                 "box": {
@@ -421,7 +421,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 84.0, 45.0, 200.0, 20.0 ],
-                                    "text": "here: target, vel, realpitch, monoflag"
+                                    "text": "here: target, vel, realpitch, glideflag"
                                 }
                             },
                             {
@@ -431,7 +431,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 84.0, 247.0, 282.0, 20.0 ],
-                                    "text": "end format: target, vel, stream, realpitch, monoflag"
+                                    "text": "end format: target, vel, stream, realpitch, glideflag"
                                 }
                             },
                             {
@@ -1167,7 +1167,7 @@
                                                     "numinlets": 1,
                                                     "numoutlets": 0,
                                                     "patching_rect": [ 58.0, 14.0, 257.0, 20.0 ],
-                                                    "text": "here: target, midi pitch, vel, monoflag, realpitch"
+                                                    "text": "here: target, midi pitch, vel, glideflag, realpitch"
                                                 }
                                             },
                                             {
@@ -1590,7 +1590,7 @@
                                     "maxclass": "newobj",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 975.0, 394.0, 96.0, 22.0 ],
+                                    "patching_rect": [ 1011.5, 387.0, 96.0, 22.0 ],
                                     "text": "s #0-toMtr",
                                     "textcolor": [ 0.105882352941176, 0.090196078431373, 0.647058823529412, 1.0 ]
                                 }
@@ -1601,9 +1601,9 @@
                                     "maxclass": "newobj",
                                     "numinlets": 1,
                                     "numoutlets": 3,
-                                    "outlettype": [ "stop", "bang", "int" ],
-                                    "patching_rect": [ 975.0, 350.0, 92.0, 22.0 ],
-                                    "text": "t stop b 0"
+                                    "outlettype": [ "bang", "stop", "int" ],
+                                    "patching_rect": [ 975.0, 350.0, 58.0, 22.0 ],
+                                    "text": "t b stop 0"
                                 }
                             },
                             {
@@ -2144,7 +2144,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 405.0, 192.0, 467.0, 20.0 ],
-                                    "text": "message format: midi pitch, vel, stream, realpitch, monoflag, sequencerNote, stream"
+                                    "text": "message format: midi pitch, vel, stream, realpitch, glideflag, sequencerNote, stream"
                                 }
                             },
                             {
@@ -2596,20 +2596,20 @@
                                 "patchline": {
                                     "destination": [ "obj-27", 0 ],
                                     "order": 0,
-                                    "source": [ "obj-60", 1 ]
+                                    "source": [ "obj-60", 0 ]
                                 }
                             },
                             {
                                 "patchline": {
                                     "destination": [ "obj-58", 0 ],
                                     "order": 1,
-                                    "source": [ "obj-60", 1 ]
+                                    "source": [ "obj-60", 0 ]
                                 }
                             },
                             {
                                 "patchline": {
                                     "destination": [ "obj-59", 0 ],
-                                    "source": [ "obj-60", 0 ]
+                                    "source": [ "obj-60", 1 ]
                                 }
                             },
                             {
@@ -2751,8 +2751,8 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 158.0, 387.0, 46.0, 20.0 ],
-                                    "text": "mono>",
+                                    "patching_rect": [ 169.0, 387.0, 34.0, 20.0 ],
+                                    "text": "glide",
                                     "textcolor": [ 0.011764705882353, 0.443137254901961, 0.015686274509804, 1.0 ]
                                 }
                             },
@@ -2917,7 +2917,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 13.0, 40.0, 176.0, 20.0 ],
-                                    "text": "[target, vel, monoflag, realpitch]"
+                                    "text": "[target, vel, glideflag, realpitch]"
                                 }
                             },
                             {
@@ -3592,7 +3592,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 151.0, 402.0, 200.0, 20.0 ],
-                                    "text": "here: target, vel, monoflag, realpitch"
+                                    "text": "here: target, vel, glideflag, realpitch"
                                 }
                             },
                             {
@@ -3656,8 +3656,8 @@
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 245.0, 209.0, 102.0, 33.0 ],
-                                    "text": "< only mono flag gets recorded"
+                                    "patching_rect": [ 245.0, 209.0, 106.0, 33.0 ],
+                                    "text": "< only glideflag flag gets recorded"
                                 }
                             },
                             {
@@ -3667,7 +3667,7 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 151.0, 427.0, 282.0, 20.0 ],
-                                    "text": "end format: target, vel, stream, monoflag, realpitch"
+                                    "text": "end format: target, vel, stream, glideflag, realpitch"
                                 }
                             },
                             {
@@ -3689,7 +3689,7 @@
                                     "numoutlets": 1,
                                     "outlettype": [ "" ],
                                     "patching_rect": [ 215.0, 209.0, 29.5, 22.0 ],
-                                    "text": "$5"
+                                    "text": "$1"
                                 }
                             },
                             {
