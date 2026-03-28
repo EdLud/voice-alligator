@@ -1,0 +1,65 @@
+Here are some more methods and attributes to implement:
+
+
+attribute: record_pressed (bool) - when recording starts and notes are pressed those notes are treated as note ons.
+
+attribute: autoplay (bool) - decided wether to immediatly start playback when recording is finished.
+
+autostop_play (bool) (default: off): when record is turned on this decides whether to stop playback.
+
+method: record (bool)
+when record is turned off and autoplay and autoquantize is on: 
+
+1. immediatly start playback of recorded notes
+2. edit internal data so that notes that are still pressed when record is turned off get a note off.
+3. in the background, run the quantization function, but this shouldn't delay playback, play back unquantized notes until your are done, but no double triggers so for example if a note A is quantized and pushed back in time but the unquantized note A was already triggered because quantize wasn't finished yet, skip quantized note A for this loop iteration
+
+
+
+method: permutate (number of permutations)
+
+changes the order of notes, permutate without argument or with 0 changes the position of all notes randomly permutate n exchanges the position of n notes. the position on which note glides happen stays untouched. permutate should also be possible during playback, so when note A is currently playing as changes it's position with note B note A's note off should stay in the same point in time. aux is untouched.
+
+
+method: overdub (on/off) (overdub_mode) (overdub_times)
+
+for overdub we ignore pressed notes and their note offs.
+
+[overdub 1] - enables overdubbing after the loop wraps. if a note on happens, record all notes until the loop wraps then disable overdubbing. if no note on happens keep overdubbing on.
+
+[overdub 1 "next"] - does exactly the same-
+
+[overdub 0] - immediatly disables overdubbing.
+
+[overdub 1 "now"] - immediatly enable overdubbing, same note on logic applies here. if a note on happens, record until loop wrap.
+
+[overdub 1 "next" 3] - when receiving a note-on keep overdubbing enabled for this loop iteration and the 2 next loop iterations. 
+
+[overdub 1 "next" inf] - on next loop wrap, keep overdub on until you receive a [overdub 0].
+
+
+
+attribute: quantize (float note_length)
+
+when attribute is initialized, does nothing.
+when it is set during runtime it runs the quantization function.
+
+attribute: quantize_mode (enum next, wrap) default: next.
+decides when the quantization will be applied.
+
+	next: after the quantization is finished, immediatly apply it (but don't mess with notes that are still in sustain, their note offs should stay untouched)
+
+	wrap: quantize when the loop wraps. finding the quantizations should still happen immediatly when quantize function is called, 
+	but playback of the quantized content should only happen 	
+	when the loop wraps. if the loop wraps before quantization is done, play back unquantized content until quantize is done
+
+
+attribute: autotempo (bool) (default: on)
+enables tempo searching when starting quantize, otherwise quantize will respond to bpm
+
+attribute bpm (float):
+sets bpm to use if autotempo is off.
+
+
+attribute: autoquantize bool - on recording stop or on loop wrap with overdubbing enabled (and overdubbed notes were recorded) quantize notes according to current setting
+

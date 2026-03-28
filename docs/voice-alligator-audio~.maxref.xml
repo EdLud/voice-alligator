@@ -21,7 +21,7 @@
 		If a non-zero signal is present on inlets 2 or 3 at the time of the trigger, it overrides the corresponding <m>pitch</m> / <m>vel</m> list values.
 		<br/><br/>
 
-		Each voice is allocated to a stream position. For example, if the longest list has 3 entries, up to 3 voices can be triggered simultaneously: one for stream 1 (list index 1), one for stream 2 (list index 2), and one for stream 3 (list index 3). When a list has fewer entries than the longest list, values wrap around with modulo indexing.
+		Each voice is allocated to a stream position. For example, if the longest list has 3 entries, up to 3 voices can be triggered simultaneously: one for stream 1 (list index 1), one for stream 2 (list index 2), and one for stream 3 (list index 3). When a list has fewer entries than the longest list, values wrap around with modulo indexing. Streams are only relevant for <m>mono</m> mode.
 
 		<br/><br/>
 		So for example if we initialize the object and send it a message <m>attack 1000 500 300, vel 0.5 0.2</m>, on the next impulse it will trigger 3 notes. 
@@ -65,7 +65,7 @@
 		<br/><br/>
 
 		<u>Outlet 3 — impulse~</u><br/>
-		A single sample impulse fired at the start of each non-glide note attack. Set <m>glide_impulse</m> to also fire on glide notes.
+		A single sample impulse fired at the start of each non-glide note attack. Set <m>glide_impulse</m> to also fire on glide notes. A fresh note and this impulse will be fired at the next audio vector after the trigger is received.
 		<br/><br/>
 
 		<u>Outlet 4 — ramp~</u><br/>

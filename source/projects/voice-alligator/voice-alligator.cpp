@@ -25,7 +25,7 @@ MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
 MIN_RELATED{"mc.poly~"};
 MIN_FLAGS{documentation_flags::do_not_generate};
 
-inlet<> in1{this, "(list) midipitch, velocity, (stream), (mono_flag), (realpitch)"};
+inlet<> in1{this, "(list) midipitch, velocity, (stream), (glide_flag), (realpitch)"};
 inlet<> in2{this, "(multichannelsignal) adsr~ signals from mc.poly~ voices, one channel per voice", "multichannelsignal"};
 outlet<> out1{this, "messages to mc.poly~ object, [(notes), freq, velocity, (flags), glide, hold, sustain, sequencer, mono, stream]"};
 
@@ -626,35 +626,92 @@ function mainInletFunction = MIN_FUNCTION{
             }
 
             if(argsize >= 4){
-            /*                            
-            Also having provided a mono-flag tells our system that the incoming note was a sequencer note, so it 
-            mustn't go into hold / sustain and ignores the mono attribute.
-            */
-                int mono_flag = args[3];
-                if(debug&&argsize == 4){cout << "  Sequencer Note to Inlet 1: " << mpitch << " " << vel<< " "  << args[2]<< " "  << mono_flag << endl;}
-                current_note.mono_flag = mono_flag;
+                // arg 4 is a direct glide flag:
+                //   0 = allocate a fresh voice (always)
+                //   1 = glide if an active note exists on this stream, otherwise allocate fresh
+                int glide_flag = args[3];
                 current_note.sequencer_note_flag = true;
-            }
 
-            if(argsize >= 5){
-            /*
-            Pre-recorded Sequencer Note.
-            arg 5: "real" pitch, meaning the pitch that was actually recorded by our sequencer. 
-            Depending on output_mode it will either be a mpitch or a frequency.
-            Note that this means that we can't record the output of [voice-alligator] with output_mode: freq and 
-            send the recorded output to a [voice-alligator] with output_mode: mpitch and vice versa*/
-                number realpitch = args[4];
-                if(debug&&argsize == 5){cout << "Pre-recorded Sequencer Note to Inlet 1: " << mpitch << " " << vel<< " "  << args[2]<< " "  << args[3]<< " " << args[4] << endl;}
-                if(output_mode_attr == output_mode::freq){
-                    current_note.freq.pop_back();                                    
-                    current_note.freq.push_back(realpitch);
-                } 
-                else{
-                    current_note.mpitch.pop_back();
-                    current_note.mpitch.push_back(static_cast<int>(realpitch));
+                if(argsize >= 5){
+                    // Pre-recorded pitch override (arg 5 is the "real" pitch as recorded by sequencer)
+                    number realpitch = args[4];
+                    if(debug) cout << "Pre-recorded Sequencer Note: " << mpitch << " " << vel << " " << args[2] << " " << glide_flag << " " << realpitch << endl;
+                    if(output_mode_attr == output_mode::freq){
+                        current_note.freq.pop_back();
+                        current_note.freq.push_back(realpitch);
+                    } else {
+                        current_note.mpitch.pop_back();
+                        current_note.mpitch.push_back(static_cast<int>(realpitch));
+                    }
+                } else if(debug) {
+                    cout << "Sequencer Note: " << mpitch << " " << vel << " " << args[2] << " glide=" << glide_flag << endl;
                 }
-            }                                                           
-            
+
+                if(vel != 0){
+                    if(inactive_channels.count(current_note.stream)
+                    || (inactive_channels.empty() && !active_attr)) return{};
+
+                    if(glide_flag){
+                        // Glide: find the correct voice to update.
+                        // 1. Try active_voices with mpitch match (sequencer target ID).
+                        // 2. Try pending_voices with mpitch match (voice may not have ADSR yet at high speed).
+                        // 3. Fall back to stream-only match in active_voices (backwards compat).
+                        // 4. If nothing found, allocate fresh.
+                        auto* t = findFirstNoteWithPredicate([=](const Note& n){
+                                return n.stream == current_note.stream && !n.release_flag
+                                    && n.mpitch.back() == mpitch; });
+                        if (t) {
+                            t->vel  = current_note.vel;
+                            t->mpitch = current_note.mpitch;
+                            t->freq   = current_note.freq;
+                            Note note_to_send = *t;
+                            lock.unlock();
+                            outputFunction(note_to_send, 1, 1, false, true);
+                        } else {
+                            // Check pending_voices — at high playback speeds the ADSR
+                            // confirmation may not have arrived yet.
+                            Note* pending_match = nullptr;
+                            for (auto& [ptgt, pnote] : pending_voices) {
+                                if (pnote.stream == current_note.stream && !pnote.release_flag
+                                    && pnote.mpitch.back() == mpitch) {
+                                    pending_match = &pnote;
+                                    break;
+                                }
+                            }
+                            if (pending_match) {
+                                pending_match->vel  = current_note.vel;
+                                pending_match->mpitch = current_note.mpitch;
+                                pending_match->freq   = current_note.freq;
+                                Note note_to_send = *pending_match;
+                                lock.unlock();
+                                outputFunction(note_to_send, 1, 1, false, true);
+                            } else {
+                                // Fall back to stream-only match in active_voices
+                                t = findFirstNoteWithPredicate([=](const Note& n){
+                                        return n.stream == current_note.stream && !n.release_flag; });
+                                if (t) {
+                                    t->vel  = current_note.vel;
+                                    t->mpitch = current_note.mpitch;
+                                    t->freq   = current_note.freq;
+                                    Note note_to_send = *t;
+                                    lock.unlock();
+                                    outputFunction(note_to_send, 1, 1, false, true);
+                                } else {
+                                    // No active note on this stream — allocate fresh
+                                    handleNoteOnPoly(current_note, lock);
+                                }
+                            }
+                        }
+                    } else {
+                        // No glide — always allocate a fresh voice
+                        handleNoteOnPoly(current_note, lock);
+                    }
+                } else {
+                    if(debug) cout << "Sequencer Note Off: mpitch=" << mpitch << " stream=" << current_note.stream << endl;
+                    handleNoteOff(current_note, lock);
+                }
+                return {};
+            }
 
         if (vel != 0){
             if(inactive_channels.count(current_note.stream)
@@ -1539,7 +1596,7 @@ message<> printscale{this, "printscale", "Print contents of scale_array to the m
         }
 };
 
-message<threadsafe::yes> list{this, "list", "Midipitch, Velocity, (stream), (mono_flag), (realpitch)", mainInletFunction};
+message<threadsafe::yes> list{this, "list", "Midipitch, Velocity, (stream), (glide_flag), (realpitch)", mainInletFunction};
 message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index, value]", scaleDefineFunction};
 message<threadsafe::yes> end_hold{this, "endhold", "End hold notes: all (default, can be ommitted), last, first", endHold};
 // message<threadsafe::no> panic{this, "panic", "sends out the message *panic* to the voice", panicFunction};
