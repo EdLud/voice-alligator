@@ -9,7 +9,7 @@
             "modernui": 1
         },
         "classnamespace": "box",
-        "rect": [ 48.0, 87.0, 1087.0, 679.0 ],
+        "rect": [ 48.0, 87.0, 598.0, 679.0 ],
         "boxes": [
             {
                 "box": {
@@ -337,8 +337,8 @@
                     "id": "obj-1",
                     "maxclass": "newobj",
                     "numinlets": 3,
-                    "numoutlets": 6,
-                    "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal" ],
+                    "numoutlets": 5,
+                    "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal" ],
                     "patching_rect": [ 306.0, 625.5, 123.0, 22.0 ],
                     "text": "voice-alligator-audio~",
                     "varname": "poly~_AA[4]"
@@ -2036,8 +2036,8 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 9.0, 522.0, 133.0, 28.0 ],
-                    "text": "voice-alligator 8"
+                    "patching_rect": [ 9.0, 522.0, 221.0, 28.0 ],
+                    "text": "voice-alligator 8 @debug 1"
                 }
             },
             {
@@ -2273,7 +2273,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-6", 1 ],
-                    "midpoints": [ 271.5, 598.921875, 291.3125, 598.921875, 291.3125, 510.0859375, 132.5, 510.0859375 ],
+                    "midpoints": [ 271.5, 598.921875, 291.3125, 598.921875, 291.3125, 510.0859375, 220.5, 510.0859375 ],
                     "source": [ "obj-33", 1 ]
                 }
             },
@@ -2332,14 +2332,6 @@
             "obj-23::obj-277": [ "attack[1]", "attack", 0 ],
             "obj-23::obj-83::obj-105::obj-19": [ "number[9]", "number[5]", 0 ],
             "obj-23::obj-83::obj-1::obj-19": [ "number[2]", "number[5]", 0 ],
-            "parameterbanks": {
-                "0": {
-                    "index": 0,
-                    "name": "",
-                    "parameters": [ "-", "-", "-", "-", "-", "-", "-", "-" ],
-                    "buttons": [ "-", "-", "-", "-", "-", "-", "-", "-" ]
-                }
-            },
             "parameter_overrides": {
                 "obj-23::obj-264": {
                     "parameter_longname": "live.numbox[1]"

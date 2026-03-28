@@ -1469,7 +1469,7 @@ message<> print{this, "print", "Print info to the max console",
     MIN_FUNCTION
     {
     if(!active_voices.size())
-   cout << "No notes in active_voices" << endl;
+   cout << "looper2 branch No notes in active_voices" << endl;
    
     else
     {
