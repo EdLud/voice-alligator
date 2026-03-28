@@ -1430,9 +1430,14 @@ function scaleDefineFunction = MIN_FUNCTION{
 function endFunction = MIN_FUNCTION{
     std::vector<Note> ts;
     { lock l{m_mutex};
-      unsigned long sz = args.size();
-      if (sz>0) { int st=args[0]; for (auto& n:active_voices) if (n.stream==st){n.release_flag=1;ts.push_back(n);} }
-      else      {                 for (auto& n:active_voices)                   {n.release_flag=1;ts.push_back(n);} }
+      if (args.size()>0) {
+          int st=args[0];
+          for (auto& n:active_voices) if (n.stream==st){n.release_flag=1;ts.push_back(n);}
+          for (auto& [tgt,pn]:pending_voices) if (pn.stream==st && !pn.release_flag){pn.release_flag=true;ts.push_back(pn);}
+      } else {
+          for (auto& n:active_voices){n.release_flag=1;ts.push_back(n);}
+          for (auto& [tgt,pn]:pending_voices) if (!pn.release_flag){pn.release_flag=true;ts.push_back(pn);}
+      }
     }
     for (auto& n:ts) outputFunction(n,0,0,false);
     return {};

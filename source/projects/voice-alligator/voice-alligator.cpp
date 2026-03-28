@@ -1440,9 +1440,18 @@ function endFunction = MIN_FUNCTION{ //sends notes into release
             {
                 if (it_note.stream == stream)
                 {
-                    // it_note.hold_flag = 0;
                     it_note.release_flag = 1;
-                    notes_to_send.push_back(it_note); // Add the note to the array
+                    notes_to_send.push_back(it_note);
+                }
+            }
+            // Also release matching pending voices — their ADSR hasn't started yet,
+            // but we send the note-off now so mc.poly~ begins releasing immediately.
+            for (auto &[tgt, pnote] : pending_voices)
+            {
+                if (pnote.stream == stream && !pnote.release_flag)
+                {
+                    pnote.release_flag = true;
+                    notes_to_send.push_back(pnote);
                 }
             }
         }
@@ -1450,9 +1459,16 @@ function endFunction = MIN_FUNCTION{ //sends notes into release
         {
             for (auto &it_note : active_voices)
             {
-                // it_note.hold_flag = 0;
                 it_note.release_flag = 1;
-                notes_to_send.push_back(it_note); // Add the note to the array
+                notes_to_send.push_back(it_note);
+            }
+            for (auto &[tgt, pnote] : pending_voices)
+            {
+                if (!pnote.release_flag)
+                {
+                    pnote.release_flag = true;
+                    notes_to_send.push_back(pnote);
+                }
             }
         }
     } // Unlock the mutex here
