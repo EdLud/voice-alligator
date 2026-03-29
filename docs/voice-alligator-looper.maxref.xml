@@ -94,9 +94,9 @@ voice-alligator also recognizes pre-recorded notes, gives them a special flag, a
 				<h4>Inlet 1:</h4>
 				Messages from voice-alligator. 
 				<br/><br/>
-				These are lists that either start with <b>"target",</b> <b>"notes"</b> or <b>"flags"</b>.
+				Lists that contain the word <b>"flags"</b> are recorded into mtr.
 				<br/><br/>
-				All messages that don't start with these words or any of the loopers methods or attributes get passed directly to the <o>mtr</o> sitting in the looper.
+				All messages that don't contain the word <b>"flags"</b> or any of the loopers methods or attributes get passed directly to the <o>mtr</o> sitting in the looper.
 				<h4>Inlet 2:</h4>
 
 				Auxilary Inlet for parameters.

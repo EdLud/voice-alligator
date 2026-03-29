@@ -56,7 +56,7 @@
 		<i>Sequencer Notes</i> could originate from note-generating sources,
 		such as the Note Looper or a sequencer,
 		and are designed to allow the player to play over them. The glide flag controls whether the note performs a glide on an existing voice (1) or allocates a fresh voice (0).
-		They ignore <m>mono</m>, <m>hold</m>, <m>sustain</m>, and <m>mono_note_priority</m> settings but are still affected by <m>mono_steals_release</m>.
+		They ignore <m>mono</m>, <m>hold</m>, <m>sustain</m>, <m>mono_note_priority</m> and <m>mono_steals_release</m> attributes.
 		<br/><br/>
 		<b>The fifth argument (realpitch):</b>
 		<br/><br/>
