@@ -205,6 +205,7 @@ VoiceParamSnapshot voice_params[1024];
 
 // Audio-thread: is this voice's ADSR running?
 bool  audio_voice_active[1024] {};
+bool  voice_ever_active [1024] {};  // true once a voice has played; cleared only on dspsetup
 bool  pending_impulse   [1024] {};
 float last_env_output   [1024] {};
 bool  voice_is_glide    [1024] {};  // true when current note is a glide note
@@ -244,8 +245,9 @@ struct VoiceGlide {
 };
 VoiceGlide voice_glide[1024];
 
-std::atomic<int> voice_done_flags   [1024] {};
-std::atomic<int> voice_release_flags[1024] {};  // set when ADSR enters release phase
+std::atomic<int>  voice_done_flags   [1024] {};
+std::atomic<int>  voice_release_flags[1024] {};  // set when ADSR enters release phase
+std::atomic<bool> voice_in_declick   [1024] {};  // true while retrigger ramp is running (audio→scheduler)
 
 // Per-voice declick-only ramp (1→0 over declick_ms on steal, then snap to 1)
 float voice_declick_value[1024] {};  // current ramp value
@@ -255,7 +257,9 @@ bool  voice_declick_snapping[1024] {}; // true = waiting to snap back to 1
 double m_samplerate {44100.0};
 
 // Previous trigger signal — for rising edge detection (audio thread)
-float prev_trigger_sample {0.f};
+float    prev_trigger_sample  {0.f};
+uint64_t audio_sample_counter {0};   // incremented each vector by the audio thread
+uint64_t last_blocked_sample  {0};   // scheduler: discard triggers older than this
 
 // ─── Global params (audio thread reads directly) ──────────────────────────────
 
@@ -553,7 +557,9 @@ void resetVoices(int n) {
         voice_cmd[i].pending_off .store(0,   std::memory_order_relaxed);
     }
     std::fill(std::begin(audio_voice_active),           std::end(audio_voice_active),           false);
+    std::fill(std::begin(voice_ever_active),             std::end(voice_ever_active),             false);
     std::fill(std::begin(pending_impulse),               std::end(pending_impulse),               false);
+    for (int i = 0; i < 1024; ++i) voice_in_declick[i].store(false, std::memory_order_relaxed);
     std::fill(std::begin(last_env_output),               std::end(last_env_output),               0.f);
     std::fill(std::begin(voice_is_glide),                std::end(voice_is_glide),                false);
     std::fill(std::begin(live_freq),                     std::end(live_freq),                     0.f);
@@ -566,7 +572,9 @@ void resetVoices(int n) {
     std::fill(std::begin(voice_declick_snapping),         std::end(voice_declick_snapping),         false);
     std::fill(std::begin(voice_ramp_step),               std::end(voice_ramp_step),               0.f);
     std::fill(std::begin(voice_ramp_frozen),             std::end(voice_ramp_frozen),             false);
-    prev_trigger_sample = 0.f;
+    prev_trigger_sample  = 0.f;
+    audio_sample_counter = 0;
+    last_blocked_sample  = 0;
     { TriggerEvent evt; while (trigger_fifo.try_dequeue(evt)) {} }
     for (int i = 0; i < 1024; ++i) {
         voice_glide[i]         = VoiceGlide{};
@@ -627,10 +635,11 @@ void operator()(audio_bundle input, audio_bundle output) {
         if (trig != 0.f && prev_trigger_sample == 0.f) {
             float pitch_val = (float)pitch_buf[i];
             float vel_norm  = (float)vel_buf[i];
-            trigger_fifo.try_enqueue({pitch_val, vel_norm});
+            trigger_fifo.try_enqueue({pitch_val, vel_norm, audio_sample_counter + (uint64_t)i});
         }
         prev_trigger_sample = (float)trig_buf[i];
     }
+    audio_sample_counter += (uint64_t)frames;
 
     // ── Per-voice audio processing ────────────────────────────────────────────
     for (int v = 0; v < n; ++v) {
@@ -711,10 +720,12 @@ void operator()(audio_bundle input, audio_bundle output) {
                         voice_glide[v].active       = false;
                         voice_ramp_value [v] = 0.f;
                         voice_ramp_frozen[v] = false;
+                        voice_in_declick [v].store(false, std::memory_order_release);
                     } else {
                         // Declick in progress — defer freq/vel until retrigger→attack
                         voice_ramp_frozen[v] = true;
                         voice_pending_freq[v] = {true, new_freq, new_vel};
+                        voice_in_declick [v].store(true, std::memory_order_release);
                     }
                 } else {
                     applyADSRParams(v, new_vel);
@@ -755,6 +766,7 @@ void operator()(audio_bundle input, audio_bundle output) {
             }
 
             audio_voice_active[v] = true;
+            voice_ever_active  [v] = true;
 
             if (!is_glide || p.glide_retrigger) {
                 voice_sustain_dur_active[v] = false;  // reset; will start on decay→sustain
@@ -777,15 +789,28 @@ void operator()(audio_bundle input, audio_bundle output) {
             voice_sustain_dur_active[v] = false;
         }
 
-        // ── Output channel pointers ───────────────────────────────────────────
+        // ── Fast path: skip everything for truly idle voices ─────────────────
+        const int imp = voice_cmd[v].impulse.exchange(0, std::memory_order_relaxed);
+        if (imp) pending_impulse[v] = true;
+
+        if (!audio_voice_active[v] && !pending_impulse[v]) {
+            // Zero output channels for voices that have played before — Max does
+            // not re-zero signal buffers each vector so stale values would linger.
+            if (voice_ever_active[v]) {
+                for (int ch = 0; ch < 5; ++ch) {
+                    auto* buf = output.samples(ch*n + v);
+                    std::memset(buf, 0, frames * sizeof(*buf));
+                }
+            }
+            continue;
+        }
+
+        // ── Output channel pointers (only reached for active voices) ──────────
         auto* ch_freq    = output.samples(0*n + v);
         auto* ch_env     = output.samples(1*n + v);
         auto* ch_impulse = output.samples(2*n + v);
         auto* ch_ramp    = output.samples(3*n + v);
         auto* ch_stream  = output.samples(4*n + v);
-
-        const int imp = voice_cmd[v].impulse.exchange(0, std::memory_order_relaxed);
-        if (imp) pending_impulse[v] = true;
 
         const float curve = voice_params[v].glide_curvature;
 
@@ -854,6 +879,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                 // Declick finished — reset ramp to 0 and unfreeze
                 voice_ramp_value [v] = 0.f;
                 voice_ramp_frozen[v] = false;
+                voice_in_declick [v].store(false, std::memory_order_release);
             }
 
             // Impulse
@@ -966,8 +992,16 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                               snap_glidetime, snap_glide_crv, snap_glide_rt,
                               snap_glide_imp};
 
+        // Declick duration in samples — triggers closer together than this
+        // cannot complete a full declick, so we gate them out.
+        const float dc_ms = adsr_retrigger_ms.load(std::memory_order_relaxed);
+        const uint64_t dc_samps = static_cast<uint64_t>(std::max(1.f, (dc_ms / 1000.f) * (float)m_samplerate));
+
         TriggerEvent evt;
         while (trigger_fifo.try_dequeue(evt)) {
+            // Discard stale backlog accumulated while voices were blocked.
+            if (evt.sample_time < last_blocked_sample) continue;
+
             if (!m_active) continue;
 
             bool  use_sa       = (bool)scale_attr;
@@ -994,6 +1028,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
 
             lock lk{m_mutex};
 
+            bool any_allocated = false;
             for (size_t i = 0; i < n_notes; ++i) {
                 // ── Frequency ────────────────────────────────────────────
                 float freq_out;
@@ -1054,13 +1089,21 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
 
                 if (do_glide) {
                     glideVoice(existing_target, freq_out, vel_out, np);
+                    any_allocated = true;
                 } else {
                     int nv = allocateNewVoice(freq_out, vel_out, np, (int)(i + 1));
-                    if (m_debug && nv == 0)
-                        cout << "  stream " << i << ": allocateNewVoice FAILED"
-                             << " inactive=" << inactive_voices.size()
-                             << " active=" << active_voices.size()
-                             << " pending=" << pending_voices.size() << endl;
+                    if (nv != 0) {
+                        any_allocated = true;
+                    } else {
+                        if (m_debug)
+                            cout << "  stream " << i << ": allocateNewVoice FAILED"
+                                 << " inactive=" << inactive_voices.size()
+                                 << " active=" << active_voices.size()
+                                 << " pending=" << pending_voices.size() << endl;
+                        // All voices busy — record block time so stale backlog
+                        // is discarded, and gate out triggers until declick completes.
+                        last_blocked_sample = evt.sample_time + dc_samps;
+                    }
                     stream_voice_map[i] = nv;
                 }
             }
@@ -1127,6 +1170,9 @@ message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
         lock l{m_mutex};
         resetVoices(voices);
     }
+    // Mark all voices as ever-active so the first DSP vector zeroes all output
+    // channels — Max does not clear signal buffers on dspsetup.
+    std::fill(std::begin(voice_ever_active), std::begin(voice_ever_active) + voices, true);
     // voice_params[] will be set per-note on first note_on via VoiceCmd
     adsr_poll.delay(1);
     return {};
@@ -1266,16 +1312,29 @@ Note* findNoteToSteal() {
     if (!(bool)steal_attr) return nullptr;
     if (active_voices.empty()) return nullptr;
 
+    // Skip voices with a pending unprocessed cmd or an active declick ramp —
+    // stealing them would either overwrite an unread cmd or restart a ramp
+    // that needs to finish before the next attack can begin.
+    auto cmd_pending = [&](int target) {
+        int vi = target - 1;
+        return voice_cmd[vi].cmd.load(std::memory_order_relaxed) != 0
+            || voice_in_declick[vi].load(std::memory_order_acquire);
+    };
+
     if (steal_mode_attr == steal_mode::oldest) {
         for (auto& n : active_voices)
-            if (n.release_flag) return &n;
-        return &active_voices.front();
+            if (n.release_flag && !cmd_pending(n.target)) return &n;
+        for (auto& n : active_voices)
+            if (!cmd_pending(n.target)) return &n;
+        return nullptr;  // all voices have pending cmds — don't steal
     }
     else {
         Note* best = nullptr;
         float best_remaining = std::numeric_limits<float>::max();
-        Note* fallback = &active_voices.front();
+        Note* fallback = nullptr;
         for (auto& n : active_voices) {
+            if (cmd_pending(n.target)) continue;
+            if (!fallback) fallback = &n;
             int vi = n.target - 1;
             float step = voice_ramp_step[vi];
             if (step <= 0.f) continue;
@@ -1288,14 +1347,22 @@ Note* findNoteToSteal() {
 
 int findFreeVoice() {
     for (int c : inactive_voices) {
+        int vi = c - 1;
+        if (voice_cmd[vi].cmd.load(std::memory_order_relaxed) != 0) continue;
+        if (voice_in_declick[vi].load(std::memory_order_acquire)) continue;
         auto it = pending_voices.find(c);
         if (it == pending_voices.end()) return c;
         if (it->second.release_flag) { pending_voices.erase(it); return c; }
     }
     // Reusing a releasing active voice is a form of stealing
     if ((bool)steal_attr) {
-        for (auto& n : active_voices)
-            if (n.release_flag) return n.target;
+        for (auto& n : active_voices) {
+            int vi = n.target - 1;
+            if (n.release_flag
+                && voice_cmd[vi].cmd.load(std::memory_order_relaxed) == 0
+                && !voice_in_declick[vi].load(std::memory_order_acquire))
+                return n.target;
+        }
     }
     return -1;
 }
@@ -1410,6 +1477,7 @@ private:
     struct TriggerEvent {
         float signal_pitch;
         float signal_velocity;
+        uint64_t sample_time;   // audio-thread sample counter when enqueued
     };
 
     fifo<TriggerEvent> trigger_fifo { 2048 };

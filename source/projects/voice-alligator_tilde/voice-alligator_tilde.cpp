@@ -187,6 +187,7 @@ float live_stream [1024] {};
 
 // Audio-thread tracking: is this voice's ADSR currently running?
 bool audio_voice_active[1024] {};
+bool voice_ever_active [1024] {};  // true once a voice has played; cleared only on dspsetup
 
 // Impulse pending per voice — set by note_on, fired at the right sample by the audio thread
 bool pending_impulse[1024] {};
@@ -458,6 +459,7 @@ void resetVoices(int n) {
         voice_cmd[i].pending_off.store(0, std::memory_order_relaxed);
     }
     std::fill(std::begin(audio_voice_active), std::end(audio_voice_active), false);
+    std::fill(std::begin(voice_ever_active),  std::end(voice_ever_active),  false);
     std::fill(std::begin(pending_impulse),    std::end(pending_impulse),    false);
     std::fill(std::begin(last_env_output),    std::end(last_env_output),    0.f);
     for (int i = 0; i < 1024; ++i) {
@@ -599,6 +601,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                 }
             }
             audio_voice_active[v] = true;
+            voice_ever_active  [v] = true;
 
             // If a note-off arrived before the audio thread could consume the note-on,
             // it was stored in pending_off — process it now so the voice releases correctly.
@@ -624,7 +627,21 @@ void operator()(audio_bundle input, audio_bundle output) {
             live_stream [v] = voice_cmd[v].stream .load(std::memory_order_relaxed);
         }
 
-       // Output channel base offsets (9 MC outlets × n channels each)
+        // ── Fast path: skip everything for truly idle voices ─────────────────
+        const int imp = voice_cmd[v].impulse.exchange(0, std::memory_order_relaxed);
+        if (imp) pending_impulse[v] = true;
+
+        if (!audio_voice_active[v] && !pending_impulse[v]) {
+            if (voice_ever_active[v]) {
+                for (int ch = 0; ch < 9; ++ch) {
+                    auto* buf = output.samples(ch*n + v);
+                    std::memset(buf, 0, frames * sizeof(*buf));
+                }
+            }
+            continue;
+        }
+
+        // ── Output channel pointers (only reached for active voices) ──────────
         auto* ch_freq    = output.samples(0*n + v);
         auto* ch_env     = output.samples(1*n + v);
         auto* ch_impulse = output.samples(2*n + v);  // Now outlet 3
@@ -634,15 +651,6 @@ void operator()(audio_bundle input, audio_bundle output) {
         auto* ch_seq     = output.samples(6*n + v);  // Outlet 7
         auto* ch_mono    = output.samples(7*n + v);  // Outlet 8
         auto* ch_stream  = output.samples(8*n + v);  // Outlet 9
-
-        const int imp = voice_cmd[v].impulse.exchange(0, std::memory_order_relaxed);
-        if (imp) {
-            // If ADSR is already in attack (trigger went straight, no retrigger ramp),
-            // fire impulse on sample 0 of this vector via the pending flag —
-            // the sample loop will catch it on the first iteration since stage_before
-            // will be attack but we check pending_impulse independently.
-            pending_impulse[v] = true;
-        }
 
         // Read glide params once per vector
         const float curve = glide_curvature.load(std::memory_order_relaxed);
@@ -833,6 +841,9 @@ message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
         lock l{m_mutex};
         resetVoices(voices);
     }
+    // Mark all voices as ever-active so the first DSP vector zeroes all output
+    // channels — Max does not clear signal buffers on dspsetup.
+    std::fill(std::begin(voice_ever_active), std::begin(voice_ever_active) + voices, true);
     for (int v = 0; v < voices; ++v) applyADSRParams(v);
     adsr_poll.delay(1);
     return {};
