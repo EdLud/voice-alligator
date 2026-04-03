@@ -38,6 +38,7 @@ using namespace c74::min;
 using namespace c74::min::lib;
 
 long voice_alligator_tilde_multichanneloutputs(c74::max::t_object* x, long index, long count);
+long voice_alligator_tilde_multichannelinputs (c74::max::t_object* x, long index, long count);
 
 class voice_alligator_tilde : public object<voice_alligator_tilde>, public vector_operator<> {
 public:
@@ -47,8 +48,9 @@ MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
 MIN_RELATED{"poly~, voice-alligator"};
 MIN_FLAGS{documentation_flags::do_not_generate};
 
-// Single message inlet
-inlet<> in1{this, "(list) midipitch, velocity, (stream), (glide_flag), (realpitch)"};
+// Message inlet + external-busy MC signal inlet (rightmost)
+inlet<> in1             {this, "(list) midipitch, velocity, (stream), (glide_flag), (realpitch)"};
+inlet<> in_external_busy{this, "(MC signal) while non-zero voice stays busy; 1→0 ends that voice", "multichannelsignal"};
 
 // Nine MC signal outlets + one message outlet
 outlet<> out_freq   {this, "(MC~) frequency per voice",           "multichannelsignal"};  // Outlet 1
@@ -66,12 +68,14 @@ message<> maxclass_setup{this, "maxclass_setup", MIN_FUNCTION{
     c74::max::t_class* c = args[0];
     c74::max::class_addmethod(c, (c74::max::method)voice_alligator_tilde_multichanneloutputs,
                               "multichanneloutputs", c74::max::A_CANT, 0);
+    c74::max::class_addmethod(c, (c74::max::method)voice_alligator_tilde_multichannelinputs,
+                              "multichannelinputs", c74::max::A_CANT, 0);
     return {};
 }};
 
 message<> setup{this, "setup", MIN_FUNCTION{
     auto* self = (c74::max::t_pxobject*)maxobj();
-    self->z_misc |= 64; // Z_MC_OUTLETS only — no MC inlet needed
+    self->z_misc |= 64 | 32; // Z_MC_OUTLETS | Z_MC_INLETS
     return {};
 }};
 
@@ -213,7 +217,8 @@ VoiceVelRamp     voice_vel_ramp   [1024];
 VoicePendingFreq voice_pending_freq[1024];
 
 // Audio → scheduler: set to 1 when ADSR finishes, drained by poll timer
-std::atomic<int> voice_done_flags[1024] {};
+std::atomic<int> voice_done_flags          [1024] {};
+std::atomic<int> voice_ext_busy_release_flags[1024] {};  // set by audio thread when external-busy inlet triggers release
 
 // Generation counters — prevent adsr_poll from reclaiming a voice that was
 // re-allocated (stolen) after the old ADSR finished but before the poll ran.
@@ -222,6 +227,10 @@ uint32_t              audio_note_gen [1024] {};   // audio-thread-only: gen capt
 std::atomic<uint32_t> voice_done_gen [1024] {};   // audio stores audio_note_gen here when ADSR finishes
 
 double m_samplerate {44100.0};
+
+// External-busy inlet: per-voice state (audio thread)
+float prev_ext_busy_sample[1024] {};  // last seen value, for 1→0 edge detection
+bool  ext_busy_holding     [1024] {};  // ADSR finished while signal was high; hold voice busy until signal drops
 
 // ─── ADSR parameter cache ─────────────────────────────────────────────────────
 
@@ -438,7 +447,7 @@ argument<int> voices_arg{this, "voices_arg", description{"Number of voices, max:
 voice_alligator_tilde(const atoms& args = {}) {
     setStealcase();
     int n = voices;
-    if (args.size()) n = args[0];
+    if (args.size() >= 1) n = (int)args[0];
     if (n > 1024) { cerr << "maximum number of voices is 1024" << endl; return; }
     voices = n;
     resetVoices(n);
@@ -451,8 +460,9 @@ void resetVoices(int n) {
     active_voices.clear();
     pending_voices.clear();
     for (int i = 0; i < 1024; ++i) {
-        voice_done_flags[i].store(0, std::memory_order_relaxed);
-        voice_alloc_gen[i] .store(0, std::memory_order_relaxed);
+        voice_done_flags          [i].store(0, std::memory_order_relaxed);
+        voice_ext_busy_release_flags[i].store(0, std::memory_order_relaxed);
+        voice_alloc_gen[i]            .store(0, std::memory_order_relaxed);
         voice_done_gen[i]  .store(0, std::memory_order_relaxed);
         audio_note_gen[i]        = 0;
         voice_cmd[i].cmd        .store(0, std::memory_order_relaxed);
@@ -469,6 +479,8 @@ void resetVoices(int n) {
         new (&voice_adsr[i]) adsr{};  // reconstruct in-place — clears m_last_output and all internal state
     }
     for (int i = 1; i <= n; ++i) inactive_voices.push_back(i);
+    std::fill(std::begin(prev_ext_busy_sample), std::end(prev_ext_busy_sample), 0.f);
+    std::fill(std::begin(ext_busy_holding),     std::end(ext_busy_holding),     false);
 }
 
 // ─── Apply ADSR params to one voice (audio thread) ───────────────────────────
@@ -510,6 +522,42 @@ void applyADSRTimingOnly(int v) {
 void operator()(audio_bundle input, audio_bundle output) {
     const int n      = voices;
     const int frames = static_cast<int>(input.frame_count());
+
+    // ── External-busy inlet: 1→0 edge on inlet 2 channel v ends voice v ─────
+    // Va~ has one message inlet (in1) which adds a dummy channel 0 to the audio
+    // bundle. The ext-busy MC inlet's voices channels start at bundle index 1.
+    {
+        const int total_in = static_cast<int>(input.channel_count());
+        // Channel 0 of the audio bundle is a dummy for the message inlet (in1).
+        // The ext-busy MC inlet's channels start at index 1.
+        const int ch_offset = 1;
+        for (int v = 0; v < n; ++v) {
+            if (ch_offset + v >= total_in) { prev_ext_busy_sample[v] = 0.f; continue; }
+            const double* sbuf = input.samples(ch_offset + v);
+            float last = prev_ext_busy_sample[v];
+            for (int i = 0; i < frames; ++i) {
+                float s = (float)sbuf[i];
+                if (last != 0.f && s == 0.f) {
+                    if (audio_voice_active[v]) {
+                        // Signal dropped while ADSR still running: trigger release with declick
+                        voice_adsr[v].return_to_zero(true);
+                        voice_adsr[v].retrigger(adsr_retrigger_ms.load(std::memory_order_relaxed), m_samplerate);
+                        voice_adsr[v].end(0.0);
+                        voice_adsr[v].trigger(false);
+                        voice_ext_busy_release_flags[v].store(1, std::memory_order_release);
+                    } else if (ext_busy_holding[v]) {
+                        // ADSR already finished while signal was high — free now
+                        ext_busy_holding[v] = false;
+                        voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
+                        voice_cmd[v].cmd.store(0, std::memory_order_relaxed);
+                        voice_done_flags[v].store(1, std::memory_order_release);
+                    }
+                }
+                last = s;
+            }
+            prev_ext_busy_sample[v] = last;
+        }
+    }
 
     for (int v = 0; v < n; ++v) {
         // Consume pending command from scheduler thread
@@ -602,6 +650,7 @@ void operator()(audio_bundle input, audio_bundle output) {
             }
             audio_voice_active[v] = true;
             voice_ever_active  [v] = true;
+            ext_busy_holding   [v] = false;
 
             // If a note-off arrived before the audio thread could consume the note-on,
             // it was stored in pending_off — process it now so the voice releases correctly.
@@ -626,12 +675,11 @@ void operator()(audio_bundle input, audio_bundle output) {
             live_mono   [v] = voice_cmd[v].mono   .load(std::memory_order_relaxed);
             live_stream [v] = voice_cmd[v].stream .load(std::memory_order_relaxed);
         }
-
         // ── Fast path: skip everything for truly idle voices ─────────────────
         const int imp = voice_cmd[v].impulse.exchange(0, std::memory_order_relaxed);
         if (imp) pending_impulse[v] = true;
 
-        if (!audio_voice_active[v] && !pending_impulse[v]) {
+        if (!audio_voice_active[v] && !pending_impulse[v] && !ext_busy_holding[v]) {
             if (voice_ever_active[v]) {
                 for (int ch = 0; ch < 9; ++ch) {
                     auto* buf = output.samples(ch*n + v);
@@ -678,9 +726,15 @@ void operator()(audio_bundle input, audio_bundle output) {
             if (stage_after == adsr::adsr_stage::inactive) {
                 if (audio_voice_active[v]) {
                     audio_voice_active[v] = false;
-                    voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
-                    voice_cmd[v].cmd.store(0, std::memory_order_relaxed);
-                    voice_done_flags[v].store(1, std::memory_order_release);
+                    if (prev_ext_busy_sample[v] != 0.f) {
+                        // External-busy signal still high: hold voice allocated,
+                        // keep outputting freq at 0 env until signal drops.
+                        ext_busy_holding[v] = true;
+                    } else {
+                        voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
+                        voice_cmd[v].cmd.store(0, std::memory_order_relaxed);
+                        voice_done_flags[v].store(1, std::memory_order_release);
+                    }
                 // } else if (debug) {
                 //     cout << "Voice " << v+1 << " ADSR inactive but audio_voice_active was already false" << endl;
                 }
@@ -693,9 +747,13 @@ void operator()(audio_bundle input, audio_bundle output) {
                 if (sl <= 0.f && audio_voice_active[v]) {
                     voice_adsr[v].trigger(false);
                     audio_voice_active[v] = false;
-                    voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
-                    voice_cmd[v].cmd.store(0, std::memory_order_relaxed);
-                    voice_done_flags[v].store(1, std::memory_order_release);
+                    if (prev_ext_busy_sample[v] != 0.f) {
+                        ext_busy_holding[v] = true;
+                    } else {
+                        voice_done_gen[v].store(audio_note_gen[v], std::memory_order_relaxed);
+                        voice_cmd[v].cmd.store(0, std::memory_order_relaxed);
+                        voice_done_flags[v].store(1, std::memory_order_release);
+                    }
                 }
             }
 
@@ -793,6 +851,18 @@ void operator()(audio_bundle input, audio_bundle output) {
 
 timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
     const int n = voices;
+
+    // ── Drain external-busy release flags — mark voices as releasing in active_voices ─
+    for (int v = 0; v < n; ++v) {
+        if (!voice_ext_busy_release_flags[v].exchange(0, std::memory_order_acquire)) continue;
+        const int target = v + 1;
+        lock lk{m_mutex};
+        auto it = std::find_if(active_voices.begin(), active_voices.end(),
+                               [target](const Note& n){ return n.target == target; });
+        if (it != active_voices.end()) it->release_flag = true;
+    }
+
+
     for (int v = 0; v < n; ++v) {
         if (!voice_done_flags[v].load(std::memory_order_acquire)) continue;
 
@@ -848,8 +918,6 @@ message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
     adsr_poll.delay(1);
     return {};
 }};
-
-
 
 // ─── Mono attribute ───────────────────────────────────────────────────────────
 
@@ -1494,13 +1562,23 @@ private:
 mutex m_mutex;
 };
 
-// ─── MC channel count callback ────────────────────────────────────────────────
-// Called by Max to ask how many channels each outlet should carry.
-// All 9 MC outlets carry `voices` channels each (outlet 10 is message outlet)
+// ─── MC channel count callbacks ───────────────────────────────────────────────
+// Called by Max to ask how many channels each outlet/inlet should carry.
+// All 9 MC outlets carry `voices` channels each (outlet 10 is message outlet).
+// The external-busy MC inlet (inlet 1) carries one channel per voice.
 
 long voice_alligator_tilde_multichanneloutputs(c74::max::t_object* x, long index, long count) {
     minwrap<voice_alligator_tilde>* ob = (minwrap<voice_alligator_tilde>*)(x);
-    return ob->m_min_object.voices;  // 9 MC outlets × voices channels each
+    return ob->m_min_object.voices;
+}
+
+// Inlet 0 is the message inlet; inlet 1 is the external-busy MC inlet (voices channels).
+// Max adds a dummy channel 0 to the audio bundle for the message inlet, so the ext-busy
+// channels are at bundle indices 1..voices.
+long voice_alligator_tilde_multichannelinputs(c74::max::t_object* x, long index, long count) {
+    minwrap<voice_alligator_tilde>* ob = (minwrap<voice_alligator_tilde>*)(x);
+    if (index == 1) return ob->m_min_object.voices;
+    return 1;
 }
 
 MIN_EXTERNAL(voice_alligator_tilde);

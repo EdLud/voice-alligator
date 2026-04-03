@@ -1,7 +1,7 @@
 {
 	"name" : "voice-alligator",
 	"displayname" : "",
-	"version" : "1.2.5",
+	"version" : "1.2.6",
 	"author" : "Edis Ludwig, Jan Godde",
 	"description" : "Suite of voice allocation tools.",
 	"tags" : [ "midi", "poly~", "voice allocation"],

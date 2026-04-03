@@ -53,6 +53,13 @@
 		When non-zero at the moment of a trigger, overrides all <m>vel</m> list values. Normalised to 0–1.
 		<br/><br/>
 
+		<i><b>Inlet 4 — external busy (MC signal)</b></i>
+		<br/><br/>
+		An MC signal with one channel per voice. While a channel is non-zero, the corresponding voice is kept busy. A 1→0 transition on channel <i>v</i> ends voice <i>v</i>: the ADSR is released with a declick ramp (duration controlled by <at>declick_ms</at>), after which the voice is freed normally.
+		<br/><br/>
+		Use this to keep a voice busy for as long as an external process (e.g. a one-shot sample player) is running. Route the busy signal back here via a one-vector delay to allow feedback. When unconnected this inlet receives a constant 0 and has no effect.
+		<br/><br/>
+
 		<i><b>MC Signal Outlets</b></i>
 		<br/><br/>
 
