@@ -269,6 +269,7 @@ uint64_t last_blocked_sample  {0};   // scheduler: discard triggers older than t
 float prev_ext_busy_sample[1024] {};  // last seen value, for 1→0 edge detection
 bool  ext_busy_holding     [1024] {};  // ADSR finished while signal was high; hold voice busy until signal drops
 
+
 // ─── Global params (audio thread reads directly) ──────────────────────────────
 
 std::atomic<float> adsr_retrigger_ms {5.f};  // declick_ms
@@ -436,6 +437,9 @@ message<> mono_steals_release_msg{this, "mono_steals_release", "Set per-stream m
         return {};
     }
 };
+attribute<bool> m_external_glide{this, "external_glide", false,
+    description{"When on, a non-zero external busy signal forces a glide to the next mono note regardless of mono_steals_release (default false)"}};
+
 message<> reset_msg{this, "reset", "Reset all lists and defaults",
     MIN_FUNCTION{
         msg_freq_list.clear();
@@ -1124,16 +1128,20 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                     auto it = std::find_if(active_voices.begin(), active_voices.end(),
                         [existing_target](const Note& n){ return n.target == existing_target; });
                     if (it != active_voices.end()) {
-                        bool holding = ext_busy_holding[existing_target - 1];
+                        bool holding  = ext_busy_holding[existing_target - 1];
+                        bool ext_high = m_external_glide && prev_ext_busy_sample[existing_target - 1] != 0.f;
                         if (holding) {
                             // ADSR finished while ext-busy was high — retrigger the same
                             // voice fresh (not as a glide) so attack/impulse fire again.
                             do_retrigger_holding = true;
-                        } else if (!it->release_flag) {
-                            do_glide = true;                // active, not releasing → glide
+                        } else if (!it->release_flag || ext_high) {
+                            // attack/sustain, or ext-busy still non-zero → always glide
+                            do_glide = true;
                         } else if (steals_release) {
-                            do_glide = true;                // releasing but mono_steals_release → glide
+                            // release phase, ext-busy zero, mono_steals_release on → glide
+                            do_glide = true;
                         }
+                        // release phase, ext-busy zero, mono_steals_release off → allocate new voice
                     }
                 }
 

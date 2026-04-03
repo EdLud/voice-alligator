@@ -176,6 +176,8 @@
 				<br/><br/>
 				Glide notes output 1.0 on outlet 3 (glide~) and do not fire an impulse on outlet 3. Whether the envelope is retriggered on a glide note is controlled by <m>glide_retrigger</m>.
 				<br/><br/>
+				When <m>external_glide</m> is enabled and inlet 2 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <m>mono_steals_release</m> setting.
+				<br/><br/>
 				<i>default: false</i>
 			</description>
 		</attribute>
@@ -193,6 +195,15 @@
 			<digest>Mono note steals releasing mono notes</digest>
 			<description>
 				Identical to <o>voice-alligator</o>. See that reference.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
+		<attribute name='external_glide' get='1' set='1' type='bool' size='1'>
+			<digest>External busy forces mono glide (default false)</digest>
+			<description>
+				When enabled, a non-zero signal on inlet 2 (external busy) forces a glide to the next note on the same mono stream, regardless of the <m>mono_steals_release</m> setting. When disabled, glide behaviour is determined solely by note length and ADSR status.
 				<br/><br/>
 				<i>default: false</i>
 			</description>

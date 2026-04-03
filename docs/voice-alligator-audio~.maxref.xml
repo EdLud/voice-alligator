@@ -157,6 +157,8 @@
 				<br/><br/>
 				Example: <m>mono 1 0 0</m> — stream 1 glides, streams 2 and 3 always allocate new voices.
 				<br/><br/>
+				When <m>external_glide</m> is enabled and inlet 4 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <m>mono_steals_release</m> setting.
+				<br/><br/>
 				<i>default: 0 (off) for all streams</i>
 			</description>
 		</method>
@@ -172,6 +174,18 @@
 				Only relevant when <m>mono</m> is enabled for the stream.
 				<br/><br/>
 				<i>default: 0 (off) — releasing voices are not glided</i>
+			</description>
+		</method>
+
+		<method name='external_glide'>
+			<arglist>
+				<arg name='state' optional='0' type='int' />
+			</arglist>
+			<digest>External busy forces mono glide (0/1, default 0)</digest>
+			<description>
+				When enabled (1), a non-zero signal on inlet 4 (external busy) forces a glide to the next note on the same mono stream, regardless of the <m>mono_steals_release</m> setting. When disabled (0), glide behaviour is determined solely by note length and ADSR status.
+				<br/><br/>
+				<i>default: 0 (off)</i>
 			</description>
 		</method>
 

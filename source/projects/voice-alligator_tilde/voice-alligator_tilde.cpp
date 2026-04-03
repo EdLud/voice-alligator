@@ -232,6 +232,7 @@ double m_samplerate {44100.0};
 float prev_ext_busy_sample[1024] {};  // last seen value, for 1→0 edge detection
 bool  ext_busy_holding     [1024] {};  // ADSR finished while signal was high; hold voice busy until signal drops
 
+
 // ─── ADSR parameter cache ─────────────────────────────────────────────────────
 
 std::atomic<float> adsr_attack    {10.f};
@@ -314,6 +315,9 @@ attribute<bool> glide_retrigger_attr{this, "glide_retrigger", 0,
 
 attribute<bool> glide_impulse_attr{this, "glide_impulse", false,
     description{"Send impulse on outlet 8 when a glide note is triggered (default false)"}};
+
+attribute<bool> external_glide_attr{this, "external_glide", false,
+    description{"When on, a non-zero external busy signal forces a glide to the next mono note regardless of mono_steals_release (default false)"}};
 
 // ── ADSR attributes ───────────────────────────────────────────────────────────
 
@@ -886,7 +890,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
         live_sustain[v] = 0.f;
         live_seq    [v] = 0.f;
         live_mono   [v] = 0.f;
-        live_stream [v] = 0.f; 
+        live_stream [v] = 0.f;
         voice_glide [v] = VoiceGlide{};
 
         auto it = std::find_if(active_voices.begin(), active_voices.end(),
@@ -1105,9 +1109,10 @@ void handleNoteOnMono(Note& note, lock& lock) {
         }
     }
 
-    if (mono_steals_release_attr) {
-        if (auto* mt = findFirstNoteWithPredicate([=](const Note& n){
-                return n.mono_flag && n.stream == st && n.release_flag; })) {
+    if (auto* mt = findFirstNoteWithPredicate([=](const Note& n){
+            return n.mono_flag && n.stream == st && n.release_flag; })) {
+        bool ext_high = external_glide_attr && prev_ext_busy_sample[mt->target - 1] != 0.f;
+        if (mono_steals_release_attr || ext_high) {
             if (mono_note_priority_attr == mono_note_priority::LOW  && !note.sequencer_note_flag && mt->return_lowest_mpitch()  < note.mpitch.back()) return;
             if (mono_note_priority_attr == mono_note_priority::HIGH && !note.sequencer_note_flag && mt->return_highest_mpitch() > note.mpitch.back()) return;
             mt->release_flag = false;
@@ -1117,6 +1122,7 @@ void handleNoteOnMono(Note& note, lock& lock) {
             nts = *mt; lock.unlock();
             outputFunction(nts, 1, 1, false, true); return;
         }
+        // release phase, ext-busy zero, mono_steals_release off → allocate new voice
     }
 
     int fv = findFreeVoice();
