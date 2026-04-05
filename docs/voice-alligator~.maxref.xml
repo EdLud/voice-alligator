@@ -43,7 +43,7 @@
 		<br/><br/>
 
 		<u>Outlet 3 — impulse~</u><br/>
-		A single sample impulse fired at the start of each note attack. Use this to trigger pitch envelopes or other one-shot modulations in the voice. <m>glide_impulse</m> controls whether an impulse is fired on glide notes. If a note is stolen, the impulse is fired at the bottom of the declick ramp.
+		A single sample impulse fired at the start of each note attack. Use this to trigger one-shot modulations in the voice or reset the phase of an oscillator. <m>glide_impulse</m> controls whether an impulse is fired on glide notes. If a note is stolen, the impulse is fired at the bottom of the declick ramp.
 		<br/><br/>
 
 		<u>Outlet 4 — glide flag~</u><br/>
@@ -176,7 +176,7 @@
 				<br/><br/>
 				Glide notes output 1.0 on outlet 3 (glide~) and do not fire an impulse on outlet 3. Whether the envelope is retriggered on a glide note is controlled by <m>glide_retrigger</m>.
 				<br/><br/>
-				When <m>external_glide</m> is enabled and inlet 2 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <m>mono_steals_release</m> setting.
+				When <m>ext_busy_forces_glide</m> is enabled and inlet 2 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <m>mono_steals_release</m> setting.
 				<br/><br/>
 				<i>default: false</i>
 			</description>
@@ -200,7 +200,7 @@
 			</description>
 		</attribute>
 
-		<attribute name='external_glide' get='1' set='1' type='bool' size='1'>
+		<attribute name='ext_busy_forces_glide' get='1' set='1' type='bool' size='1'>
 			<digest>External busy forces mono glide (default false)</digest>
 			<description>
 				When enabled, a non-zero signal on inlet 2 (external busy) forces a glide to the next note on the same mono stream, regardless of the <m>mono_steals_release</m> setting. When disabled, glide behaviour is determined solely by note length and ADSR status.
@@ -242,6 +242,20 @@
 				Identical to <o>voice-alligator</o>. See that reference.
 				<br/><br/>
 				<i>default: true</i>
+			</description>
+		</attribute>
+
+		<attribute name='steal_mode' get='1' set='1' type='int' size='1'>
+			<digest>Voice stealing mode: 0 oldest, 1 most silent (default oldest)</digest>
+			<description>
+				Steal mode determines which voice is stolen when all voices are busy.
+				<br/><br/>
+				<m>0</m> (oldest): steal the voice that has been active the longest (default behaviour).<br/>
+				<m>1</m> (most_silent): steal the quietest eligible voice — lowest current ADSR output, or ext-busy signal level if inlet 2 is connected.
+				<br/><br/>
+				In all modes, releasing voices are preferred over sustaining ones, and stream priority rules still apply.
+				<br/><br/>
+				<i>default: 0 (oldest)</i>
 			</description>
 		</attribute>
 

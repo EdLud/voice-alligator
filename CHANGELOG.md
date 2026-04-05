@@ -1,7 +1,13 @@
 # Changelog
 
+## 1.3.0
+- some updates to helpfile and docs
+
+## 1.2.8
+- added "most_silent" steal mode to va, va~, and va-audio~: steals the quietest voice based on current ADSR output, or ext-busy signal level if connected
+
 ## 1.2.7
-- when the external busy inlet is non-zero for a voice, the next note on the same mono stream always glides regardless of the mono_steals_release setting
+- added ext_busy_forces_glide attribute (default off): when on and the external busy inlet is non-zero for a voice and we are in monophony, the next note always glides regardless of the internal ADSR Status
 
 ## 1.2.6
 - added an "external busy" inlet to va~ and va-audio~ and some karplus strong examples to the helpfiles

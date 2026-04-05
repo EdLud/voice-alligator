@@ -214,6 +214,14 @@ bool steal_was_set = false; //steal case is set in the constructor when the exte
 
 bool steal_hold_var = false;
 
+enum class steal_mode : int { oldest, most_silent, enum_count };
+enum_map steal_mode_range = {"oldest", "most_silent"};
+attribute<steal_mode> steal_mode_attr{this, "steal_mode", steal_mode::oldest,
+    steal_mode_range,
+    description{"Voice stealing mode. "
+                "oldest (default): steal oldest releasing note, fall back to oldest active note. "
+                "most_silent: steal the quietest eligible voice based on current ADSR level."}};
+
 attribute<bool>                     steal_hold_attr{this, "steal_hold", true, description{"Steal Hold Notes on / off"}, 
 setter{
     MIN_FUNCTION{
@@ -399,7 +407,8 @@ void operator()(audio_bundle input, audio_bundle output){
             audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
         }
 
-        adsr_active[v] = still_active;
+        adsr_active    [v] = still_active;
+        last_adsr_level[v] = frames > 0 ? static_cast<float>(samples[frames - 1]) : 0.f;
     }
 }
 
@@ -1142,6 +1151,18 @@ Note* findLastNoteWithPredicate(std::function<bool(const Note&)> predicate){
     return nullptr;
 }
 
+Note* findQuietestNoteWithPredicate(std::function<bool(const Note&)> pred) {
+    Note*  best       = nullptr;
+    float  best_level = std::numeric_limits<float>::max();
+    for (auto& n : active_voices) {
+        if (!pred(n)) continue;
+        int   vi    = n.target - 1;
+        float level = (vi >= 0 && vi < 1024) ? last_adsr_level[vi] : 0.f;
+        if (level < best_level) { best_level = level; best = &n; }
+    }
+    return best;
+}
+
 void setStealcase(){
     if(     respect_stream_priorities_var   == 1  && !steal_hold_var)  steal_case = 1;  //hold notes are never stolen, streams are respected (means not allowed to steal from lower streams) (default)
     else if(respect_stream_priorities_var   == 0  && !steal_hold_var)  steal_case = 2;  //hold notes are never stolen, streams are ignored
@@ -1152,10 +1173,54 @@ void setStealcase(){
 }
 
 Note* findNoteToSteal(const Note &incoming_note){
-    if(debug){cout << "incoming note " << incoming_note.mpitch.back() << " asked for steal" << endl;} 
+    if(debug){cout << "incoming note " << incoming_note.mpitch.back() << " asked for steal" << endl;}
 
     if(!steal_attr) return nullptr;
     int stream = incoming_note.stream; //this got rid of a bug. Before, we captured incoming_note.stream by reference in the lambdas below, this lead to crashes
+
+    if (steal_mode_attr == steal_mode::most_silent) {
+        // Same tier ordering as steal_case, but within each tier pick the quietest voice
+        // instead of the oldest. Loudness = current ADSR level fed back from mc.poly~.
+        switch (steal_case) {
+        case 1:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.stream==stream; })) return n;
+            break;
+        case 2:
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return  x.release_flag&&!x.hold_flag; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return !x.release_flag&&!x.hold_flag; })) return n;
+            break;
+        case 3:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream<stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&!x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&!x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&!x.release_flag&&x.stream<stream; })) return n;
+            break;
+        case 4:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.stream==stream; })) return n;
+            break;
+        case 5:
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return  x.release_flag; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return !x.release_flag; })) return n;
+            break;
+        case 6:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream<stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.release_flag&&x.stream<stream; })) return n;
+            break;
+        }
+        return nullptr;
+    }
 
     switch (steal_case){
     case 1:  //hold notes are never stolen, streams are respected (means not allowed to steal from lower streams) (default)
@@ -1622,7 +1687,8 @@ message<> dspsetup{this, "dspsetup", MIN_FUNCTION{
 
 private:
 mutex m_mutex;
-bool adsr_active[1024] {}; // per-voice active state tracked on the audio thread
+bool  adsr_active    [1024] {}; // per-voice active state tracked on the audio thread
+float last_adsr_level[1024] {}; // last sample of ADSR signal each vector — used by most_silent steal mode
 };
 
 // MC callback: tells Max how many channels inlet 2 expects (one per voice)

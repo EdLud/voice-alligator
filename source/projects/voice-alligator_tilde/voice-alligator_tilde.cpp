@@ -316,7 +316,7 @@ attribute<bool> glide_retrigger_attr{this, "glide_retrigger", 0,
 attribute<bool> glide_impulse_attr{this, "glide_impulse", false,
     description{"Send impulse on outlet 8 when a glide note is triggered (default false)"}};
 
-attribute<bool> external_glide_attr{this, "external_glide", false,
+attribute<bool> external_glide_attr{this, "ext_busy_forces_glide", false,
     description{"When on, a non-zero external busy signal forces a glide to the next mono note regardless of mono_steals_release (default false)"}};
 
 // ── ADSR attributes ───────────────────────────────────────────────────────────
@@ -394,6 +394,14 @@ attribute<bool> return_to_zero_attr{this, "return_to_zero", true,
 };
 
 // ── Voice / steal attributes ──────────────────────────────────────────────────
+
+enum class steal_mode : int { oldest, most_silent, enum_count };
+enum_map steal_mode_range = {"oldest", "most_silent"};
+attribute<steal_mode> steal_mode_attr{this, "steal_mode", steal_mode::oldest,
+    steal_mode_range,
+    description{"Voice stealing mode. "
+                "oldest (default): steal oldest releasing note, fall back to oldest active note. "
+                "most_silent: steal the quietest eligible voice (lowest ADSR output, or ext-busy value if connected)."}};
 
 int  steal_case = 1;
 bool steal_was_set = false;
@@ -538,9 +546,11 @@ void operator()(audio_bundle input, audio_bundle output) {
         for (int v = 0; v < n; ++v) {
             if (ch_offset + v >= total_in) { prev_ext_busy_sample[v] = 0.f; continue; }
             const double* sbuf = input.samples(ch_offset + v);
+            static constexpr float EXT_BUSY_THRESHOLD = 1e-4f;
             float last = prev_ext_busy_sample[v];
             for (int i = 0; i < frames; ++i) {
                 float s = (float)sbuf[i];
+                if (s < EXT_BUSY_THRESHOLD) s = 0.f;  // treat near-zero as zero
                 if (last != 0.f && s == 0.f) {
                     if (audio_voice_active[v]) {
                         // Signal dropped while ADSR still running: trigger release with declick
@@ -1399,9 +1409,68 @@ void setStealcase() {
     else if (respect_stream_priorities_var==2 &&  steal_hold_var) steal_case=6;
 }
 
+// Returns the quietest note among those matching pred, or nullptr if none match.
+// Loudness = max(ADSR output, ext-busy signal) for that voice.
+Note* findQuietestNoteWithPredicate(std::function<bool(const Note&)> pred) {
+    Note*  best       = nullptr;
+    float  best_level = std::numeric_limits<float>::max();
+    for (auto& n : active_voices) {
+        if (!pred(n)) continue;
+        int   vi    = n.target - 1;
+        float level = std::max(last_env_output[vi], prev_ext_busy_sample[vi]);
+        if (level < best_level) { best_level = level; best = &n; }
+    }
+    return best;
+}
+
 Note* findNoteToSteal(const Note& inc) {
     if (!steal_attr) return nullptr;
     int stream = inc.stream;
+
+    if (steal_mode_attr == steal_mode::most_silent) {
+        // Same tier ordering as steal_case, but within each tier pick the quietest voice
+        // instead of the oldest. Loudness = max(ADSR output, ext-busy signal).
+        switch (steal_case) {
+        case 1:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.stream==stream; })) return n;
+            break;
+        case 2:
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return  x.release_flag&&!x.hold_flag; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return !x.release_flag&&!x.hold_flag; })) return n;
+            break;
+        case 3:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream<stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&!x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&!x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&!x.release_flag&&x.stream<stream; })) return n;
+            break;
+        case 4:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.stream==stream; })) return n;
+            break;
+        case 5:
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return  x.release_flag; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([](const Note& x){ return !x.release_flag; })) return n;
+            break;
+        case 6:
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return x.release_flag&&x.stream<stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.release_flag&&x.stream>stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.release_flag&&x.stream==stream; })) return n;
+            if (auto* n=findQuietestNoteWithPredicate([=](const Note& x){ return !x.release_flag&&x.stream<stream; })) return n;
+            break;
+        }
+        return nullptr;
+    }
+
     switch (steal_case) {
     case 1:
         if (auto* n=findFirstNoteWithPredicate([=](const Note& x){ return !x.hold_flag&&x.release_flag&&x.stream>stream; })) return n;

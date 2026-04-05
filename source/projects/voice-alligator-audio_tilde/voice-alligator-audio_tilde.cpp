@@ -437,7 +437,7 @@ message<> mono_steals_release_msg{this, "mono_steals_release", "Set per-stream m
         return {};
     }
 };
-attribute<bool> m_external_glide{this, "external_glide", false,
+attribute<bool> m_external_glide{this, "ext_busy_forces_glide", false,
     description{"When on, a non-zero external busy signal forces a glide to the next mono note regardless of mono_steals_release (default false)"}};
 
 message<> reset_msg{this, "reset", "Reset all lists and defaults",
@@ -481,8 +481,8 @@ attribute<bool> m_debug{this, "debug", false,
 
 // ─── Attributes (only those that stay) ────────────────────────────────────────
 
-enum class steal_mode : int { oldest, most_advanced, enum_count };
-enum_map steal_mode_range = {"oldest", "most_advanced"};
+enum class steal_mode : int { oldest, most_advanced, most_silent, enum_count };
+enum_map steal_mode_range = {"oldest", "most_advanced", "most_silent"};
 
 attribute<bool> steal_attr{this, "steal", true,
     description{"Voice stealing on / off (default true)"}};
@@ -491,7 +491,8 @@ attribute<steal_mode> steal_mode_attr{this, "steal_mode", steal_mode::oldest,
     steal_mode_range,
     description{"Voice stealing mode. "
                 "oldest (default): steal oldest releasing note, fall back to oldest active note. "
-                "most_advanced: steal the note closest to the end of its envelope."}};
+                "most_advanced: steal the note closest to the end of its envelope. "
+                "most_silent: steal the quietest eligible voice (lowest ADSR output, or ext-busy value if connected)."}};
 
 attribute<bool> scale_attr{this, "scale", false,
     description{"If true, inlet 2 is a MIDI note number looked up in the scale array. "
@@ -659,9 +660,11 @@ void operator()(audio_bundle input, audio_bundle output) {
             const int ch = 3 + v;
             if (ch >= total_in) { prev_ext_busy_sample[v] = 0.f; continue; }
             const double* sbuf = input.samples(ch);
+            static constexpr float EXT_BUSY_THRESHOLD = 1e-4f;
             float last = prev_ext_busy_sample[v];
             for (int i = 0; i < frames; ++i) {
                 float s = (float)sbuf[i];
+                if (s < EXT_BUSY_THRESHOLD) s = 0.f;  // treat near-zero as zero
                 if (last != 0.f && s == 0.f) {
                     if (audio_voice_active[v]) {
                         voice_adsr[v].return_to_zero(true);
@@ -1398,7 +1401,7 @@ Note* findNoteToSteal() {
             if (!cmd_pending(n.target)) return &n;
         return nullptr;  // all voices have pending cmds — don't steal
     }
-    else {
+    else if (steal_mode_attr == steal_mode::most_advanced) {
         Note* best = nullptr;
         float best_remaining = std::numeric_limits<float>::max();
         Note* fallback = nullptr;
@@ -1412,6 +1415,20 @@ Note* findNoteToSteal() {
             if (remaining < best_remaining) { best_remaining = remaining; best = &n; }
         }
         return best ? best : fallback;
+    }
+    else {  // most_silent
+        // Two-tier: prefer releasing voices; within each tier pick the quietest.
+        // Loudness = max(ADSR output, ext-busy signal) for that voice.
+        Note* best_rel = nullptr; float best_rel_level = std::numeric_limits<float>::max();
+        Note* best_any = nullptr; float best_any_level = std::numeric_limits<float>::max();
+        for (auto& n : active_voices) {
+            if (cmd_pending(n.target)) continue;
+            int   vi    = n.target - 1;
+            float level = std::max(last_env_output[vi], prev_ext_busy_sample[vi]);
+            if (level < best_any_level) { best_any_level = level; best_any = &n; }
+            if (n.release_flag && level < best_rel_level) { best_rel_level = level; best_rel = &n; }
+        }
+        return best_rel ? best_rel : best_any;
     }
 }
 

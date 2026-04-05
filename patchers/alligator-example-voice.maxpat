@@ -52,10 +52,6 @@
                     "numinlets": 1,
                     "numoutlets": 0,
                     "patching_rect": [ 351.0, 690.0, 42.0, 22.0 ],
-                    "saved_object_attributes": {
-                        "attr_comment": "",
-                        "c": ""
-                    },
                     "text": "out~ 2"
                 }
             },
@@ -457,32 +453,72 @@
                         "boxes": [
                             {
                                 "box": {
+                                    "id": "obj-5",
+                                    "maxclass": "comment",
+                                    "numinlets": 1,
+                                    "numoutlets": 0,
+                                    "patching_rect": [ 387.0, 19.0, 97.0, 20.0 ],
+                                    "text": "< input message"
+                                }
+                            },
+                            {
+                                "box": {
+                                    "bgcolor": [ 0.250980392156863, 0.203921568627451, 0.937254901960784, 1.0 ],
                                     "id": "obj-14",
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 165.0, 307.0, 250.0, 20.0 ],
-                                    "text": "glide, hold, sustain, sequencer, mono, stream"
+                                    "saved_attribute_attributes": {
+                                        "bgcolor": {
+                                            "expression": "themecolor.live_midi_assignment"
+                                        },
+                                        "textcolor": {
+                                            "expression": "themecolor.live_arranger_grid_tiles"
+                                        }
+                                    },
+                                    "text": "glide, hold, sustain, sequencer, mono, stream",
+                                    "textcolor": [ 0.85, 0.85, 0.85, 1.0 ]
                                 }
                             },
                             {
                                 "box": {
+                                    "bgcolor": [ 0.250980392156863, 0.203921568627451, 0.937254901960784, 1.0 ],
                                     "id": "obj-11",
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 68.0, 307.0, 56.0, 20.0 ],
-                                    "text": "pitch, vel"
+                                    "saved_attribute_attributes": {
+                                        "bgcolor": {
+                                            "expression": "themecolor.live_midi_assignment"
+                                        },
+                                        "textcolor": {
+                                            "expression": "themecolor.live_arranger_grid_tiles"
+                                        }
+                                    },
+                                    "text": "pitch, vel",
+                                    "textcolor": [ 0.85, 0.85, 0.85, 1.0 ]
                                 }
                             },
                             {
                                 "box": {
+                                    "bgcolor": [ 0.250980392156863, 0.203921568627451, 0.937254901960784, 1.0 ],
                                     "id": "obj-10",
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 157.0, 144.0, 345.0, 20.0 ],
-                                    "text": "pitch, vel, \"flags\", glide, hold, sustain, sequencer, mono, stream"
+                                    "saved_attribute_attributes": {
+                                        "bgcolor": {
+                                            "expression": "themecolor.live_midi_assignment"
+                                        },
+                                        "textcolor": {
+                                            "expression": "themecolor.live_arranger_grid_tiles"
+                                        }
+                                    },
+                                    "text": "pitch, vel, \"flags\", glide, hold, sustain, sequencer, mono, stream",
+                                    "textcolor": [ 0.85, 0.85, 0.85, 1.0 ]
                                 }
                             },
                             {
@@ -497,12 +533,22 @@
                             },
                             {
                                 "box": {
+                                    "bgcolor": [ 0.250980392156863, 0.203921568627451, 0.937254901960784, 1.0 ],
                                     "id": "obj-7",
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 10.0, 19.0, 382.0, 20.0 ],
-                                    "text": "target, pitch, vel, \"flags\", glide, hold, sustain, sequencer, mono, stream"
+                                    "saved_attribute_attributes": {
+                                        "bgcolor": {
+                                            "expression": "themecolor.live_midi_assignment"
+                                        },
+                                        "textcolor": {
+                                            "expression": "themecolor.live_arranger_grid_tiles"
+                                        }
+                                    },
+                                    "text": "target, pitch, vel, \"flags\", glide, hold, sustain, sequencer, mono, stream",
+                                    "textcolor": [ 0.85, 0.85, 0.85, 1.0 ]
                                 }
                             },
                             {
@@ -1885,10 +1931,6 @@
                     "numinlets": 1,
                     "numoutlets": 0,
                     "patching_rect": [ 41.0, 665.0, 42.0, 22.0 ],
-                    "saved_object_attributes": {
-                        "attr_comment": "",
-                        "c": ""
-                    },
                     "text": "out~ 1"
                 }
             },
@@ -2020,10 +2062,6 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 23.0, 10.0, 47.0, 23.0 ],
-                    "saved_object_attributes": {
-                        "attr_comment": "",
-                        "c": ""
-                    },
                     "text": "in 1"
                 }
             },

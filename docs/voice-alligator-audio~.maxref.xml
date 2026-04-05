@@ -157,7 +157,7 @@
 				<br/><br/>
 				Example: <m>mono 1 0 0</m> — stream 1 glides, streams 2 and 3 always allocate new voices.
 				<br/><br/>
-				When <m>external_glide</m> is enabled and inlet 4 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <m>mono_steals_release</m> setting.
+				When <m>ext_busy_forces_glide</m> is enabled and inlet 4 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <m>mono_steals_release</m> setting.
 				<br/><br/>
 				<i>default: 0 (off) for all streams</i>
 			</description>
@@ -177,7 +177,7 @@
 			</description>
 		</method>
 
-		<method name='external_glide'>
+		<method name='ext_busy_forces_glide'>
 			<arglist>
 				<arg name='state' optional='0' type='int' />
 			</arglist>
@@ -409,12 +409,15 @@
 		</attribute>
 
 		<attribute name='steal_mode' get='1' set='1' type='int' size='1'>
-			<digest>Voice stealing mode: 0 oldest, 1 most advanced (default oldest)</digest>
+			<digest>Voice stealing mode: 0 oldest, 1 most advanced, 2 most silent (default oldest)</digest>
 			<description>
 				Steal mode determines which voice is stolen when a new trigger arrives and no free voice is available.
 				<br/><br/>
 				<m>0</m> (oldest): steal the voice that has been active the longest.<br/>
-				<m>1</m> (most advanced): steal the voice that is furthest along in its ADSR envelope.
+				<m>1</m> (most_advanced): steal the voice that is furthest along in its ADSR envelope.<br/>
+				<m>2</m> (most_silent): steal the quietest eligible voice — lowest current ADSR output, or ext-busy signal level if inlet 4 is connected.
+				<br/><br/>
+				In all modes, releasing voices are preferred over sustaining ones.
 				<br/><br/>
 				<i>default: 0 (oldest)</i>
 			</description>

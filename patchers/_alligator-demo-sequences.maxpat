@@ -189,7 +189,7 @@
                         "valueof": {
                             "parameter_initial": [ 50 ],
                             "parameter_initial_enable": 1,
-                            "parameter_longname": "live.numbox[2]",
+                            "parameter_longname": "live.numbox[3]",
                             "parameter_mmax": 30000.0,
                             "parameter_modmode": 3,
                             "parameter_shortname": "live.numbox",
@@ -225,7 +225,7 @@
                             "parameter_exponent": 3.0,
                             "parameter_initial": [ 5000 ],
                             "parameter_initial_enable": 1,
-                            "parameter_longname": "filter_freq[2]",
+                            "parameter_longname": "filter_freq[3]",
                             "parameter_mmax": 20000.0,
                             "parameter_mmin": 20.0,
                             "parameter_modmode": 3,
@@ -264,7 +264,7 @@
                     "saved_attribute_attributes": {
                         "valueof": {
                             "parameter_enum": [ "sine", "saw" ],
-                            "parameter_longname": "live.tab[3]",
+                            "parameter_longname": "live.tab[4]",
                             "parameter_mmax": 1,
                             "parameter_modmode": 0,
                             "parameter_shortname": "live.tab",
@@ -305,7 +305,7 @@
                             "parameter_exponent": 3.0,
                             "parameter_initial": [ 150 ],
                             "parameter_initial_enable": 1,
-                            "parameter_longname": "release[2]",
+                            "parameter_longname": "release[3]",
                             "parameter_mmax": 30000.0,
                             "parameter_modmode": 3,
                             "parameter_shortname": "release",
@@ -346,7 +346,7 @@
                         "valueof": {
                             "parameter_initial": [ 0.5 ],
                             "parameter_initial_enable": 1,
-                            "parameter_longname": "sustain[2]",
+                            "parameter_longname": "sustain[3]",
                             "parameter_mmax": 1.0,
                             "parameter_modmode": 3,
                             "parameter_shortname": "sustain",
@@ -388,7 +388,7 @@
                             "parameter_exponent": 3.0,
                             "parameter_initial": [ 250 ],
                             "parameter_initial_enable": 1,
-                            "parameter_longname": "decay[2]",
+                            "parameter_longname": "decay[3]",
                             "parameter_mmax": 10000.0,
                             "parameter_modmode": 3,
                             "parameter_shortname": "decay",
@@ -430,7 +430,7 @@
                             "parameter_exponent": 3.0,
                             "parameter_initial": [ 7 ],
                             "parameter_initial_enable": 1,
-                            "parameter_longname": "attack[2]",
+                            "parameter_longname": "attack[3]",
                             "parameter_mmax": 30000.0,
                             "parameter_modmode": 3,
                             "parameter_shortname": "attack",
@@ -506,6 +506,17 @@
                         "rect": [ 134.0, 159.0, 753.0, 531.0 ],
                         "subpatcher_template": "Default Max 7",
                         "boxes": [
+                            {
+                                "box": {
+                                    "id": "obj-3",
+                                    "maxclass": "newobj",
+                                    "numinlets": 2,
+                                    "numoutlets": 1,
+                                    "outlettype": [ "int" ],
+                                    "patching_rect": [ 243.0, 294.0, 39.0, 22.0 ],
+                                    "text": "!= 64."
+                                }
+                            },
                             {
                                 "box": {
                                     "id": "obj-2",
@@ -601,8 +612,8 @@
                                     "numinlets": 2,
                                     "numoutlets": 1,
                                     "outlettype": [ "bang" ],
-                                    "patching_rect": [ 317.0, 12.0, 106.0, 22.0 ],
-                                    "text": "metro 1 @active 1"
+                                    "patching_rect": [ 317.0, 12.0, 49.0, 22.0 ],
+                                    "text": "metro 5"
                                 }
                             },
                             {
@@ -684,6 +695,12 @@
                             },
                             {
                                 "patchline": {
+                                    "destination": [ "obj-63", 0 ],
+                                    "source": [ "obj-3", 0 ]
+                                }
+                            },
+                            {
+                                "patchline": {
                                     "destination": [ "obj-65", 0 ],
                                     "source": [ "obj-37", 0 ]
                                 }
@@ -709,6 +726,13 @@
                             {
                                 "patchline": {
                                     "destination": [ "obj-1", 0 ],
+                                    "order": 1,
+                                    "source": [ "obj-66", 0 ]
+                                }
+                            },
+                            {
+                                "patchline": {
+                                    "destination": [ "obj-3", 0 ],
                                     "order": 0,
                                     "source": [ "obj-66", 0 ]
                                 }
@@ -716,7 +740,7 @@
                             {
                                 "patchline": {
                                     "destination": [ "obj-69", 0 ],
-                                    "order": 1,
+                                    "order": 2,
                                     "source": [ "obj-66", 0 ]
                                 }
                             },
@@ -10129,7 +10153,7 @@
                 "box": {
                     "comment": "from alligator",
                     "id": "obj-84",
-                    "index": 0,
+                    "index": 1,
                     "maxclass": "inlet",
                     "numinlets": 0,
                     "numoutlets": 1,
@@ -11593,7 +11617,7 @@
                                                             "parameter_initial": [ 60 ],
                                                             "parameter_initial_enable": 1,
                                                             "parameter_invisible": 1,
-                                                            "parameter_longname": "number[2]",
+                                                            "parameter_longname": "number[4]",
                                                             "parameter_modmode": 0,
                                                             "parameter_shortname": "number[5]",
                                                             "parameter_type": 3
@@ -11940,7 +11964,7 @@
                                                             "parameter_initial": [ 60 ],
                                                             "parameter_initial_enable": 1,
                                                             "parameter_invisible": 1,
-                                                            "parameter_longname": "number[9]",
+                                                            "parameter_longname": "number[3]",
                                                             "parameter_modmode": 0,
                                                             "parameter_shortname": "number[5]",
                                                             "parameter_type": 3
@@ -12387,6 +12411,7 @@
                             {
                                 "box": {
                                     "id": "obj-31",
+                                    "linecount": 2,
                                     "maxclass": "newobj",
                                     "numinlets": 1,
                                     "numoutlets": 0,
@@ -14047,7 +14072,7 @@
                 "box": {
                     "comment": "\"to voice\"",
                     "id": "obj-3",
-                    "index": 0,
+                    "index": 2,
                     "maxclass": "outlet",
                     "numinlets": 1,
                     "numoutlets": 0,
@@ -14157,7 +14182,7 @@
                 "box": {
                     "comment": "\"to alligator\"",
                     "id": "obj-11",
-                    "index": 0,
+                    "index": 1,
                     "maxclass": "outlet",
                     "numinlets": 1,
                     "numoutlets": 0,
@@ -14234,7 +14259,6 @@
             {
                 "box": {
                     "fontsize": 22.12370242214533,
-                    "hidden": 1,
                     "id": "obj-121",
                     "maxclass": "comment",
                     "numinlets": 1,
@@ -14249,7 +14273,6 @@
             {
                 "box": {
                     "bgcolor": [ 0.694117647058824, 0.0, 0.0, 1.0 ],
-                    "hidden": 1,
                     "id": "obj-23",
                     "maxclass": "toggle",
                     "numinlets": 1,
@@ -16077,19 +16100,6 @@
                 }
             }
         ],
-        "parameters": {
-            "obj-264": [ "live.numbox[2]", "live.numbox", 0 ],
-            "obj-267": [ "filter_freq[2]", "filter_freq", 0 ],
-            "obj-269": [ "live.tab[3]", "live.tab", 0 ],
-            "obj-271": [ "release[2]", "release", 0 ],
-            "obj-273": [ "sustain[2]", "sustain", 0 ],
-            "obj-275": [ "decay[2]", "decay", 0 ],
-            "obj-277": [ "attack[2]", "attack", 0 ],
-            "obj-83::obj-105::obj-19": [ "number[9]", "number[5]", 0 ],
-            "obj-83::obj-1::obj-19": [ "number[2]", "number[5]", 0 ],
-            "inherited_shortname": 1
-        },
-        "autosave": 0,
         "styles": [
             {
                 "name": "PuredataButton",
