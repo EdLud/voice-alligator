@@ -29,7 +29,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 34.0, 113.0, 1212.0, 653.0 ],
+                        "rect": [ 0.0, 26.0, 1212.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -2322,7 +2322,6 @@
                             {
                                 "patchline": {
                                     "destination": [ "obj-31", 1 ],
-                                    "midpoints": [ 332.4999999999999, 698.140625, 561.5, 698.140625 ],
                                     "order": 0,
                                     "source": [ "obj-1", 4 ]
                                 }
@@ -2330,7 +2329,6 @@
                             {
                                 "patchline": {
                                     "destination": [ "obj-33", 0 ],
-                                    "midpoints": [ 488.4999999999998, 655.3515625, 280.5, 655.3515625 ],
                                     "source": [ "obj-1", 6 ]
                                 }
                             },
@@ -2563,7 +2561,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 26.0, 1212.0, 653.0 ],
+                        "rect": [ 34.0, 113.0, 1212.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -3345,12 +3343,12 @@
                             {
                                 "box": {
                                     "id": "obj-90",
-                                    "linecount": 2,
+                                    "linecount": 3,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 824.0, 767.0, 366.0, 33.0 ],
-                                    "text": "Sequencer Notes are completely exempt from pitchwheel.\nSee voice-alligator reference for a explanation of Sequencer Notes."
+                                    "patching_rect": [ 824.0, 763.0, 366.0, 47.0 ],
+                                    "text": "Sequencer Notes are completely exempt from pitchwheel.\nSee discussion of \"The fourth argument (glide_flag)\" near the top of voice-alligator reference."
                                 }
                             },
                             {

@@ -93,6 +93,9 @@
 		<br/><br/>
 		ADSR parameter changes take effect on the next note-on only. Currently playing voices are not affected.
 		<br/><br/>
+
+		<i><b>Non-realtime rendering is not supported right now</b></i>
+		<br/><br/>
 	</discussion>
 
 	<!--METADATA-->

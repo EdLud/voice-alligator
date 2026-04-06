@@ -502,15 +502,19 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
     // and adsr_active=false means mc.poly~'s envelope is at zero.
     {
         lock lock{m_mutex};
-        for (auto it = active_voices.begin(); it != active_voices.end(); ){
-            int v = it->target - 1;
-            if (v < 0 || v >= n) { ++it; continue; }
-            if (it->release_flag && !adsr_active[v]) {
-                if(debug){cout << "Sweep: reclaiming stale active voice target " << it->target << endl;}
-                inactive_voices.push_back(it->target);
-                it = active_voices.erase(it);
-            } else {
-                ++it;
+        if (std::any_of(active_voices.begin(), active_voices.end(),
+                        [](const Note& n){ return n.release_flag; }))
+        {
+            for (auto it = active_voices.begin(); it != active_voices.end(); ){
+                int v = it->target - 1;
+                if (v < 0 || v >= n) { ++it; continue; }
+                if (it->release_flag && !adsr_active[v]) {
+                    if(debug){cout << "Sweep: reclaiming stale active voice target " << it->target << endl;}
+                    inactive_voices.push_back(it->target);
+                    it = active_voices.erase(it);
+                } else {
+                    ++it;
+                }
             }
         }
     }
