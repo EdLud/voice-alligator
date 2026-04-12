@@ -62,6 +62,7 @@ jobs:
         if [ -e package-info.json ]; then cp package-info.json $PACKAGE_NAME; fi
         if [ -e README_PACKAGES.md ]; then cp README_PACKAGES.md $PACKAGE_NAME/README.md; fi
         if [ -e CHANGELOG.md ]; then cp CHANGELOG.md $PACKAGE_NAME; fi
+        if [ -e License.md ]; then cp License.md $PACKAGE_NAME; fi
         if [ -e icon.png ]; then cp icon.png $PACKAGE_NAME; fi
         if [ -e CMakeLists.txt ]; then cp CMakeLists.txt $PACKAGE_NAME; fi
         if [ -d extensions ]; then cp -r extensions $PACKAGE_NAME; fi
@@ -96,6 +97,7 @@ jobs:
         if exist docs xcopy docs %PACKAGE_NAME%\docs /E /I /Y
         if exist examples xcopy examples %PACKAGE_NAME%\examples /E /I /Y
         if exist CHANGELOG.md copy CHANGELOG.md %PACKAGE_NAME%\CHANGELOG.md
+        if exist License.md copy License.md %PACKAGE_NAME%\License.md
         if exist patchers xcopy patchers %PACKAGE_NAME%\patchers /E /I /Y
         if exist extras xcopy extras %PACKAGE_NAME%\extras /E /I /Y
         if exist help xcopy help %PACKAGE_NAME%\help /E /I /Y
