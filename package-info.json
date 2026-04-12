@@ -1,10 +1,10 @@
 {
 	"name" : "voice-alligator",
 	"displayname" : "",
-	"version" : "1.3.0",
+	"version" : "1.3.3",
 	"author" : "Edis Ludwig, Jan Godde",
-	"description" : "Suite of voice allocation tools.",
-	"tags" : [ "midi", "poly~", "voice allocation"],
+	"description" : "Advanced voice allocation tools for [mc.poly~] and multichannel synthesis.",
+	"tags" : [ "midi", "poly~", "voice allocation", "multichannel", "mc"],
 	"website" : "https://github.com/EdLud/voice-alligator",
 	"extends" : "",
 	"extensible" : 0,
@@ -24,6 +24,7 @@
 ,
 	"homepatcher" : "voice-alligator-overview.maxpat",
 	"filelist" : 	{
+        "examples": [ "1-voice-alligator-StereoResonator.maxpat"],
 		"externals" : [ "voice-alligator.mxo", "voice-alligator~.mxo", "voice-alligator-audio~.mxo"],
 		"help" : [ "voice-alligator.maxhelp" , "voice-alligator-looper.maxhelp", "voice-alligator~.maxhelp", "voice-alligator-audio~.maxhelp" ],
 		"patchers" : [ "voice-alligator-looper.maxpat"]

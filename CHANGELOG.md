@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2
+- fixed a bug that could lead to hanging notes when receiving lots of messages on the main thread
+- added stereo resonator example
+
 ## 1.3.0
 - some updates to helpfile and docs
 

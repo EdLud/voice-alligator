@@ -60,7 +60,8 @@ jobs:
         PACKAGE_NAME=`echo $GITHUB_REPOSITORY | sed 's/.*\///g'`
         mkdir -p $PACKAGE_NAME/externals
         if [ -e package-info.json ]; then cp package-info.json $PACKAGE_NAME; fi
-        for f in *.md; do [ -e "$f" ] && cp "$f" $PACKAGE_NAME ; done
+        if [ -e README_PACKAGES.md ]; then cp README_PACKAGES.md $PACKAGE_NAME/README.md; fi
+        if [ -e CHANGELOG.md ]; then cp CHANGELOG.md $PACKAGE_NAME; fi
         if [ -e icon.png ]; then cp icon.png $PACKAGE_NAME; fi
         if [ -e CMakeLists.txt ]; then cp CMakeLists.txt $PACKAGE_NAME; fi
         if [ -d extensions ]; then cp -r extensions $PACKAGE_NAME; fi
@@ -92,9 +93,13 @@ jobs:
           xcopy externals\\*.mxe64 %PACKAGE_NAME%\\externals\\ /Y
         )
         if exist support xcopy support %PACKAGE_NAME%\support /E /I /Y
+        if exist docs xcopy docs %PACKAGE_NAME%\docs /E /I /Y
+        if exist examples xcopy examples %PACKAGE_NAME%\examples /E /I /Y
+        if exist CHANGELOG.md copy CHANGELOG.md %PACKAGE_NAME%\CHANGELOG.md
         if exist patchers xcopy patchers %PACKAGE_NAME%\patchers /E /I /Y
         if exist extras xcopy extras %PACKAGE_NAME%\extras /E /I /Y
         if exist help xcopy help %PACKAGE_NAME%\help /E /I /Y
+        if exist README_PACKAGES.md copy README_PACKAGES.md %PACKAGE_NAME%\README.md
 
     - uses: actions/upload-artifact@v4
       with:

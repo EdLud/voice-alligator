@@ -29,7 +29,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 0.0, 26.0, 1212.0, 653.0 ],
+                        "rect": [ 34.0, 113.0, 1212.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
                             {
@@ -350,7 +350,8 @@
                                     "numinlets": 1,
                                     "numoutlets": 0,
                                     "patching_rect": [ 3.0, 3.0, 602.0, 116.0 ],
-                                    "text": "Inlet 2 can receive an MC signal with one channel per voice.\n\nIf that channel is non-zero at the time the internal ADSR ends, the note will be considered busy and held until a 0 is received. The frequency outlet will continue to output.\n\nIf that channel is non-zero and then goes to 0 while the ADSR is still running the voice is considered done. The ADSR will perform a safety-declick and voice-alligator~ frees the voice."
+                                    "presentation_linecount": 7,
+                                    "text": "Inlet 2 can receive an MC signal (the \"external busy\" signal) with one channel per voice.\n\nIf that channel is non-zero at the time the internal ADSR ends, the note will be considered busy and held until a 0 is received. The frequency outlet will continue to output.\n\nIf that channel is non-zero and then goes to 0 while the ADSR is still running the voice is considered done. The ADSR will perform a safety-declick and voice-alligator~ frees the voice."
                                 }
                             },
                             {
@@ -684,8 +685,8 @@
                                                         "maxclass": "comment",
                                                         "text": "DC block",
                                                         "patching_rect": [ 56.0, 229.25, 84.0, 20.0 ],
-                                                        "numinlets": 1,
                                                         "textjustification": 2,
+                                                        "numinlets": 1,
                                                         "numoutlets": 0,
                                                         "id": "obj-20"
                                                     }
@@ -740,8 +741,8 @@
                                                         "text": "basic one pole lowpass",
                                                         "linecount": 2,
                                                         "patching_rect": [ 56.0, 301.25, 84.0, 33.0 ],
-                                                        "numinlets": 1,
                                                         "textjustification": 2,
+                                                        "numinlets": 1,
                                                         "numoutlets": 0,
                                                         "id": "obj-27"
                                                     }
@@ -763,8 +764,8 @@
                                                         "maxclass": "comment",
                                                         "text": "inversion",
                                                         "patching_rect": [ 56.0, 375.0, 84.0, 20.0 ],
-                                                        "numinlets": 1,
                                                         "textjustification": 2,
+                                                        "numinlets": 1,
                                                         "numoutlets": 0,
                                                         "id": "obj-59"
                                                     }
@@ -1354,7 +1355,7 @@
                                     "outlettype": [ "multichannelsignal" ],
                                     "patching_rect": [ 260.0, 359.0, 122.0, 22.0 ],
                                     "text": "mc.gen~ @title string",
-                                    "wrapper_uniquekey": "u317002590"
+                                    "wrapper_uniquekey": "u902004873"
                                 }
                             },
                             {
@@ -1599,8 +1600,8 @@
                             }
                         ]
                     },
-                    "patching_rect": [ 324.0, 125.0, 98.0, 22.0 ],
-                    "text": "p \"external busy\""
+                    "patching_rect": [ 324.0, 125.0, 72.0, 22.0 ],
+                    "text": "p ext-busy"
                 }
             },
             {
@@ -2561,7 +2562,7 @@
                             "modernui": 1
                         },
                         "classnamespace": "box",
-                        "rect": [ 34.0, 113.0, 1212.0, 653.0 ],
+                        "rect": [ 0.0, 26.0, 1212.0, 653.0 ],
                         "showontab": 1,
                         "boxes": [
                             {

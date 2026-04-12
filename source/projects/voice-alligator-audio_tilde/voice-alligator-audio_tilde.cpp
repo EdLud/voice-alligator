@@ -133,7 +133,7 @@ struct VoiceCmd {
     // Per-note ADSR params (set by scheduler, read by audio thread on note_on)
     std::atomic<float> p_attack_ms      {10.f};
     std::atomic<float> p_decay_ms       {100.f};
-    std::atomic<float> p_sustain        {0.8f};
+    std::atomic<float> p_sustain        {1.0f};
     std::atomic<float> p_sustain_dur_ms {100.f};
     std::atomic<float> p_release_ms     {300.f};
     std::atomic<float> p_attack_curve   {0.f};
@@ -193,7 +193,7 @@ float live_vel  [1024] {};
 struct VoiceParamSnapshot {
     float attack_ms      = 10.f;
     float decay_ms       = 100.f;
-    float sustain        = 0.8f;
+    float sustain        = 1.0f;
     float sustain_dur_ms = 100.f;
     float release_ms     = 300.f;
     float attack_curve   = 0.f;
@@ -283,7 +283,7 @@ std::atomic<float> default_vel {0.5f};
 
 static constexpr float DEF_ATTACK      = 10.f;
 static constexpr float DEF_DECAY       = 100.f;
-static constexpr float DEF_SUSTAIN     = 0.8f;
+static constexpr float DEF_SUSTAIN     = 1.0f;
 static constexpr float DEF_SUSTAIN_DUR = 100.f;
 static constexpr float DEF_RELEASE     = 300.f;
 static constexpr float DEF_ATTACK_CURVE  = 0.f;

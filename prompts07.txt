@@ -1,0 +1,7 @@
+label the outlets
+
+_______________
+
+make a method "clear": all cells get set to their default settings, keep named and saved griddata
+
+_______________

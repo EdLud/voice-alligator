@@ -8,7 +8,7 @@
 /// Voice allocator with built-in per-voice ADSR envelope generation.
 /// All outputs are multichannel audio signals (one channel per voice).
 /// No feedback inlet required — voice completion is detected internally
-/// when the ADSR reaches its inactive stage.
+/// when the ADSR reaches its inactive stage. External busy signals can however be used to extend/contract voice busyness.
 ///
 /// Outlets (each is an MC bundle with one channel per voice):
 ///   1  out_freq     frequency (DC, held for glide stability during release)
@@ -190,8 +190,21 @@ float live_mono   [1024] {};
 float live_stream [1024] {};  
 
 // Audio-thread tracking: is this voice's ADSR currently running?
-bool audio_voice_active[1024] {};
+// Atomic so the scheduler-thread cancel path can safely observe it:
+// if true, a pending note_on must NOT be CAS-cancelled — the voice is
+// audibly running a previous allocation and the allocator freeing it
+// without a note-off would leave it hanging.
+std::atomic<bool> audio_voice_active[1024] {};
 bool voice_ever_active [1024] {};  // true once a voice has played; cleared only on dspsetup
+
+// Debug watchdog for the "note_on cancelled" race.
+// Scheduler cancel path sets post_cancel_watch[v]=1. The audio thread then:
+//   - if audio_voice_active[v] is still true next vector → post_cancel_report[v]=1
+//   - if it consumes a new note_on → post_cancel_watch[v]=0 (legitimate retrigger)
+//   - if audio_voice_active transitions to false cleanly → post_cancel_watch[v]=0
+// adsr_poll drains post_cancel_report and logs. Only values 0/1 are used.
+std::atomic<int> post_cancel_watch [1024] {};
+std::atomic<int> post_cancel_report[1024] {};
 
 // Impulse pending per voice — set by note_on, fired at the right sample by the audio thread
 bool pending_impulse[1024] {};
@@ -337,8 +350,8 @@ attribute<number> decay_attr{this, "decay", 100.0,
         return {(number)v};
     }}
 };
-attribute<number, threadsafe::no, limit::clamp> sustain_level_attr{this, "sustain_level", 0.8,
-    description{"ADSR sustain level 0.0-1.0 (default 0.8)"},
+attribute<number, threadsafe::no, limit::clamp> sustain_level_attr{this, "sustain_level", 1.0,
+    description{"ADSR sustain level 0.0-1.0 (default 1.0)"},
     range { 0.0, 1.0 },
     setter{MIN_FUNCTION{
         adsr_sustain_lvl.store((float)(number)args[0], std::memory_order_relaxed);
@@ -479,8 +492,10 @@ void resetVoices(int n) {
         audio_note_gen[i]        = 0;
         voice_cmd[i].cmd        .store(0, std::memory_order_relaxed);
         voice_cmd[i].pending_off.store(0, std::memory_order_relaxed);
+        post_cancel_watch [i].store(0, std::memory_order_relaxed);
+        post_cancel_report[i].store(0, std::memory_order_relaxed);
     }
-    std::fill(std::begin(audio_voice_active), std::end(audio_voice_active), false);
+    for (int i = 0; i < 1024; ++i) audio_voice_active[i].store(false, std::memory_order_relaxed);
     std::fill(std::begin(voice_ever_active),  std::end(voice_ever_active),  false);
     std::fill(std::begin(pending_impulse),    std::end(pending_impulse),    false);
     std::fill(std::begin(last_env_output),    std::end(last_env_output),    0.f);
@@ -576,6 +591,11 @@ void operator()(audio_bundle input, audio_bundle output) {
     for (int v = 0; v < n; ++v) {
         // Consume pending command from scheduler thread
         int cmd = voice_cmd[v].cmd.exchange(0, std::memory_order_acquire);
+
+        // Debug: a legitimate command consumption clears the cancel watchdog.
+        if (cmd != 0 && post_cancel_watch[v].load(std::memory_order_acquire)) {
+            post_cancel_watch[v].store(0, std::memory_order_release);
+        }
 
         if (cmd == (int)VoiceCmd::Type::note_on) {
             audio_note_gen[v] = voice_alloc_gen[v].load(std::memory_order_relaxed);
@@ -693,6 +713,16 @@ void operator()(audio_bundle input, audio_bundle output) {
         const int imp = voice_cmd[v].impulse.exchange(0, std::memory_order_relaxed);
         if (imp) pending_impulse[v] = true;
 
+        // Debug: if a cancel happened and this voice is still audibly running
+        // (ADSR active, impulse pending, or ext_busy holding), record it once
+        // so adsr_poll can log the mismatch on the scheduler thread.
+        if (post_cancel_watch[v].load(std::memory_order_acquire)) {
+            if (audio_voice_active[v] || pending_impulse[v] || ext_busy_holding[v]) {
+                post_cancel_report[v].store(1, std::memory_order_release);
+                post_cancel_watch [v].store(0, std::memory_order_release);
+            }
+        }
+
         if (!audio_voice_active[v] && !pending_impulse[v] && !ext_busy_holding[v]) {
             if (voice_ever_active[v]) {
                 for (int ch = 0; ch < 9; ++ch) {
@@ -740,6 +770,7 @@ void operator()(audio_bundle input, audio_bundle output) {
             if (stage_after == adsr::adsr_stage::inactive) {
                 if (audio_voice_active[v]) {
                     audio_voice_active[v] = false;
+                    post_cancel_watch[v].store(0, std::memory_order_release);
                     if (prev_ext_busy_sample[v] != 0.f) {
                         // External-busy signal still high: hold voice allocated,
                         // keep outputting freq at 0 env until signal drops.
@@ -761,6 +792,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                 if (sl <= 0.f && audio_voice_active[v]) {
                     voice_adsr[v].trigger(false);
                     audio_voice_active[v] = false;
+                    post_cancel_watch[v].store(0, std::memory_order_release);
                     if (prev_ext_busy_sample[v] != 0.f) {
                         ext_busy_holding[v] = true;
                     } else {
@@ -910,6 +942,33 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
         if (std::find(inactive_voices.begin(), inactive_voices.end(), target) == inactive_voices.end())
             inactive_voices.push_back(target);
     }
+
+    // ── Debug: drain post-cancel watchdog reports from the audio thread ───────
+    if (debug) {
+        for (int v = 0; v < n; ++v) {
+            if (post_cancel_report[v].exchange(0, std::memory_order_acquire)) {
+                adsr::adsr_stage st = voice_adsr[v].stage();
+                const char* sname =
+                      (st == adsr::adsr_stage::inactive)      ? "inactive"
+                    : (st == adsr::adsr_stage::attack)        ? "attack"
+                    : (st == adsr::adsr_stage::decay)         ? "decay"
+                    : (st == adsr::adsr_stage::sustain)       ? "sustain"
+                    : (st == adsr::adsr_stage::release)       ? "release"
+                    : (st == adsr::adsr_stage::early_release) ? "early_release"
+                    :                                           "?";
+                cout << "POST-CANCEL: voice " << (v+1)
+                     << " still sounding after cancel"
+                     << " stage=" << sname
+                     << " ava=" << (int)audio_voice_active[v]
+                     << " imp=" << (int)pending_impulse[v]
+                     << " alloc_gen=" << voice_alloc_gen[v].load(std::memory_order_relaxed)
+                     << " done_gen="  << voice_done_gen [v].load(std::memory_order_relaxed)
+                     << " audio_note_gen=" << audio_note_gen[v]
+                     << endl;
+            }
+        }
+    }
+
     adsr_poll.delay(1);
     return {};
 }};
@@ -1224,17 +1283,35 @@ void handleNoteOff(Note& inc, lock& lock) {
                 && !x.hold_flag && !x.sustain_flag && !x.release_flag; })) {
         int vi = n->target - 1;
         int expected_on = (int)VoiceCmd::Type::note_on;
+        // Only CAS-cancel if the voice is NOT currently audible. A pending
+        // note_on in cmd does not mean the voice is silent — the audio thread
+        // may still be running a PREVIOUS allocation's ADSR. Cancelling in
+        // that case would remove the voice from active_voices without ever
+        // sending a note_off, leaving the previous note hanging forever.
         if (vi >= 0 && vi < 1024 &&
+            !audio_voice_active[vi].load(std::memory_order_acquire) &&
             voice_cmd[vi].cmd.compare_exchange_strong(expected_on, 0,
                 std::memory_order_acq_rel, std::memory_order_relaxed)) {
-            // Atomically verified note_on was still pending and cleared it.
-            // Safe to reclaim — audio never saw this note.
+            // Atomically verified note_on was still pending and cleared it,
+            // AND audio was not sounding — safe to reclaim.
             nts = *n;
             active_voices.erase(active_voices.begin() + (n - &active_voices[0]));
             inactive_voices.push_back(nts.target);
+            // Debug: arm the post-cancel watchdog so the audio thread can
+            // report if this voice is still sounding after the cancel.
+            post_cancel_watch[vi].store(1, std::memory_order_release);
+            bool ava = audio_voice_active[vi];
+            int  ag  = voice_alloc_gen[vi].load(std::memory_order_relaxed);
+            int  dg  = voice_done_gen[vi].load(std::memory_order_relaxed);
+            int  ang = audio_note_gen[vi];
             lock.unlock();
             out_msg.send(nts.target, (float)nts.freq.back(), 0, "flags", 0, (int)nts.hold_flag, (int)nts.sustain_flag, (int)nts.sequencer_note_flag, (int)nts.mono_flag, nts.stream);
-            if (debug) cout << "voice " << nts.target << " note_on cancelled (not yet consumed by audio)" << endl;
+            if (debug) cout << "voice " << nts.target
+                            << " note_on cancelled (not yet consumed by audio)"
+                            << " ava=" << (int)ava
+                            << " alloc_gen=" << ag
+                            << " done_gen=" << dg
+                            << " audio_note_gen=" << ang << endl;
             return;
         }
         n->release_flag = true; nts = *n; lock.unlock();
@@ -1277,16 +1354,29 @@ void handleNoteOff(Note& inc, lock& lock) {
         if (n->mpitch.empty()) {
             int vi = n->target - 1;
             int expected_on2 = (int)VoiceCmd::Type::note_on;
+            // See comment on the other cancel site above — only safe to
+            // cancel if audio is not currently running this voice.
             if (vi >= 0 && vi < 1024 &&
+                !audio_voice_active[vi].load(std::memory_order_acquire) &&
                 voice_cmd[vi].cmd.compare_exchange_strong(expected_on2, 0,
                     std::memory_order_acq_rel, std::memory_order_relaxed)) {
                 nts = *n;
                 active_voices.erase(active_voices.begin() + (n - &active_voices[0]));
                 inactive_voices.push_back(nts.target);
+                post_cancel_watch[vi].store(1, std::memory_order_release);
+                bool ava = audio_voice_active[vi];
+                int  ag  = voice_alloc_gen[vi].load(std::memory_order_relaxed);
+                int  dg  = voice_done_gen[vi].load(std::memory_order_relaxed);
+                int  ang = audio_note_gen[vi];
                 lock.unlock();
                 if (!nts.freq.empty())
                     out_msg.send(nts.target, (float)nts.freq.back(), 0, "flags", 0, (int)nts.hold_flag, (int)nts.sustain_flag, (int)nts.sequencer_note_flag, (int)nts.mono_flag, nts.stream);
-                if (debug) cout << "voice " << nts.target << " note_on cancelled (not yet consumed by audio)" << endl;
+                if (debug) cout << "voice " << nts.target
+                                << " note_on cancelled [mono] (not yet consumed by audio)"
+                                << " ava=" << (int)ava
+                                << " alloc_gen=" << ag
+                                << " done_gen=" << dg
+                                << " audio_note_gen=" << ang << endl;
                 return;
             }
             n->release_flag = true;
