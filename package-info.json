@@ -1,7 +1,7 @@
 {
 	"name" : "voice-alligator",
 	"displayname" : "",
-	"version" : "1.3.3",
+	"version" : "1.3.4",
 	"author" : "Edis Ludwig, Jan Godde",
 	"description" : "Advanced voice allocation tools for [mc.poly~] and multichannel synthesis.",
 	"tags" : [ "midi", "poly~", "voice allocation", "multichannel", "mc"],
