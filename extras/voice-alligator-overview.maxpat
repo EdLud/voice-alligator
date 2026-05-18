@@ -344,6 +344,7 @@
             },
             {
                 "box": {
+                    "fontsize": 22.208026755852842,
                     "id": "obj-31",
                     "maxclass": "newobj",
                     "numinlets": 0,
@@ -376,7 +377,7 @@
                                             "modernui": 1
                                         },
                                         "classnamespace": "box",
-                                        "rect": [ 188.0, 146.0, 896.0, 620.0 ],
+                                        "rect": [ 188.0, 146.0, 686.0, 237.0 ],
                                         "boxes": [
                                             {
                                                 "box": {
@@ -384,7 +385,7 @@
                                                     "maxclass": "comment",
                                                     "numinlets": 1,
                                                     "numoutlets": 0,
-                                                    "patching_rect": [ 437.0, 120.0, 180.0, 20.0 ],
+                                                    "patching_rect": [ 360.0, 89.0, 180.0, 20.0 ],
                                                     "text": "< move ext-busy one to the right"
                                                 }
                                             },
@@ -395,7 +396,7 @@
                                                     "numinlets": 1,
                                                     "numoutlets": 1,
                                                     "outlettype": [ "multichannelsignal" ],
-                                                    "patching_rect": [ 385.0, 119.0, 50.0, 22.0 ],
+                                                    "patching_rect": [ 308.0, 88.0, 50.0, 22.0 ],
                                                     "text": "mc.sig~"
                                                 }
                                             },
@@ -406,7 +407,7 @@
                                                     "numinlets": 5,
                                                     "numoutlets": 5,
                                                     "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal" ],
-                                                    "patching_rect": [ 281.0, 192.0, 123.0, 22.0 ],
+                                                    "patching_rect": [ 204.0, 161.0, 123.0, 22.0 ],
                                                     "text": "voice-alligator-audio~"
                                                 }
                                             },
@@ -416,7 +417,7 @@
                                                     "maxclass": "comment",
                                                     "numinlets": 1,
                                                     "numoutlets": 0,
-                                                    "patching_rect": [ 353.0, 120.0, 34.0, 20.0 ],
+                                                    "patching_rect": [ 276.0, 89.0, 34.0, 20.0 ],
                                                     "text": "new:"
                                                 }
                                             },
@@ -427,8 +428,8 @@
                                                     "maxclass": "comment",
                                                     "numinlets": 1,
                                                     "numoutlets": 0,
-                                                    "patching_rect": [ 246.0, 58.0, 153.0, 33.0 ],
-                                                    "text": "<ext-busy signal mc signal was connected to inlet 4"
+                                                    "patching_rect": [ 169.0, 27.0, 153.0, 33.0 ],
+                                                    "text": "<ext-busy signal mc signal was connected to inlet 3"
                                                 }
                                             },
                                             {
@@ -438,7 +439,7 @@
                                                     "numinlets": 1,
                                                     "numoutlets": 1,
                                                     "outlettype": [ "multichannelsignal" ],
-                                                    "patching_rect": [ 191.0, 54.0, 50.0, 22.0 ],
+                                                    "patching_rect": [ 114.0, 23.0, 50.0, 22.0 ],
                                                     "text": "mc.sig~"
                                                 }
                                             },
@@ -449,7 +450,7 @@
                                                     "numinlets": 5,
                                                     "numoutlets": 5,
                                                     "outlettype": [ "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal", "multichannelsignal" ],
-                                                    "patching_rect": [ 113.0, 127.0, 123.0, 22.0 ],
+                                                    "patching_rect": [ 36.0, 96.0, 123.0, 22.0 ],
                                                     "text": "voice-alligator-audio~"
                                                 }
                                             },
@@ -459,7 +460,7 @@
                                                     "maxclass": "comment",
                                                     "numinlets": 1,
                                                     "numoutlets": 0,
-                                                    "patching_rect": [ 159.0, 55.0, 28.0, 20.0 ],
+                                                    "patching_rect": [ 82.0, 24.0, 28.0, 20.0 ],
                                                     "text": "old:"
                                                 }
                                             }
@@ -479,7 +480,7 @@
                                             }
                                         ]
                                     },
-                                    "patching_rect": [ 410.0, 104.0, 220.0, 22.0 ],
+                                    "patching_rect": [ 547.0, 121.0, 220.0, 22.0 ],
                                     "text": "p ^how to adapt patches for this change"
                                 }
                             },
@@ -487,19 +488,19 @@
                                 "box": {
                                     "fontsize": 15.114912153332355,
                                     "id": "obj-2",
-                                    "linecount": 25,
+                                    "linecount": 27,
                                     "maxclass": "comment",
                                     "numinlets": 1,
                                     "numoutlets": 0,
-                                    "patching_rect": [ 10.0, 16.0, 914.0, 446.0 ],
-                                    "text": "# Changelog\n\n## 1.3.5\n- va-audio~ now supports more attributes by using list attributes\n- va-audio~ now has an \"aux in\" (see declick / aux tab in helpfile)\n- added a sampler example\n- fixed some declicking irregularities in va-audio~\n\n## 1.3.2\n- fixed a bug that could lead to hanging notes when receiving lots of messages on the main thread\n- added stereo resonator example\n\n## 1.3.0\n- some updates to helpfile and docs\n\n## 1.2.8\n- added \"most_silent\" steal mode to va, va~, and va-audio~: steals the quietest voice based on current ADSR output, or ext-busy signal level if connected\n\n## 1.2.7\n- added ext_busy_forces_glide attribute (default off): when on and the external busy inlet is non-zero for a voice and we are in monophony, the next note always glides regardless of the internal ADSR Status\n\n## 1.2.6\n- added an \"external busy\" inlet to va~ and va-audio~ and some karplus strong examples to the helpfiles\n"
+                                    "patching_rect": [ 10.0, 16.0, 914.0, 479.0 ],
+                                    "text": "# Changelog\n\n## 1.3.5\n- va and va~ now can take in floating point \"midi\" notes\n- va-audio~ now supports more attributes by using list attributes\n- va-audio~ now has an \"aux in\" (see declick / aux tab in helpfile), !!ext-busy in moved one to the right!!\n- added a sampler example\n- fixed some declicking irregularities in va-audio~\n- renamed \"output_mode\" to \"scale\" in va and va~\n\n## 1.3.2\n- fixed a bug that could lead to hanging notes when receiving lots of messages on the main thread\n- added stereo resonator example\n\n## 1.3.0\n- some updates to helpfile and docs\n\n## 1.2.8\n- added \"most_silent\" steal mode to va, va~, and va-audio~: steals the quietest voice based on current ADSR output, or ext-busy signal level if connected\n\n## 1.2.7\n- added ext_busy_forces_glide attribute (default off): when on and the external busy inlet is non-zero for a voice and we are in monophony, the next note always glides regardless of the internal ADSR Status\n\n## 1.2.6\n- added an \"external busy\" inlet to va~ and va-audio~ and some karplus strong examples to the helpfiles\n"
                                 }
                             }
                         ],
                         "lines": []
                     },
-                    "patching_rect": [ 874.0, 60.0, 95.0, 22.0 ],
-                    "text": "p CHANGELOG"
+                    "patching_rect": [ 945.0, 54.5, 130.0, 33.0 ],
+                    "text": "p changelog"
                 }
             },
             {
@@ -2908,12 +2909,12 @@
                     "bgcolor": [ 0.419607843137255, 0.403921568627451, 0.870588235294118, 1.0 ],
                     "fontsize": 14.0,
                     "id": "obj-48",
-                    "linecount": 9,
+                    "linecount": 6,
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 725.0, 505.75, 165.0, 147.0 ],
-                    "text": "Examples      \n                             \n\n\n\n\n\n\n  "
+                    "patching_rect": [ 725.0, 505.75, 165.0, 116.0 ],
+                    "text": "Examples      \n                             \n\n\n\n\n"
                 }
             },
             {
