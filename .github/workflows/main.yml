@@ -64,15 +64,12 @@ jobs:
         if [ -e CHANGELOG.md ]; then cp CHANGELOG.md $PACKAGE_NAME; fi
         if [ -e License.md ]; then cp License.md $PACKAGE_NAME; fi
         if [ -e icon.png ]; then cp icon.png $PACKAGE_NAME; fi
-        if [ -e CMakeLists.txt ]; then cp CMakeLists.txt $PACKAGE_NAME; fi
-        if [ -d extensions ]; then cp -r extensions $PACKAGE_NAME; fi
         # copy only .mxo files from mac build (recursive)
         if [ -d externals ]; then
         mkdir -p $PACKAGE_NAME/externals
         # copy entire .mxo bundles (they're directories)
         cp -R externals/*.mxo $PACKAGE_NAME/externals/ || true
         fi
-        if [ -d support ]; then cp -r support $PACKAGE_NAME; fi
         if [ -d docs ]; then cp -r docs $PACKAGE_NAME; fi
         if [ -d examples ]; then cp -r examples $PACKAGE_NAME; fi
         if [ -d patchers ]; then cp -r patchers $PACKAGE_NAME; fi
@@ -87,21 +84,21 @@ jobs:
       run: |
         set PACKAGE_NAME=%GITHUB_REPOSITORY_NAME%
         mkdir %PACKAGE_NAME%\externals
-        if exist extensions xcopy extensions %PACKAGE_NAME%\extensions /E /I /Y
+        if exist package-info.json copy package-info.json %PACKAGE_NAME%\package-info.json
+        if exist README_PACKAGES.md copy README_PACKAGES.md %PACKAGE_NAME%\README.md
+        if exist CHANGELOG.md copy CHANGELOG.md %PACKAGE_NAME%\CHANGELOG.md
+        if exist License.md copy License.md %PACKAGE_NAME%\License.md
+        if exist icon.png copy icon.png %PACKAGE_NAME%\icon.png
         rem copy only .mxe64 files from windows build (recursive)
         if exist externals (
           echo Copying Windows externals...
           xcopy externals\\*.mxe64 %PACKAGE_NAME%\\externals\\ /Y
         )
-        if exist support xcopy support %PACKAGE_NAME%\support /E /I /Y
         if exist docs xcopy docs %PACKAGE_NAME%\docs /E /I /Y
         if exist examples xcopy examples %PACKAGE_NAME%\examples /E /I /Y
-        if exist CHANGELOG.md copy CHANGELOG.md %PACKAGE_NAME%\CHANGELOG.md
-        if exist License.md copy License.md %PACKAGE_NAME%\License.md
         if exist patchers xcopy patchers %PACKAGE_NAME%\patchers /E /I /Y
         if exist extras xcopy extras %PACKAGE_NAME%\extras /E /I /Y
         if exist help xcopy help %PACKAGE_NAME%\help /E /I /Y
-        if exist README_PACKAGES.md copy README_PACKAGES.md %PACKAGE_NAME%\README.md
 
     - uses: actions/upload-artifact@v4
       with:
@@ -130,9 +127,6 @@ jobs:
       with:
         name: package-artifacts-windows-latest
         path: voice-alligator-package
-
-    - name: Copy package-info.json
-      run: cp package-info.json voice-alligator-package/
 
     - name: Display structure of downloaded files
       run: ls -R
