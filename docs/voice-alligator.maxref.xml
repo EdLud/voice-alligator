@@ -96,7 +96,7 @@
 		Everything after "flags" can be used for different purposes in the voice (see comments in  <openfilelink filename="alligator-example-voice.maxpat">alligator-example-voice</openfilelink>) and you could get really creative with these i.e. having different parameter settings per stream, or glide notes not retriggering a pitch envelope etc. There is an example of one type of alternative usage of flags in <openfilelink filename="alligator-advanced-voice-tutorial.maxpat">alligator-advanced-voice-tutorial</openfilelink>.
 		<br/><br/>
 
-		Depending on the attribute <m>output_mode</m> the pitch will either be a frequency in Hertz as float or a MIDI note as integer (ignoring scale definitions).
+		The pitch value is always a float. When <at>scale</at> is on (default), it is a frequency in Hz looked up from the scale array. When <at>scale</at> is off, the raw input pitch passes through as-is (bypassing the scale array and <at>basefreq</at>). Fractional pitch values (e.g. 60.5) are supported and interpolate linearly between neighbouring scale entries.
 		<br/><br/>
 		Not every event has the [pitch, velocity] part of the message. If you release a key while <m>hold</m> or <m>sustain</m> is on, the note off will be ignored. In this case the voice is still informed that the status of the note has changed, but it will not receive a pitch/velocity pair, only flags. The message will look like this: 
 		<br/><br/>
@@ -351,16 +351,14 @@
 			</description>
 		</attribute>
 
-		<attribute name='output_mode' get='1' set='1' type='bool' size='1' >
-			<digest>Output Mode. 0: midi or 1: frequency (default frequency) </digest>
+		<attribute name='scale' get='1' set='1' type='bool' size='1' >
+			<digest>Scale lookup on/off (default on)</digest>
 			<description>
-				<m>output_mode</m> determines if voice-alligator will output MIDI pitches <m>0</m> or frequencies <m>1</m> to the voice. 
-				<m>output_mode 0</m>can be useful for samplers.
+				When on (default), incoming pitch values are looked up in the scale array and output as frequencies in Hz, scaled by <at>basefreq</at>. Fractional pitch values (e.g. 60.5) interpolate linearly between neighbouring scale entries.
 				<br/><br/>
-				
-				<i>All microtonal scale definitions as well as the <m>basefreq</m> attribute will be ignored if <m>output_mode</m> is MIDI pitch.</i>
+				When off, the raw pitch input passes through directly as the frequency value — no scale lookup and no <at>basefreq</at> scaling.
 				<br/><br/>
-				<i>default: 1 (Frequency)</i>
+				<i>default: true (on)</i>
 			</description>
 		</attribute>
 

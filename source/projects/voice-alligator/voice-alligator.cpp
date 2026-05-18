@@ -50,7 +50,7 @@ struct Note
 {
     number vel{80};
     std::vector<number> freq; // this is the actual pitch, by default gets converted to frequency with midi-to-frequency formula
-    std::vector<int> mpitch; // this is the midi pitch (for short mpitch) that is used to match note on / offs
+    std::vector<number> mpitch; // midi pitch (float) used to match note-on/offs; supports fractional values
     // number aftertouch{0.0}; //for mpe
     // number pitchbend{0.0};  //for mpe
     // number timbre{0.0};     //for mpe
@@ -62,11 +62,11 @@ struct Note
     bool hold_flag{false};
     bool release_flag{false}; // is note in release phase?
 
-    int return_lowest_mpitch() const {
+    number return_lowest_mpitch() const {
         return *std::min_element(mpitch.begin(), mpitch.end());
     }
 
-    int return_highest_mpitch() const {
+    number return_highest_mpitch() const {
         return *std::max_element(mpitch.begin(), mpitch.end());
     }
 
@@ -78,7 +78,7 @@ struct Note
         return *std::max_element(freq.begin(), freq.end());
     }
 
-    void remove_mpitch_and_freq_entry(int mpitchToRemove){
+    void remove_mpitch_and_freq_entry(number mpitchToRemove){
     for (auto it = mpitch.begin(); it != mpitch.end(); ++it){
         if (*it == mpitchToRemove) {
             size_t index = it - mpitch.begin(); // Pointer arithmetic to get the index
@@ -148,12 +148,20 @@ class ScaleArray
         data.resize(arrsize, std::nullopt);
     }
 
-    std::optional<number> get_value(int index) 
+    // Accepts fractional pitch values and linearly interpolates between
+    // neighbouring scale entries. e.g. 60.5 blends entries 60 and 61.
+    std::optional<number> get_value(number index)
     {
-        if (index >= 0 && index < static_cast<int>(data.size())) {
-            return data[index]; // Return the value or "nothing"
-        }
-        else {return std::nullopt;} // Index out of bounds
+        int lo = static_cast<int>(std::floor(index));
+        int hi = lo + 1;
+        number t = index - lo;
+        int sz = static_cast<int>(data.size());
+        auto lo_val = (lo >= 0 && lo < sz) ? data[lo] : std::nullopt;
+        auto hi_val = (hi >= 0 && hi < sz) ? data[hi] : std::nullopt;
+        if (lo_val && hi_val) return *lo_val + t * (*hi_val - *lo_val);
+        if (lo_val)           return *lo_val;
+        if (hi_val)           return *hi_val;
+        return std::nullopt;
     }
 
 private:
@@ -288,16 +296,8 @@ enum_map scale_def_mode_range = {"Midi Pitch", "Frequency"};
 attribute<scale_def_mode> scale_def_mode_attr{this, "scale_def_mode", scale_def_mode::freq, scale_def_mode_range,
                                description{"Define Scale by Midi Note or by Frequency (default frequency)"}};
 
-enum class output_mode : int{
-    mpitch,
-    freq,
-    enum_count
-};
-
-enum_map output_mode_range = {"Midi Pitch", "Frequency"};
-
-attribute<output_mode> output_mode_attr{this, "output_mode", output_mode::freq, output_mode_range,
-                               description{"Output Midi Notes or Frequencies (default frequency)"}};
+attribute<bool> scale_attr{this, "scale", true,
+    description{"When on (default), pitch input is looked up in the scale array and output as frequency. When off, pitch input passes through directly as frequency with no scale lookup or basefreq scaling."}};
 
 int voices = 1; 
 
@@ -625,7 +625,7 @@ setter{
 function mainInletFunction = MIN_FUNCTION{
     lock lock{m_mutex};
     if (inlet == 0){ //notes: mpitch, vel, (stream), (mono flag), (real pitch)
-        int mpitch = args[0]; //mpitch is used to match note on / offs, and in ouput_mode::mpitch will also be the realpitch (see further down)
+        number mpitch = args[0]; // supports fractional values for scale interpolation
         number vel = args[1];
         unsigned long argsize = args.size();
 
@@ -649,13 +649,8 @@ function mainInletFunction = MIN_FUNCTION{
                     // Pre-recorded pitch override (arg 5 is the "real" pitch as recorded by sequencer)
                     number realpitch = args[4];
                     if(debug) cout << "Pre-recorded Sequencer Note: " << mpitch << " " << vel << " " << args[2] << " " << glide_flag << " " << realpitch << endl;
-                    if(output_mode_attr == output_mode::freq){
-                        current_note.freq.pop_back();
-                        current_note.freq.push_back(realpitch);
-                    } else {
-                        current_note.mpitch.pop_back();
-                        current_note.mpitch.push_back(static_cast<int>(realpitch));
-                    }
+                    current_note.freq.pop_back();
+                    current_note.freq.push_back(realpitch);
                 } else if(debug) {
                     cout << "Sequencer Note: " << mpitch << " " << vel << " " << args[2] << " glide=" << glide_flag << endl;
                 }
@@ -691,7 +686,7 @@ function mainInletFunction = MIN_FUNCTION{
         if (vel != 0){
             if(inactive_channels.count(current_note.stream)
             || (inactive_channels.empty() && !active_attr)) return{};
-            if(output_mode_attr == output_mode::freq && argsize < 4 && !scale_array.get_value(mpitch)){
+            if(scale_attr && argsize < 4 && !scale_array.get_value(mpitch)){
                 if(debug){cout << "mpitch " << mpitch << " not defined in the scale_array" << endl;}
             return {};}
             handleNoteOn(current_note, lock);
@@ -703,18 +698,17 @@ function mainInletFunction = MIN_FUNCTION{
     return {};
 };
 
-Note newNote(int mpitch, int vel){    
+Note newNote(number mpitch, int vel){
     Note new_note;
     new_note.mpitch.push_back(mpitch); //always add mpitch since we need it to match note on/offs
 
 
-    if((output_mode_attr == output_mode::freq) && scale_array.get_value(mpitch)){
-        auto value = scale_array.get_value(mpitch); //we look up the frequency to add to the note in scale_array
+    if(scale_attr && scale_array.get_value(mpitch)){
+        auto value = scale_array.get_value(mpitch);
         new_note.freq.push_back(static_cast<number>(*value) * (basefreq_attr / 440));
     }
-
     else{
-        new_note.freq.push_back(mpitch); //always add frequency so the vector contains something that can be printed, although this is not a frequency
+        new_note.freq.push_back(mpitch);
     }
     new_note.vel = vel;
     return new_note;
@@ -974,7 +968,7 @@ void handleNoteOnPoly(Note &note, lock &lock){
 void handleNoteOff(Note &incoming_note, lock &lock){
     if(debug) cout << "Called Handle Note Off" << endl;
     int incoming_note_stream = incoming_note.stream;
-    int incoming_note_mpitch_back = incoming_note.mpitch.back();
+    number incoming_note_mpitch_back = incoming_note.mpitch.back();
     Note note_to_send;
 
     // If the note is still pending (ADSR not yet confirmed), send the note-off to mc.poly~ and
@@ -1525,7 +1519,7 @@ message<> print{this, "print", "Print info to the max console",
         {
             cout << "mpitch [";
             
-            for (int j : i.mpitch)
+            for (number j : i.mpitch)
             {
                 cout << j << " ";
             }

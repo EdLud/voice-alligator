@@ -268,12 +268,14 @@
 			</description>
 		</attribute>
 
-		<attribute name='output_mode' get='1' set='1' type='bool' size='1'>
-			<digest>Output mode: 0 MIDI, 1 frequency (default frequency)</digest>
+		<attribute name='scale' get='1' set='1' type='bool' size='1'>
+			<digest>Scale lookup on/off (default on)</digest>
 			<description>
-				Determines whether outlet 1 (freq~) outputs frequencies in Hz or raw MIDI pitch values.
+				When on (default), incoming pitch values are looked up in the scale array and output as frequencies in Hz, scaled by <at>basefreq</at>. Fractional pitch values (e.g. 60.5) interpolate linearly between neighbouring scale entries.
 				<br/><br/>
-				<i>default: 1 (Frequency)</i>
+				When off, the raw pitch input passes through directly as the frequency value — no scale lookup and no <at>basefreq</at> scaling.
+				<br/><br/>
+				<i>default: true (on)</i>
 			</description>
 		</attribute>
 

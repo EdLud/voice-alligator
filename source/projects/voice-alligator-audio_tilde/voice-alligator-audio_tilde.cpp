@@ -5,21 +5,19 @@
 ///
 /// voice-alligator-audio~
 ///
-/// Audio-to-audio voice allocator. Three signal inlets drive voice allocation:
+/// Audio-to-audio voice allocator. Four signal inlets drive voice allocation:
 ///   1  trigger   — rising edge (0 → non-zero) fires note-on(s)
 ///   2  pitch     — MIDI note number (rounded to int, looked up in scale array) when @scale 1
 ///                  or raw frequency (Hz) when @scale 0 (default)
-///                  If non-zero at trigger, overrides the pitch list for all notes.
+///                  If non-zero at trigger, overrides the @pitch attribute for all notes.
 ///   3  velocity  — 0.0–1.0 (sampled at trigger moment)
-///                  If non-zero at trigger, overrides the vel list for all notes.
+///                  If non-zero at trigger, overrides the @vel attribute for all notes.
+///   4  aux       — auxiliary value sampled at trigger and held for the lifetime of the voice
+///                  (raw value, including 0, passes through to outlet 5)
 ///
-/// Multi-note triggers:
-///   Two messages set per-note lists for a single trigger event:
-///     pitch <f1> <f2> ...  — frequencies in Hz (or MIDI notes when @scale 1)
-///     vel  <v1> <v2> ...   — velocities 0.0–1.0
-///   The longest list determines how many notes a single trigger fires.
-///   Shorter lists wrap around (modulo). Signal inlets override pitch/vel
-///   when non-zero but do not change the note count.
+/// Attributes replace per-trigger list messages. Each attribute accepts a single value
+/// or a space-separated list. The longest list determines how many notes a single trigger
+/// fires. Shorter lists wrap around (modulo).
 ///
 /// The ADSR envelope is one-shot: attack → decay → release (no sustain hold).
 /// After attack+decay the release is triggered automatically;
@@ -30,7 +28,7 @@
 ///   2  out_env      ADSR envelope
 ///   3  out_impulse  1-sample impulse on note-on
 ///   4  out_ramp     linear ramp 0→1 over attack + decay + sustain_dur + release
-///   5  out_stream   stream index (1-indexed, 0 = no stream)
+///   5  out_aux      auxiliary value sampled at trigger (raw, can be 0)
 
 #include <algorithm>
 #include "c74_min.h"
@@ -47,6 +45,15 @@ using namespace c74::min::lib;
 long voice_alligator_audio_tilde_multichanneloutputs(c74::max::t_object* x, long index, long count);
 long voice_alligator_audio_tilde_multichannelinputs (c74::max::t_object* x, long index, long count);
 
+static constexpr int MAX_AUX_CHANNELS = 32;
+
+struct TriggerEvent {
+    float    signal_pitch;
+    float    signal_velocity;
+    std::array<number, MAX_AUX_CHANNELS> signal_aux {};
+    uint64_t sample_time;
+};
+
 class voice_alligator_audio_tilde : public object<voice_alligator_audio_tilde>, public vector_operator<> {
 public:
 MIN_DESCRIPTION{"audio-to-audio voice allocator with built-in ADSR — trigger/pitch/velocity as signals"};
@@ -55,18 +62,19 @@ MIN_AUTHOR{"Jan Godde, Edis Ludwig"};
 MIN_RELATED{"poly~, voice-alligator, voice-alligator~"};
 MIN_FLAGS{documentation_flags::do_not_generate};
 
-// Three signal inlets + external-busy MC inlet (rightmost)
-inlet<>  in_trigger      {this, "(signal) rising edge triggers note-on",                         "signal"};
-inlet<>  in_pitch        {this, "(signal) MIDI note number or frequency",                        "signal"};
-inlet<>  in_velocity     {this, "(signal) velocity 0-1, sampled at trigger",                     "signal"};
-inlet<>  in_external_busy{this, "(MC signal) while non-zero voice stays busy; 1→0 ends that voice", "multichannelsignal"};
+// Four signal inlets + external-busy MC inlet (rightmost)
+inlet<>  in_trigger      {this, "(signal) rising edge triggers note-on",                              "signal"};
+inlet<>  in_pitch        {this, "(signal) MIDI note number or frequency",                             "signal"};
+inlet<>  in_velocity     {this, "(signal) velocity 0-1, sampled at trigger",                          "signal"};
+inlet<>  in_aux          {this, "(MC signal) auxiliary value(s), sampled at trigger and held per voice","multichannelsignal"};
+inlet<>  in_external_busy{this, "(MC signal) while non-zero voice stays busy; 1→0 ends that voice",    "multichannelsignal"};
 
 // Five MC signal outlets
 outlet<> out_freq   {this, "(MC~) frequency per voice",                         "multichannelsignal"};  // 1
 outlet<> out_env    {this, "(MC~) ADSR envelope per voice",                     "multichannelsignal"};  // 2
 outlet<> out_impulse{this, "(MC~) note-on impulse",                             "multichannelsignal"};  // 3
 outlet<> out_ramp   {this, "(MC~) note ramp 0→1 over attack+decay+sustain+rel", "multichannelsignal"};  // 4
-outlet<> out_stream {this, "(MC~) stream index per voice (1-indexed)",           "multichannelsignal"};  // 5
+outlet<> out_aux    {this, "(MC~) auxiliary value sampled at trigger",            "multichannelsignal"};  // 5
 
 message<> maxclass_setup{this, "maxclass_setup", MIN_FUNCTION{
     c74::max::t_class* c = args[0];
@@ -145,6 +153,10 @@ struct VoiceCmd {
     std::atomic<float> p_glide_curvature{0.f};
     std::atomic<int>   p_glide_retrigger{0};
     std::atomic<int>   p_glide_impulse  {0};
+    // Aux values sampled at trigger (one per aux channel, up to MAX_AUX_CHANNELS).
+    // Applied to voice_aux either immediately (no-declick / glide) or deferred
+    // to retrigger→attack (declick path).
+    std::array<std::atomic<number>, MAX_AUX_CHANNELS> p_aux {};
 
     VoiceCmd() = default;
     VoiceCmd(const VoiceCmd&) {}
@@ -158,30 +170,16 @@ std::unordered_map<int, Note> pending_voices;
 std::vector<int>              inactive_voices;
 ScaleArray                    scale_array;
 
-// Per-trigger note lists (scheduler thread only)
-std::vector<float> msg_freq_list;
-std::vector<float> msg_vel_list;
-std::vector<float> msg_attack_list;
-std::vector<float> msg_decay_list;
-std::vector<float> msg_sustain_list;
-std::vector<float> msg_sustain_dur_list;
-std::vector<float> msg_release_list;
-std::vector<float> msg_attack_curve_list;
-std::vector<float> msg_decay_curve_list;
-std::vector<float> msg_release_curve_list;
-std::vector<float> msg_return_to_zero_list;
-std::vector<float> msg_glidetime_list;
-std::vector<float> msg_glide_curve_list;
-std::vector<float> msg_glide_retrigger_list;
-std::vector<float> msg_glide_impulse_list;
-std::vector<float> msg_mono_list;
-std::vector<float> msg_mono_steals_release_list;
-
-// Stream → voice mapping (scheduler thread only)
+// Stream → voice mapping (scheduler thread only, used for glide matching)
 std::vector<int> stream_voice_map;
 
-// Voice → stream mapping (scheduler writes, audio reads)
+// Voice → stream mapping (internal, scheduler writes, audio reads — for glide only)
 std::atomic<int> voice_stream[1024] {};
+
+// Per-voice aux values (audio thread only — written from VoiceCmd::p_aux on note_on,
+// read each sample for out_aux). Voice-major: voice_aux[voice][aux_ch].
+// Full double precision — no float truncation on the inlet → outlet path.
+number voice_aux[1024][MAX_AUX_CHANNELS] {};
 
 VoiceCmd voice_cmd[1024];
 adsr     voice_adsr[1024];
@@ -231,9 +229,10 @@ struct VoiceVelRamp {
 };
 
 struct VoicePendingFreq {
-    bool  active   {false};
-    float freq     {0.f};
-    float vel_norm {1.f};
+    bool   active   {false};
+    float  freq     {0.f};
+    float  vel_norm {1.f};
+    std::array<number, MAX_AUX_CHANNELS> aux {};  // applied at retrigger→attack
 };
 
 VoiceVelRamp     voice_vel_ramp   [1024];
@@ -274,13 +273,10 @@ bool  ext_busy_holding     [1024] {};  // ADSR finished while signal was high; h
 
 std::atomic<float> adsr_retrigger_ms {5.f};  // declick_ms
 
-// ─── Default fallbacks (used when lists are empty and signal is zero) ─────────
-
-std::atomic<float> default_freq{440.f};
-std::atomic<float> default_vel {0.5f};
-
 // ─── Per-note default values ──────────────────────────────────────────────────
 
+static constexpr float DEF_FREQ        = 440.f;
+static constexpr float DEF_VEL         = 0.5f;
 static constexpr float DEF_ATTACK      = 10.f;
 static constexpr float DEF_DECAY       = 100.f;
 static constexpr float DEF_SUSTAIN     = 1.0f;
@@ -295,176 +291,155 @@ static constexpr float DEF_GLIDE_CURVE   = 0.f;
 static constexpr float DEF_GLIDE_RETRIGGER = 0.f;
 static constexpr float DEF_GLIDE_IMPULSE  = 0.f;
 
-// ─── Helper: look up per-stream param from list with wrap-around ──────────────
+// ─── Helper: look up per-stream param from attribute list with wrap-around ─────
 
-static float getP(const std::vector<float>& list, size_t idx, float def) {
+static float getP(const std::vector<number>& list, size_t idx, float def) {
     if (list.empty()) return def;
-    return list[idx % list.size()];
+    return (float)list[idx % list.size()];
 }
 
-// ─── List messages ───────────────────────────────────────────────────────────
+// ─── Per-note attributes (accept single value or list; longest list sets note count) ─
 
-message<> pitch_msg{this, "pitch", "Set frequency list (Hz/MIDI) for multi-note triggers",
-    MIN_FUNCTION{
-        msg_freq_list.clear();
-        for (const auto& a : args)
-            msg_freq_list.push_back(std::max(0.f, (float)(number)a));
-        if (!msg_freq_list.empty())
-            default_freq.store(msg_freq_list[0], std::memory_order_relaxed);
-        return {};
-    }
+attribute<std::vector<number>> pitch_attr{this, "pitch", {DEF_FREQ},
+    description{"Frequency list in Hz (or MIDI when @scale 1). Overridden per-trigger by inlet 2 when non-zero."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::max(0.0, (number)a));
+        return out;
+    }}
 };
-message<> vel_msg{this, "vel", "Set velocity list (0-1)",
-    MIN_FUNCTION{
-        msg_vel_list.clear();
-        for (const auto& a : args)
-            msg_vel_list.push_back((float)(number)a);
-        if (!msg_vel_list.empty())
-            default_vel.store(msg_vel_list[0], std::memory_order_relaxed);
-        return {};
-    }
+
+attribute<std::vector<number>> vel_attr{this, "vel", {DEF_VEL},
+    description{"Velocity list (0–1). Overridden per-trigger by inlet 3 when non-zero."}};
+
+attribute<std::vector<number>> attack_attr{this, "attack", {DEF_ATTACK},
+    description{"Attack time list (ms, ≥ 0). Default 10."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::max(0.0, (number)a));
+        return out;
+    }}
 };
-message<> attack_msg{this, "attack", "Set attack time list (ms)",
-    MIN_FUNCTION{
-        msg_attack_list.clear();
-        for (const auto& a : args)
-            msg_attack_list.push_back(std::max(0.f, (float)(number)a));
-        return {};
-    }
+
+attribute<std::vector<number>> decay_attr{this, "decay", {DEF_DECAY},
+    description{"Decay time list (ms, ≥ 0). Default 100."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::max(0.0, (number)a));
+        return out;
+    }}
 };
-message<> decay_msg{this, "decay", "Set decay time list (ms)",
-    MIN_FUNCTION{
-        msg_decay_list.clear();
-        for (const auto& a : args)
-            msg_decay_list.push_back(std::max(0.f, (float)(number)a));
-        return {};
-    }
+
+attribute<std::vector<number>> sustain_attr{this, "sustain", {DEF_SUSTAIN},
+    description{"Sustain level list (0–1). Default 1."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::clamp((number)a, 0.0, 1.0));
+        return out;
+    }}
 };
-message<> sustain_msg{this, "sustain", "Set sustain level list (0-1)",
-    MIN_FUNCTION{
-        msg_sustain_list.clear();
-        for (const auto& a : args)
-            msg_sustain_list.push_back(std::clamp((float)(number)a, 0.f, 1.f));
-        return {};
-    }
+
+attribute<std::vector<number>> sustain_dur_attr{this, "sustain_dur", {DEF_SUSTAIN_DUR},
+    description{"Sustain hold duration list (ms, ≥ 0). Default 100."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::max(0.0, (number)a));
+        return out;
+    }}
 };
-message<> sustain_dur_msg{this, "sustain_dur", "Set sustain hold duration list (ms, default 100)",
-    MIN_FUNCTION{
-        msg_sustain_dur_list.clear();
-        for (const auto& a : args)
-            msg_sustain_dur_list.push_back(std::max(0.f, (float)(number)a));
-        return {};
-    }
+
+attribute<std::vector<number>> release_attr{this, "release", {DEF_RELEASE},
+    description{"Release time list (ms, ≥ 0). Default 300."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::max(0.0, (number)a));
+        return out;
+    }}
 };
-message<> release_msg{this, "release", "Set release time list (ms)",
-    MIN_FUNCTION{
-        msg_release_list.clear();
-        for (const auto& a : args)
-            msg_release_list.push_back(std::max(0.f, (float)(number)a));
-        return {};
-    }
+
+attribute<std::vector<number>> attack_curve_attr{this, "attack_curve", {DEF_ATTACK_CURVE},
+    description{"Attack curve list (−1 to 1, 0 = linear). Default 0."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::clamp((number)a, -1.0, 1.0));
+        return out;
+    }}
 };
-message<> attack_curve_msg{this, "attack_curve", "Set attack curve list (-1 to 1)",
-    MIN_FUNCTION{
-        msg_attack_curve_list.clear();
-        for (const auto& a : args)
-            msg_attack_curve_list.push_back(std::clamp((float)(number)a, -1.f, 1.f));
-        return {};
-    }
+
+attribute<std::vector<number>> decay_curve_attr{this, "decay_curve", {DEF_DECAY_CURVE},
+    description{"Decay curve list (−1 to 1, 0 = linear). Default 0."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::clamp((number)a, -1.0, 1.0));
+        return out;
+    }}
 };
-message<> decay_curve_msg{this, "decay_curve", "Set decay curve list (-1 to 1)",
-    MIN_FUNCTION{
-        msg_decay_curve_list.clear();
-        for (const auto& a : args)
-            msg_decay_curve_list.push_back(std::clamp((float)(number)a, -1.f, 1.f));
-        return {};
-    }
+
+attribute<std::vector<number>> release_curve_attr{this, "release_curve", {DEF_RELEASE_CURVE},
+    description{"Release curve list (−1 to 1, 0 = linear). Default 0."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::clamp((number)a, -1.0, 1.0));
+        return out;
+    }}
 };
-message<> release_curve_msg{this, "release_curve", "Set release curve list (-1 to 1)",
-    MIN_FUNCTION{
-        msg_release_curve_list.clear();
-        for (const auto& a : args)
-            msg_release_curve_list.push_back(std::clamp((float)(number)a, -1.f, 1.f));
-        return {};
-    }
+
+attribute<std::vector<number>> glidetime_attr{this, "glidetime", {DEF_GLIDETIME},
+    description{"Glide time list (ms, ≥ 0). Default 30."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::max(0.0, (number)a));
+        return out;
+    }}
 };
-// return_to_zero is always on — not exposed to the user
-message<> glidetime_msg{this, "glidetime", "Set glide time list (ms)",
-    MIN_FUNCTION{
-        msg_glidetime_list.clear();
-        for (const auto& a : args)
-            msg_glidetime_list.push_back(std::max(0.f, (float)(number)a));
-        return {};
-    }
+
+attribute<std::vector<number>> glide_curve_attr{this, "glide_curve", {DEF_GLIDE_CURVE},
+    description{"Glide curve list (−1 to 1, 0 = linear). Default 0."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back(std::clamp((number)a, -1.0, 1.0));
+        return out;
+    }}
 };
-message<> glide_curve_msg{this, "glide_curve", "Set glide curve list (-1 to 1)",
-    MIN_FUNCTION{
-        msg_glide_curve_list.clear();
-        for (const auto& a : args)
-            msg_glide_curve_list.push_back(std::clamp((float)(number)a, -1.f, 1.f));
-        return {};
-    }
+
+attribute<std::vector<number>> glide_retrigger_attr{this, "glide_retrigger", {DEF_GLIDE_RETRIGGER},
+    description{"Glide retrigger list (0 = legato, 1 = retrigger). Default 0."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back((number)a > 0.5 ? 1.0 : 0.0);
+        return out;
+    }}
 };
-message<> glide_retrigger_msg{this, "glide_retrigger", "Set glide retrigger list (0/1)",
-    MIN_FUNCTION{
-        msg_glide_retrigger_list.clear();
-        for (const auto& a : args)
-            msg_glide_retrigger_list.push_back((float)(number)a > 0.5f ? 1.f : 0.f);
-        return {};
-    }
+
+attribute<std::vector<number>> glide_impulse_attr{this, "glide_impulse", {DEF_GLIDE_IMPULSE},
+    description{"Glide impulse list (0/1 — fire impulse on glide note-on). Default 0."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back((number)a > 0.5 ? 1.0 : 0.0);
+        return out;
+    }}
 };
-message<> glide_impulse_msg{this, "glide_impulse", "Set glide impulse list (0/1)",
-    MIN_FUNCTION{
-        msg_glide_impulse_list.clear();
-        for (const auto& a : args)
-            msg_glide_impulse_list.push_back((float)(number)a > 0.5f ? 1.f : 0.f);
-        return {};
-    }
+
+attribute<std::vector<number>> mono_attr{this, "mono", {0},
+    description{"Per-stream mono/glide enable list (0/1). Default 0 (polyphonic)."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back((number)a > 0.5 ? 1.0 : 0.0);
+        return out;
+    }}
 };
-message<> mono_msg{this, "mono", "Set per-stream mono/glide enable list (0/1)",
-    MIN_FUNCTION{
-        msg_mono_list.clear();
-        for (const auto& a : args)
-            msg_mono_list.push_back((float)(number)a > 0.5f ? 1.f : 0.f);
-        return {};
-    }
+
+attribute<std::vector<number>> mono_steals_release_attr{this, "mono_steals_release", {0},
+    description{"Per-stream mono-steals-release list (0/1). Default 0."},
+    setter{MIN_FUNCTION{
+        atoms out; out.reserve(args.size());
+        for (const auto& a : args) out.push_back((number)a > 0.5 ? 1.0 : 0.0);
+        return out;
+    }}
 };
-message<> mono_steals_release_msg{this, "mono_steals_release", "Set per-stream mono steals release list (0/1)",
-    MIN_FUNCTION{
-        msg_mono_steals_release_list.clear();
-        for (const auto& a : args)
-            msg_mono_steals_release_list.push_back((float)(number)a > 0.5f ? 1.f : 0.f);
-        return {};
-    }
-};
+
 attribute<bool> m_external_glide{this, "ext_busy_forces_glide", false,
     description{"When on, a non-zero external busy signal forces a glide to the next mono note regardless of mono_steals_release (default false)"}};
-
-message<> reset_msg{this, "reset", "Reset all lists and defaults",
-    MIN_FUNCTION{
-        msg_freq_list.clear();
-        msg_vel_list.clear();
-        msg_attack_list.clear();
-        msg_decay_list.clear();
-        msg_sustain_list.clear();
-        msg_sustain_dur_list.clear();
-        msg_release_list.clear();
-        msg_attack_curve_list.clear();
-        msg_decay_curve_list.clear();
-        msg_release_curve_list.clear();
-        msg_return_to_zero_list.clear();
-        msg_glidetime_list.clear();
-        msg_glide_curve_list.clear();
-        msg_glide_retrigger_list.clear();
-        msg_glide_impulse_list.clear();
-        msg_mono_list.clear();
-        msg_mono_steals_release_list.clear();
-        default_freq.store(440.f, std::memory_order_relaxed);
-        default_vel .store(0.5f,  std::memory_order_relaxed);
-        stream_voice_map.clear();
-        return {};
-    }
-};
 
 message<> active_msg{this, "active", "Activate/deactivate note-on processing (0/1)",
     MIN_FUNCTION{
@@ -530,10 +505,15 @@ attribute<int> scale_array_maxsize_attr{this, "scalearray_maxsize", 128,
     }}
 };
 
-int voices = 1;
+int voices      = 1;
+int aux_channels = 1;
 
 argument<int> voices_arg{this, "voices_arg", description{"Number of voices, max: 1024"},
     {MIN_ARGUMENT_FUNCTION{ voices = arg; }}
+};
+
+argument<int> aux_channels_arg{this, "aux_channels_arg", description{"Number of aux inlet channels (default 1)"},
+    {MIN_ARGUMENT_FUNCTION{ aux_channels = std::max(1, (int)arg); }}
 };
 
 // ─── Constructor ──────────────────────────────────────────────────────────────
@@ -543,6 +523,7 @@ voice_alligator_audio_tilde(const atoms& args = {}) {
     if (args.size() >= 1) n = (int)args[0];
     if (n > 1024) { cerr << "maximum number of voices is 1024" << endl; return; }
     voices = n;
+    if (args.size() >= 2) aux_channels = std::max(1, (int)args[1]);
     scale_array.fill_container(128);
     resetVoices(n);
 }
@@ -558,6 +539,10 @@ void resetVoices(int n) {
         voice_done_flags   [i].store(0, std::memory_order_relaxed);
         voice_release_flags[i].store(0, std::memory_order_relaxed);
         voice_stream       [i].store(0, std::memory_order_relaxed);
+        for (int ac = 0; ac < MAX_AUX_CHANNELS; ++ac) {
+            voice_aux[i][ac] = 0.0;
+            voice_cmd[i].p_aux[ac].store(0.0, std::memory_order_relaxed);
+        }
         voice_cmd[i].cmd         .store(0,   std::memory_order_relaxed);
         voice_cmd[i].freq        .store(0.f, std::memory_order_relaxed);
         voice_cmd[i].vel         .store(0.f, std::memory_order_relaxed);
@@ -640,24 +625,30 @@ void operator()(audio_bundle input, audio_bundle output) {
     const double* trig_buf  = input.samples(0);  // inlet 1: trigger
     const double* pitch_buf = input.samples(1);  // inlet 2: pitch
     const double* vel_buf   = input.samples(2);  // inlet 3: velocity
+    // inlet 4: aux — aux_channels channels starting at channel index 3
+    const int ac = aux_channels;
 
     // ── Rising-edge detection → post to poll timer via fifo ──────────────────
     for (int i = 0; i < frames; ++i) {
         float trig = (float)trig_buf[i];
         if (trig != 0.f && prev_trigger_sample == 0.f) {
-            float pitch_val = (float)pitch_buf[i];
-            float vel_norm  = (float)vel_buf[i];
-            trigger_fifo.try_enqueue({pitch_val, vel_norm, audio_sample_counter + (uint64_t)i});
+            TriggerEvent evt;
+            evt.signal_pitch    = (float)pitch_buf[i];
+            evt.signal_velocity = (float)vel_buf[i];
+            evt.sample_time     = audio_sample_counter + (uint64_t)i;
+            for (int c = 0; c < ac; ++c)
+                evt.signal_aux[c] = input.samples(3 + c)[i];
+            trigger_fifo.try_enqueue(evt);
         }
         prev_trigger_sample = (float)trig_buf[i];
     }
     audio_sample_counter += (uint64_t)frames;
 
-    // ── External-busy inlet: 1→0 edge on inlet 4 channel v ends voice v ─────
+    // ── External-busy inlet: 1→0 edge on inlet 4+aux_channels channel v ends voice v ─────
     {
         const int total_in = static_cast<int>(input.channel_count());
         for (int v = 0; v < n; ++v) {
-            const int ch = 3 + v;
+            const int ch = 3 + ac + v;
             if (ch >= total_in) { prev_ext_busy_sample[v] = 0.f; continue; }
             const double* sbuf = input.samples(ch);
             static constexpr float EXT_BUSY_THRESHOLD = 1e-4f;
@@ -709,6 +700,11 @@ void operator()(audio_bundle input, audio_bundle output) {
             p.glide_retrigger = voice_cmd[v].p_glide_retrigger.load(std::memory_order_relaxed) != 0;
             p.glide_impulse   = voice_cmd[v].p_glide_impulse  .load(std::memory_order_relaxed) != 0;
 
+            // Aux values sampled by the scheduler at trigger time (all channels)
+            std::array<number, MAX_AUX_CHANNELS> pending_aux {};
+            for (int c = 0; c < aux_channels; ++c)
+                pending_aux[c] = voice_cmd[v].p_aux[c].load(std::memory_order_relaxed);
+
             float gt_ms    = p.glide_time_ms;
             int   gt_samps = (gt_ms > 0.f)
                 ? static_cast<int>((gt_ms / 1000.f) * (float)m_samplerate) : 0;
@@ -754,7 +750,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                         voice_adsr[v].trigger(true);  // force retrigger
                     }
                     if (voice_adsr[v].stage() == adsr::adsr_stage::attack) {
-                        // Retrigger completed instantly (already at ~0)
+                        // Retrigger completed instantly (already at ~0) — apply aux now
                         voice_adsr[v].initial(last_env_output[v]);
                         voice_adsr[v].peak   (new_vel);
                         voice_adsr[v].sustain(p.sustain * new_vel);
@@ -764,10 +760,11 @@ void operator()(audio_bundle input, audio_bundle output) {
                         voice_ramp_value [v] = 0.f;
                         voice_ramp_frozen[v] = false;
                         voice_in_declick [v].store(false, std::memory_order_release);
+                        for (int c = 0; c < aux_channels; ++c) voice_aux[v][c] = pending_aux[c];
                     } else {
-                        // Declick in progress — defer freq/vel until retrigger→attack
+                        // Declick in progress — defer freq/vel/aux until retrigger→attack
                         voice_ramp_frozen[v] = true;
-                        voice_pending_freq[v] = {true, new_freq, new_vel};
+                        voice_pending_freq[v] = {true, new_freq, new_vel, pending_aux};
                         voice_in_declick [v].store(true, std::memory_order_release);
                     }
                 } else {
@@ -777,6 +774,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                     voice_glide[v].target_freq  = new_freq;
                     voice_glide[v].active       = false;
                     voice_pending_freq[v].active = false;
+                    for (int c = 0; c < aux_channels; ++c) voice_aux[v][c] = pending_aux[c];
                 }
                 voice_vel_ramp[v] = {1.f, 1.f, 0.f};
             } else {
@@ -806,6 +804,8 @@ void operator()(audio_bundle input, audio_bundle output) {
                     voice_adsr[v].trigger(true);
                     voice_vel_ramp[v] = {1.f, 1.f, 0.f};
                 }
+                // Glide notes have no declick — apply aux immediately
+                for (int c = 0; c < aux_channels; ++c) voice_aux[v][c] = pending_aux[c];
             }
 
             audio_voice_active[v] = true;
@@ -818,8 +818,12 @@ void operator()(audio_bundle input, audio_bundle output) {
                 // Ramp 0→1 over attack + decay + sustain_dur + release
                 int total = static_cast<int>(((p.attack_ms + p.decay_ms + p.sustain_dur_ms + p.release_ms)
                             / 1000.f) * (float)m_samplerate);
-                voice_ramp_value[v] = 0.f;
-                voice_ramp_step [v] = (total > 0) ? 1.f / (float)total : 1.f;
+                voice_ramp_step[v] = (total > 0) ? 1.f / (float)total : 1.f;
+                // Only reset the ramp value to 0 if we're NOT in a deferred declick:
+                // during declick the previous note's ramp value must be sample-and-held
+                // on the outlet until the retrigger→attack transition restarts it.
+                if (!voice_ramp_frozen[v])
+                    voice_ramp_value[v] = 0.f;
             }
 
             // pending_off handling (very short notes)
@@ -841,8 +845,13 @@ void operator()(audio_bundle input, audio_bundle output) {
             // Zero output channels for voices that have played before — Max does
             // not re-zero signal buffers each vector so stale values would linger.
             if (voice_ever_active[v]) {
-                for (int ch = 0; ch < 5; ++ch) {
+                for (int ch = 0; ch < 4; ++ch) {
                     auto* buf = output.samples(ch*n + v);
+                    std::memset(buf, 0, frames * sizeof(*buf));
+                }
+                // Zero all aux output channels for this voice (aux-major layout)
+                for (int c = 0; c < ac; ++c) {
+                    auto* buf = output.samples(4*n + c*n + v);
                     std::memset(buf, 0, frames * sizeof(*buf));
                 }
             }
@@ -854,7 +863,10 @@ void operator()(audio_bundle input, audio_bundle output) {
         auto* ch_env     = output.samples(1*n + v);
         auto* ch_impulse = output.samples(2*n + v);
         auto* ch_ramp    = output.samples(3*n + v);
-        auto* ch_stream  = output.samples(4*n + v);
+        // aux channels: aux-major, ch_aux[c] = output channel 4*n + c*n + v
+        double* ch_aux[MAX_AUX_CHANNELS];
+        for (int c = 0; c < ac; ++c)
+            ch_aux[c] = output.samples(4*n + c*n + v);
 
         const float curve = voice_params[v].glide_curvature;
 
@@ -914,7 +926,7 @@ void operator()(audio_bundle input, audio_bundle output) {
                 }
             }
 
-            // retrigger→attack transition: apply pending freq, reset ramp
+            // retrigger→attack transition: apply pending freq/aux, reset ramp
             if (stage_before != adsr::adsr_stage::attack && stage_after == adsr::adsr_stage::attack) {
                 if (voice_pending_freq[v].active) {
                     float pvel = voice_pending_freq[v].vel_norm;
@@ -924,6 +936,9 @@ void operator()(audio_bundle input, audio_bundle output) {
                     voice_glide[v].current_freq = voice_pending_freq[v].freq;
                     voice_glide[v].target_freq  = voice_pending_freq[v].freq;
                     voice_glide[v].active       = false;
+                    // Apply deferred aux at the same sample as the deferred freq
+                    for (int c = 0; c < aux_channels; ++c)
+                        voice_aux[v][c] = voice_pending_freq[v].aux[c];
                     voice_pending_freq[v].active = false;
                 }
                 // Declick finished — reset ramp to 0 and unfreeze
@@ -992,7 +1007,7 @@ void operator()(audio_bundle input, audio_bundle output) {
             ch_freq   [i] = out_freq;
             ch_env    [i] = env;
             ch_impulse[i] = fire_impulse ? 1.f : 0.f;
-            ch_stream [i] = (float)voice_stream[v].load(std::memory_order_relaxed);
+            for (int c = 0; c < ac; ++c) ch_aux[c][i] = voice_aux[v][c];
 
             // Advance ramp (frozen during declick)
             if (!voice_ramp_frozen[v] && voice_ramp_step[v] != 0.f) {
@@ -1006,9 +1021,9 @@ void operator()(audio_bundle input, audio_bundle output) {
         }
     }
 
-    // Zero-fill spare output channels
+    // Zero-fill spare output channels (4 mono MC outlets + aux_channels*voices)
     const int total_out = static_cast<int>(output.channel_count());
-    for (int ch = 5*n; ch < total_out; ++ch) {
+    for (int ch = 4*n + ac*n; ch < total_out; ++ch) {
         auto* buf = output.samples(ch);
         for (int i = 0; i < frames; ++i) buf[i] = 0.f;
     }
@@ -1019,23 +1034,23 @@ void operator()(audio_bundle input, audio_bundle output) {
 timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
     // ── Drain trigger fifo — stream-based multi-note triggers ───────────────
     {
-        // Snapshot lists once per poll tick so they stay consistent
-        const auto snap_freq      = msg_freq_list;
-        const auto snap_vel       = msg_vel_list;
-        const auto snap_mono      = msg_mono_list;
-        const auto snap_attack    = msg_attack_list;
-        const auto snap_decay     = msg_decay_list;
-        const auto snap_sustain   = msg_sustain_list;
-        const auto snap_sus_dur   = msg_sustain_dur_list;
-        const auto snap_release   = msg_release_list;
-        const auto snap_atk_crv   = msg_attack_curve_list;
-        const auto snap_dec_crv   = msg_decay_curve_list;
-        const auto snap_rel_crv   = msg_release_curve_list;
-        const auto snap_glidetime = msg_glidetime_list;
-        const auto snap_glide_crv = msg_glide_curve_list;
-        const auto snap_glide_rt  = msg_glide_retrigger_list;
-        const auto snap_glide_imp = msg_glide_impulse_list;
-        const auto snap_mono_sr   = msg_mono_steals_release_list;
+        // Snapshot attributes once per poll tick so they stay consistent
+        const auto snap_freq      = (std::vector<number>)pitch_attr;
+        const auto snap_vel       = (std::vector<number>)vel_attr;
+        const auto snap_mono      = (std::vector<number>)mono_attr;
+        const auto snap_attack    = (std::vector<number>)attack_attr;
+        const auto snap_decay     = (std::vector<number>)decay_attr;
+        const auto snap_sustain   = (std::vector<number>)sustain_attr;
+        const auto snap_sus_dur   = (std::vector<number>)sustain_dur_attr;
+        const auto snap_release   = (std::vector<number>)release_attr;
+        const auto snap_atk_crv   = (std::vector<number>)attack_curve_attr;
+        const auto snap_dec_crv   = (std::vector<number>)decay_curve_attr;
+        const auto snap_rel_crv   = (std::vector<number>)release_curve_attr;
+        const auto snap_glidetime = (std::vector<number>)glidetime_attr;
+        const auto snap_glide_crv = (std::vector<number>)glide_curve_attr;
+        const auto snap_glide_rt  = (std::vector<number>)glide_retrigger_attr;
+        const auto snap_glide_imp = (std::vector<number>)glide_impulse_attr;
+        const auto snap_mono_sr   = (std::vector<number>)mono_steals_release_attr;
 
         const ParamSnap psnap{snap_attack, snap_decay, snap_sustain, snap_sus_dur,
                               snap_release, snap_atk_crv, snap_dec_crv, snap_rel_crv,
@@ -1054,9 +1069,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
 
             if (!m_active) continue;
 
-            bool  use_sa       = (bool)scale_attr;
-            float freq_default = default_freq.load(std::memory_order_relaxed);
-            float vel_default  = default_vel .load(std::memory_order_relaxed);
+            bool  use_sa = (bool)scale_attr;
 
             // Note count = longest list (minimum 1)
             size_t n_notes = std::max({snap_freq.size(), snap_vel.size(), snap_mono.size(),
@@ -1092,7 +1105,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                         freq_out = evt.signal_pitch;
                     }
                 } else if (!snap_freq.empty()) {
-                    float raw = snap_freq[i % snap_freq.size()];
+                    float raw = (float)snap_freq[i % snap_freq.size()];
                     if (use_sa) {
                         int  midi = (int)std::round(raw);
                         auto val  = scale_array.get_value(midi);
@@ -1102,7 +1115,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                         freq_out = raw;
                     }
                 } else {
-                    freq_out = freq_default;
+                    freq_out = DEF_FREQ;
                 }
 
                 // ── Velocity ─────────────────────────────────────────────
@@ -1110,19 +1123,23 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                 if (evt.signal_velocity != 0.f) {
                     vel_out = evt.signal_velocity;
                 } else if (!snap_vel.empty()) {
-                    vel_out = snap_vel[i % snap_vel.size()];
+                    vel_out = (float)snap_vel[i % snap_vel.size()];
                 } else {
-                    vel_out = vel_default;
+                    vel_out = DEF_VEL;
                 }
+
+                // ── Aux ──────────────────────────────────────────────────
+                // All aux channels sampled at trigger — same values for all streams.
+                const AuxArray& aux_out = evt.signal_aux;
 
                 // ── Per-stream params ────────────────────────────────────
                 NoteParams np = lookupStreamParams(i, psnap);
 
                 // ── Stream logic: glide if mono, else allocate new ────────
                 bool stream_mono = !snap_mono.empty()
-                    && snap_mono[i % snap_mono.size()] > 0.5f;
+                    && (float)snap_mono[i % snap_mono.size()] > 0.5f;
                 bool steals_release = !snap_mono_sr.empty()
-                    && snap_mono_sr[i % snap_mono_sr.size()] > 0.5f;
+                    && (float)snap_mono_sr[i % snap_mono_sr.size()] > 0.5f;
 
                 int existing_target = stream_voice_map[i];
                 bool do_glide = false;
@@ -1156,15 +1173,16 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
                     it->mpitch = {(int)std::round(freq_out)};
                     it->vel    = vel_out;
                     it->release_flag = false;
+                    storeAux(existing_target - 1, aux_out);
                     size_t idx = std::distance(active_voices.begin(), it);
                     std::rotate(active_voices.begin() + idx, active_voices.begin() + idx + 1, active_voices.end());
                     sendNoteOn(active_voices.back(), true, false, np);
                     any_allocated = true;
                 } else if (do_glide) {
-                    glideVoice(existing_target, freq_out, vel_out, np);
+                    glideVoice(existing_target, freq_out, vel_out, np, aux_out);
                     any_allocated = true;
                 } else {
-                    int nv = allocateNewVoice(freq_out, vel_out, np, (int)(i + 1));
+                    int nv = allocateNewVoice(freq_out, vel_out, np, (int)(i + 1), aux_out);
                     if (nv != 0) {
                         any_allocated = true;
                     } else {
@@ -1220,6 +1238,7 @@ timer<timer_options::deliver_on_scheduler> adsr_poll{this, MIN_FUNCTION{
 
         live_freq[v] = 0.f;
         voice_stream[v].store(0, std::memory_order_relaxed);
+        for (int c = 0; c < aux_channels; ++c) voice_aux[v][c] = 0.0;
         voice_glide[v] = VoiceGlide{};
         voice_ramp_value [v] = 0.f;
         voice_ramp_step  [v] = 0.f;
@@ -1269,7 +1288,7 @@ message<threadsafe::yes> scale_def{this, "scale_def", "scale_def [index value ..
     }
 };
 
-void printParamList(const char* name, const std::vector<float>& list, float def, const char* unit) {
+void printParamList(const char* name, const std::vector<number>& list, float def, const char* unit) {
     cout << name;
     if (unit[0] != '\0') cout << " (" << (unit + 1) << ")";  // skip leading space in unit
     cout << ": ";
@@ -1302,26 +1321,22 @@ message<threadsafe::yes> print_msg{this, "print",
         // cout << "  steal               = " << (bool)steal_attr << endl;
         // cout << "  steal_mode          = " << (int)(steal_mode)steal_mode_attr << endl;
         // cout << "  scale               = " << (bool)scale_attr << endl;
-        printParamList("pitch",           msg_freq_list,           default_freq.load(), (bool)scale_attr ? " MIDI" : " Hz");
-        printParamList("vel",             msg_vel_list,            default_vel.load(), "");
-        printParamList("mono",            msg_mono_list,           0.f, "");
-        printParamList("mono_steals_release", msg_mono_steals_release_list, 0.f, "");
-        // cout << "─── ADSR ──────────────────────" << endl;
-        printParamList("attack",          msg_attack_list,         DEF_ATTACK,       " ms");
-        printParamList("decay",           msg_decay_list,          DEF_DECAY,        " ms");
-        printParamList("sustain",         msg_sustain_list,        DEF_SUSTAIN,      "");
-        printParamList("sustain_dur",     msg_sustain_dur_list,    DEF_SUSTAIN_DUR,  " ms");
-        printParamList("release",         msg_release_list,        DEF_RELEASE,      " ms");
-        printParamList("attack_curve",    msg_attack_curve_list,   DEF_ATTACK_CURVE, "");
-        printParamList("decay_curve",     msg_decay_curve_list,    DEF_DECAY_CURVE,  "");
-        printParamList("release_curve",   msg_release_curve_list,  DEF_RELEASE_CURVE,"");
-        // printParamList("return_to_zero",  msg_return_to_zero_list, DEF_RETURN_TO_ZERO,"");
-        // cout << "  declick_ms          = " << adsr_retrigger_ms.load() << " ms" << endl;
-        // cout << "─── glide ───────────────────────" << endl;
-        printParamList("glidetime",       msg_glidetime_list,       DEF_GLIDETIME,       " ms");
-        printParamList("glide_curve",     msg_glide_curve_list,     DEF_GLIDE_CURVE,     "");
-        printParamList("glide_retrigger", msg_glide_retrigger_list, DEF_GLIDE_RETRIGGER, "");
-        printParamList("glide_impulse",   msg_glide_impulse_list,   DEF_GLIDE_IMPULSE,   "");
+        printParamList("pitch",               (std::vector<number>)pitch_attr,              DEF_FREQ,            (bool)scale_attr ? " MIDI" : " Hz");
+        printParamList("vel",                 (std::vector<number>)vel_attr,                DEF_VEL,             "");
+        printParamList("mono",                (std::vector<number>)mono_attr,               0.f,                 "");
+        printParamList("mono_steals_release", (std::vector<number>)mono_steals_release_attr,0.f,                 "");
+        printParamList("attack",              (std::vector<number>)attack_attr,             DEF_ATTACK,          " ms");
+        printParamList("decay",               (std::vector<number>)decay_attr,              DEF_DECAY,           " ms");
+        printParamList("sustain",             (std::vector<number>)sustain_attr,            DEF_SUSTAIN,         "");
+        printParamList("sustain_dur",         (std::vector<number>)sustain_dur_attr,        DEF_SUSTAIN_DUR,     " ms");
+        printParamList("release",             (std::vector<number>)release_attr,            DEF_RELEASE,         " ms");
+        printParamList("attack_curve",        (std::vector<number>)attack_curve_attr,       DEF_ATTACK_CURVE,    "");
+        printParamList("decay_curve",         (std::vector<number>)decay_curve_attr,        DEF_DECAY_CURVE,     "");
+        printParamList("release_curve",       (std::vector<number>)release_curve_attr,      DEF_RELEASE_CURVE,   "");
+        printParamList("glidetime",           (std::vector<number>)glidetime_attr,          DEF_GLIDETIME,       " ms");
+        printParamList("glide_curve",         (std::vector<number>)glide_curve_attr,        DEF_GLIDE_CURVE,     "");
+        printParamList("glide_retrigger",     (std::vector<number>)glide_retrigger_attr,    DEF_GLIDE_RETRIGGER, "");
+        printParamList("glide_impulse",       (std::vector<number>)glide_impulse_attr,      DEF_GLIDE_IMPULSE,   "");
         // cout << "  m_               = " << m_m_ << endl;
         // cout << "──────────────────────────────" << endl;
         return {};
@@ -1347,18 +1362,18 @@ struct NoteParams {
 };
 
 struct ParamSnap {
-    const std::vector<float>& attack;
-    const std::vector<float>& decay;
-    const std::vector<float>& sustain;
-    const std::vector<float>& sus_dur;
-    const std::vector<float>& release;
-    const std::vector<float>& atk_crv;
-    const std::vector<float>& dec_crv;
-    const std::vector<float>& rel_crv;
-    const std::vector<float>& glidetime;
-    const std::vector<float>& glide_crv;
-    const std::vector<float>& glide_rt;
-    const std::vector<float>& glide_imp;
+    const std::vector<number>& attack;
+    const std::vector<number>& decay;
+    const std::vector<number>& sustain;
+    const std::vector<number>& sus_dur;
+    const std::vector<number>& release;
+    const std::vector<number>& atk_crv;
+    const std::vector<number>& dec_crv;
+    const std::vector<number>& rel_crv;
+    const std::vector<number>& glidetime;
+    const std::vector<number>& glide_crv;
+    const std::vector<number>& glide_rt;
+    const std::vector<number>& glide_imp;
 };
 
 static NoteParams lookupStreamParams(size_t i, const ParamSnap& s) {
@@ -1499,8 +1514,18 @@ void sendNoteOn(Note& note, bool steal, bool glide, const NoteParams& np) {
 }
 
 // Allocate a new voice for a stream (poly allocation + steal)
-// stream_idx is 1-indexed (0 = no stream)
-int allocateNewVoice(float freq, float vel_norm, const NoteParams& np, int stream_idx = 0) {
+// stream_idx is 1-indexed (0 = no stream); aux is the raw value sampled at trigger.
+// The aux value is staged into voice_cmd[v].p_aux and applied to voice_aux by the
+// audio thread — immediately for fresh note-ons, deferred to retrigger→attack
+// during a declick steal. Scheduler does NOT write voice_aux directly.
+using AuxArray = std::array<number, MAX_AUX_CHANNELS>;
+
+void storeAux(int vi, const AuxArray& aux) {
+    for (int c = 0; c < aux_channels; ++c)
+        voice_cmd[vi].p_aux[c].store(aux[c], std::memory_order_relaxed);
+}
+
+int allocateNewVoice(float freq, float vel_norm, const NoteParams& np, int stream_idx = 0, const AuxArray& aux = {}) {
     Note note;
     note.freq      = {freq};
     note.mpitch    = {(int)std::round(freq)};
@@ -1510,11 +1535,11 @@ int allocateNewVoice(float freq, float vel_norm, const NoteParams& np, int strea
     if (fv != -1) {
         note.target = fv;
         voice_stream[fv - 1].store(stream_idx, std::memory_order_relaxed);
+        storeAux(fv - 1, aux);
         auto ait = std::find_if(active_voices.begin(), active_voices.end(),
                                 [fv](const Note& n){ return n.target == fv; });
         if (ait != active_voices.end()) {
             *ait = note;
-            // Rotate to back so findNoteToSteal's "oldest" doesn't pick it again
             size_t idx = std::distance(active_voices.begin(), ait);
             std::rotate(active_voices.begin() + idx, active_voices.begin() + idx + 1, active_voices.end());
             sendNoteOn(active_voices.back(), true, false, np);
@@ -1534,20 +1559,21 @@ int allocateNewVoice(float freq, float vel_norm, const NoteParams& np, int strea
         rotate(active_voices.begin()+idx, active_voices.begin()+idx+1, active_voices.end());
         int target = active_voices.back().target;
         voice_stream[target - 1].store(stream_idx, std::memory_order_relaxed);
+        storeAux(target - 1, aux);
         sendNoteOn(active_voices.back(), true, false, np);
         return target;
     }
     return 0;
 }
 
-// Glide an existing voice to a new pitch
-void glideVoice(int target, float freq, float vel_norm, const NoteParams& np) {
+void glideVoice(int target, float freq, float vel_norm, const NoteParams& np, const AuxArray& aux = {}) {
     auto it = std::find_if(active_voices.begin(), active_voices.end(),
                            [target](const Note& n){ return n.target == target; });
     if (it == active_voices.end()) return;
     it->freq   = {freq};
     it->mpitch = {(int)std::round(freq)};
     it->vel    = vel_norm;
+    storeAux(target - 1, aux);
     sendNoteOn(*it, false, true, np);  // glide=true
 }
 
@@ -1560,13 +1586,6 @@ message<> dblclick{this, "dblclick", "Print info on double-click",
 
 private:
     mutex m_mutex;
-
-    struct TriggerEvent {
-        float signal_pitch;
-        float signal_velocity;
-        uint64_t sample_time;   // audio-thread sample counter when enqueued
-    };
-
     fifo<TriggerEvent> trigger_fifo { 2048 };
 
 };
@@ -1575,13 +1594,19 @@ private:
 
 long voice_alligator_audio_tilde_multichanneloutputs(c74::max::t_object* x, long index, long count) {
     minwrap<voice_alligator_audio_tilde>* ob = (minwrap<voice_alligator_audio_tilde>*)(x);
-    return ob->m_min_object.voices;
+    auto& obj = ob->m_min_object;
+    // Outlets 0-3: voices channels each. Outlet 4: aux_channels * voices (voice-major).
+    if (index == 4) return obj.aux_channels * obj.voices;
+    return obj.voices;
 }
 
-// Inlets 0-2 are mono (trigger/pitch/vel). Inlet 3 is the external-busy MC inlet (voices channels).
+// Inlets 0-2 are mono (trigger/pitch/vel). Inlet 3 is aux (aux_channels channels).
+// Inlet 4 is the external-busy MC inlet (voices channels).
 long voice_alligator_audio_tilde_multichannelinputs(c74::max::t_object* x, long index, long count) {
     minwrap<voice_alligator_audio_tilde>* ob = (minwrap<voice_alligator_audio_tilde>*)(x);
-    if (index == 3) return ob->m_min_object.voices;
+    auto& obj = ob->m_min_object;
+    if (index == 3) return obj.aux_channels;
+    if (index == 4) return obj.voices;
     return 1;
 }
 

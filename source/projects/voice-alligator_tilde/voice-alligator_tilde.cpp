@@ -12,7 +12,7 @@
 ///
 /// Outlets (each is an MC bundle with one channel per voice):
 ///   1  out_freq     frequency (DC, held for glide stability during release)
-///   2  out_env      ADSR envelope output  ← replaces external mc.adsr~
+///   2  out_env      ADSR envelope output  ← replaces external ADSR
 ///   3  out_glide    glide flag
 ///   4  out_hold     hold flag
 ///   5  out_sustain  sustain flag
@@ -23,7 +23,7 @@
 /// ADSR parameters are set via attributes:
 ///   @attack_ms  @decay_ms  @sustain_level  @release_ms
 ///   @attack_curve  @decay_curve  @release_curve
-///   @retrigger_ms  @return_to_zero
+///   @retrigger_ms 
 
 #include <algorithm>
 #include "c74_min.h"
@@ -84,7 +84,7 @@ message<> setup{this, "setup", MIN_FUNCTION{
 struct Note {
     number vel{80};
     std::vector<number> freq;
-    std::vector<int>    mpitch;
+    std::vector<number> mpitch; // float midi pitch; supports fractional values for scale interpolation
     int  stream{1};
     int  target{1};
     bool mono_flag{false};
@@ -93,12 +93,12 @@ struct Note {
     bool hold_flag{false};
     bool release_flag{false};
 
-    int    return_lowest_mpitch()  const { return *std::min_element(mpitch.begin(), mpitch.end()); }
-    int    return_highest_mpitch() const { return *std::max_element(mpitch.begin(), mpitch.end()); }
+    number return_lowest_mpitch()  const { return *std::min_element(mpitch.begin(), mpitch.end()); }
+    number return_highest_mpitch() const { return *std::max_element(mpitch.begin(), mpitch.end()); }
     number return_lowest_freq()    const { return *std::min_element(freq.begin(),  freq.end());  }
     number return_highest_freq()   const { return *std::max_element(freq.begin(),  freq.end());  }
 
-    void remove_mpitch_and_freq_entry(int p) {
+    void remove_mpitch_and_freq_entry(number p) {
         for (auto it = mpitch.begin(); it != mpitch.end(); ++it) {
             if (*it == p) {
                 size_t i = it - mpitch.begin();
@@ -134,8 +134,18 @@ public:
     int length()      { return static_cast<int>(data.size()); }
     int value_count() { int c=0; for (const auto& v : data) if (v.has_value()) ++c; return c; }
     void clear()      { data.clear(); data.resize(arrsize, std::nullopt); }
-    std::optional<number> get_value(int index) {
-        if (index >= 0 && index < static_cast<int>(data.size())) return data[index];
+    // Accepts fractional pitch values and linearly interpolates between
+    // neighbouring scale entries. e.g. 60.5 blends entries 60 and 61.
+    std::optional<number> get_value(number index) {
+        int lo = static_cast<int>(std::floor(index));
+        int hi = lo + 1;
+        number t = index - lo;
+        int sz = static_cast<int>(data.size());
+        auto lo_val = (lo >= 0 && lo < sz) ? data[lo] : std::nullopt;
+        auto hi_val = (hi >= 0 && hi < sz) ? data[hi] : std::nullopt;
+        if (lo_val && hi_val) return *lo_val + t * (*hi_val - *lo_val);
+        if (lo_val)           return *lo_val;
+        if (hi_val)           return *hi_val;
         return std::nullopt;
     }
 private:
@@ -158,7 +168,7 @@ struct VoiceCmd {
     std::atomic<float> sustain    {0.f};
     std::atomic<float> seq        {0.f};
     std::atomic<float> mono       {0.f};
-    std::atomic<float> stream     {0.f};  // NEW
+    std::atomic<float> stream     {0.f};
     std::atomic<int>   impulse    {0};
     std::atomic<int>   pending_off{0};
 
@@ -456,10 +466,8 @@ enum_map scale_def_mode_range = {"Midi Pitch", "Frequency"};
 attribute<scale_def_mode> scale_def_mode_attr{this, "scale_def_mode", scale_def_mode::freq,
     scale_def_mode_range, description{"Define Scale by Midi Note or Frequency (default frequency)"}};
 
-enum class output_mode : int { mpitch, freq, enum_count };
-enum_map output_mode_range = {"Midi Pitch", "Frequency"};
-attribute<output_mode> output_mode_attr{this, "output_mode", output_mode::freq,
-    output_mode_range, description{"Output Midi Notes or Frequencies (default frequency)"}};
+attribute<bool> scale_attr{this, "scale", true,
+    description{"When on (default), pitch input is looked up in the scale array and output as frequency. When off, pitch input passes through directly as frequency with no scale lookup or basefreq scaling."}};
 
 int voices = 1;
 
@@ -1044,7 +1052,7 @@ attribute<int> scale_array_maxsize_attr{this, "scalearray_maxsize", 128,
 function mainInletFunction = MIN_FUNCTION{
     lock lock{m_mutex};
     if (inlet == 0) {
-        int    mpitch  = args[0];
+        number mpitch  = args[0]; // supports fractional values for scale interpolation
         number vel     = args[1];
         unsigned long argsize = args.size();
 
@@ -1062,11 +1070,7 @@ function mainInletFunction = MIN_FUNCTION{
 
             if (argsize >= 5) {
                 number rp = args[4];
-                if (output_mode_attr == output_mode::freq) {
-                    current_note.freq.pop_back(); current_note.freq.push_back(rp);
-                } else {
-                    current_note.mpitch.pop_back(); current_note.mpitch.push_back((int)rp);
-                }
+                current_note.freq.pop_back(); current_note.freq.push_back(rp);
                 if (debug) cout << "Pre-recorded Sequencer Note: " << mpitch << " " << vel << " " << (int)args[2] << " glide=" << glide_flag << " realpitch=" << args[4] << endl;
             } else if (debug) {
                 cout << "Sequencer Note: " << mpitch << " " << vel << " " << (int)args[2] << " glide=" << glide_flag << endl;
@@ -1101,7 +1105,7 @@ function mainInletFunction = MIN_FUNCTION{
         if (vel != 0) {
             if (inactive_channels.count(current_note.stream)
              || (inactive_channels.empty() && !active_attr)) return {};
-            if (output_mode_attr == output_mode::freq && argsize < 4 && !scale_array.get_value(mpitch)) {
+            if (scale_attr && argsize < 4 && !scale_array.get_value(mpitch)) {
                 return {};
             }
             handleNoteOn(current_note, lock);
@@ -1114,10 +1118,10 @@ function mainInletFunction = MIN_FUNCTION{
 
 // ─── Note construction ────────────────────────────────────────────────────────
 
-Note newNote(int mpitch, int vel) {
+Note newNote(number mpitch, int vel) {
     Note n;
     n.mpitch.push_back(mpitch);
-    if (output_mode_attr == output_mode::freq && scale_array.get_value(mpitch))
+    if (scale_attr && scale_array.get_value(mpitch))
         n.freq.push_back(static_cast<number>(*scale_array.get_value(mpitch)) * (basefreq_attr / 440.0));
     else
         n.freq.push_back(mpitch);
@@ -1242,7 +1246,7 @@ void handleNoteOnPoly(Note& note, lock& lock) {
 
 void handleNoteOff(Note& inc, lock& lock) {
     int st   = inc.stream;
-    int mpit = inc.mpitch.back();
+    number mpit = inc.mpitch.back();
     Note nts;
 
     for (auto it = pending_voices.begin(); it != pending_voices.end(); ++it) {
@@ -1685,7 +1689,7 @@ message<> print{this, "print", "Print active voices and all parameter settings t
         cout << "  steal_hold          = " << steal_hold_var << endl;
         cout << "  respect_stream_prio = " << respect_stream_priorities_var << endl;
         cout << "  steal_case          = " << steal_case << endl;
-        cout << "  output_mode         = " << (int)(output_mode)output_mode_attr << endl;
+        cout << "  scale               = " << (bool)scale_attr << endl;
         cout << "  scale_def_mode      = " << (int)(scale_def_mode)scale_def_mode_attr << endl;
         cout << "  basefreq            = " << (number)basefreq_attr << endl;
         cout << "─── ADSR ─────────────────────────────────────" << endl;

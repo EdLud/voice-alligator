@@ -5,26 +5,23 @@
 	<digest>audio-to-audio voice allocator with built-in ADSR and glide</digest>
 
 	<description>
-		<b>voice-alligator-audio~</b> is the audio-input companion to <o>voice-alligator~</o>. Rather than receiving MIDI-style messages, it is driven entirely by signals: a trigger impulse, a pitch signal, and a velocity signal.
+		<b>voice-alligator-audio~</b> is the audio-input companion to <o>voice-alligator~</o>. Rather than receiving MIDI-style messages, it is driven entirely by signals: a trigger impulse, a pitch signal, a velocity signal, and an auxiliary signal.
 		<br/><br/>
-		Notes are triggered by a rising edge (i.e. a <o>click~</o>) on inlet 1. Pitch and velocity are sampled at the moment of the trigger on inlets 2 and 3 respectively.
+		Notes are triggered by a rising edge (i.e. a <o>click~</o>) on inlet 1. Pitch and velocity are sampled at the moment of the trigger on inlets 2 and 3. Inlet 4 is an MC aux inlet: the number of aux channels is set by the second object argument (default 1, max 32). All aux channels are sampled at the trigger moment and held for the lifetime of each triggered note.
 		<br/><br/>
-		Most parameters (pitch, velocity, ADSR, glide, mono) are set via list messages (i.e. <m>attack 1000 500</m>).
-		<br/><br/>
-
-		By default, all parameter lists have one entry. The current settings can be printed to the console using a <m>print</m> message or double-clicking the object. 
-		<br/><br/>
-		
-		<b>voice-alligator-audio~</b> can sample-accurately trigger 2 or more voices simultaneously with a single impulse, with per-voice pitch, velocity, ADSR envelope, and glide settings. The longest of the parameter lists will decide how many voices are started on a single trigger to inlet 1.
+		All parameters except aux (pitch, velocity, ADSR, glide, mono) are set via attributes. Each attribute accepts a single value or a space-separated list (e.g. <at>attack 1000 500</at>). The current settings can be printed to the console using a <m>print</m> message or double-clicking the object.
 		<br/><br/>
 
-		If a non-zero signal is present on inlets 2 or 3 at the time of the trigger, it overrides the corresponding <m>pitch</m> / <m>vel</m> list values.
+		<b>voice-alligator-audio~</b> can sample-accurately trigger 2 or more voices simultaneously with a single impulse, with per-voice pitch, velocity, ADSR envelope, and glide settings. The longest of the parameter attribute lists determines how many voices are started on a single trigger.
 		<br/><br/>
 
-		Each voice is allocated to a stream position. For example, if the longest list has 3 entries, up to 3 voices can be triggered simultaneously: one for stream 1 (list index 1), one for stream 2 (list index 2), and one for stream 3 (list index 3). When a list has fewer entries than the longest list, values wrap around with modulo indexing.
+		If a non-zero signal is present on inlets 2 or 3 at the time of the trigger, it overrides the corresponding <at>pitch</at> or <at>vel</at> attribute values for all streams on that trigger. Inlet 4 (aux) is sampled directly with no attribute fallback — all channels pass through to outlet 5 for the lifetime of the note.
+		<br/><br/>
+
+		Each voice is allocated to a stream position. For example, if the longest attribute list has 3 entries, up to 3 voices can be triggered simultaneously: one for stream 1 (list index 1), one for stream 2 (list index 2), and one for stream 3 (list index 3). When an attribute has fewer entries than the longest list, values wrap around with modulo indexing.
 
 		<br/><br/>
-		So for example if we initialize the object and send it a message <m>attack 1000 500 300, vel 0.5 0.2</m>, on the next impulse it will trigger 3 notes. 
+		So for example if we set <at>attack 1000 500 300</at> and <at>vel 0.5 0.2</at>, on the next impulse it will trigger 3 notes.
 		<br/><br/>
 		Note 1: <b>attack 1000ms and vel 0.5</b>
 		<br/>
@@ -33,7 +30,7 @@
 		Note 3: <b>attack 300ms and vel 0.5</b>
 		<br/><br/>
 
-		The envelope is a one-shot ADSR: attack, decay, sustain hold (<m>sustain_dur</m>), then release. The total ramp length equals attack + decay + sustain_dur + release.
+		The envelope is a one-shot ADSR: attack, decay, sustain hold (<at>sustain_dur</at>), then release. The total ramp length equals attack + decay + sustain_dur + release.
 	</description>
 
 	<discussion>
@@ -45,15 +42,22 @@
 
 		<i><b>Inlet 2 — pitch signal</b></i>
 		<br/><br/>
-		When non-zero at the moment of a trigger, overrides all <m>pitch</m> list values. When <m>scale</m> is off (default): a raw frequency in Hz. When <m>scale</m> is on: a MIDI note number looked up in the internal scale array.
+		When non-zero at the moment of a trigger, overrides all <at>pitch</at> attribute values for that trigger. When <at>scale</at> is off (default): a raw frequency in Hz. When <at>scale</at> is on: a MIDI note number looked up in the internal scale array.
 		<br/><br/>
 
 		<i><b>Inlet 3 — velocity signal</b></i>
 		<br/><br/>
-		When non-zero at the moment of a trigger, overrides all <m>vel</m> list values. Normalised to 0–1.
+		When non-zero at the moment of a trigger, overrides all <at>vel</at> attribute values for that trigger. Normalised to 0–1.
 		<br/><br/>
 
-		<i><b>Inlet 4 — external busy (MC signal)</b></i>
+		<i><b>Inlet 4 — aux (MC signal)</b></i>
+		<br/><br/>
+		An MC inlet whose channel count is set by the second object argument (<b>aux_channels</b>, default 1, max 32). All channels are sampled simultaneously at the moment of each trigger and held for the lifetime of the note — the same aux snapshot is applied to every stream triggered by that impulse. Raw values (including 0) pass through with no rounding, clamping, or attribute fallback. When unconnected, all channels receive a constant 0.
+		<br/><br/>
+		During a declick (voice steal), the aux values sample-and-hold at their current values and are updated at the same sample as the deferred frequency — the bottom of the declick ramp.
+		<br/><br/>
+
+		<i><b>Inlet 5 — external busy (MC signal)</b></i>
 		<br/><br/>
 		An MC signal with one channel per voice. While a channel is non-zero, the corresponding voice is kept busy. A 1→0 transition on channel <i>v</i> ends voice <i>v</i>: the ADSR is released with a declick ramp (duration controlled by <at>declick_ms</at>), after which the voice is freed normally.
 		<br/><br/>
@@ -72,29 +76,31 @@
 		<br/><br/>
 
 		<u>Outlet 3 — impulse~</u><br/>
-		A single sample impulse fired at the start of each non-glide note attack. Set <m>glide_impulse</m> to also fire on glide notes.
+		A single sample impulse fired at the start of each non-glide note attack. Set <at>glide_impulse</at> to also fire on glide notes.
 		<br/><br/>
 
 		<u>Outlet 4 — ramp~</u><br/>
 		A linear ramp from 0.0 at note-on to 1.0 at the end of the release phase. Total ramp length equals attack + decay + sustain_dur + release. Outputs 0.0 when the voice is inactive.
 		<br/><br/>
 
-		<u>Outlet 5 — stream~</u><br/>
-		Stream index of each voice (1-indexed). Indicates which stream position triggered this voice. Outputs 0 when the voice is inactive.
+		<u>Outlet 5 — aux~</u><br/>
+		MC outlet carrying <b>aux_channels × voices</b> channels in aux-major order: all voices for aux channel 1, then all voices for aux channel 2, and so on — matching the layout of outlets 1–4. Each channel holds the value sampled from the corresponding aux inlet channel at the moment of the trigger. Values (including 0) are held for the lifetime of the voice. Outputs 0 when the voice is inactive.
 		<br/><br/>
 
 		<i><b>Stream-based voice allocation</b></i>
 		<br/><br/>
-		Each list position corresponds to a stream. On each trigger, each stream either allocates a new voice or — if <m>mono</m> is enabled for that stream — glides the existing voice to the new pitch. 
-		<!-- When a list shrinks between triggers, orphaned streams release their voices. -->
+		Each attribute list position corresponds to a stream. On each trigger, each stream either allocates a new voice or — if <at>mono</at> is enabled for that stream — glides the existing voice to the new pitch.
 		<br/><br/>
 
-		<i><b>ADSR parameter changes</b></i>
+		<i><b>Attribute changes</b></i>
 		<br/><br/>
-		ADSR parameter changes take effect on the next note-on only. Currently playing voices are not affected.
+		Attribute changes take effect on the next note-on only. Currently playing voices are not affected.
 		<br/><br/>
 
-		<i><b>Non-realtime rendering is not supported right now</b></i>
+		<i><b>Non-realtime rendering</b></i>
+		<br/><br/>
+		<o>voice-alligator-audio~</o> is not compatible with non-realtime (offline) rendering. 
+		<!-- Trigger detection is sample-accurate and happens in the audio thread, but note dispatch is deferred to a wall-clock timer. In offline rendering Max processes audio faster than real time, so the timer fires far less often than expected relative to audio time — triggers accumulate in the internal queue and are drained in bursts, producing irregular and accelerated note output. <o>voice-alligator</o> and <o>voice-alligator~</o> are not affected by this, as their note events arrive as scheduler messages rather than from the audio thread. -->
 		<br/><br/>
 	</discussion>
 
@@ -113,9 +119,16 @@
 	<objarglist>
 
 		<objarg name='voices' optional='1' type='int'>
-			<digest>Number of voices (max 1024)</digest>
+			<digest>Number of voices (max 1024, default 1)</digest>
 			<description>
 				Number of voices. Maximum: 1024. Default: 1.
+			</description>
+		</objarg>
+
+		<objarg name='aux_channels' optional='1' type='int'>
+			<digest>Number of aux inlet channels (max 32, default 1)</digest>
+			<description>
+				Number of channels on the aux inlet (inlet 4). Each channel is sampled at trigger time and held for the lifetime of the note. Outlet 5 carries <b>aux_channels × voices</b> channels in aux-major order: all voices for aux channel 1, then all voices for aux channel 2, and so on. Maximum: 32. Default: 1.
 			</description>
 		</objarg>
 
@@ -125,72 +138,6 @@
 	<!--MESSAGES-->
 
 	<methodlist>
-
-		<method name='pitch'>
-			<arglist>
-				<arg name='frequencies' optional='0' type='list' />
-			</arglist>
-			<digest>Set pitch list (Hz or MIDI note numbers)</digest>
-			<description>
-				A list of frequencies (Hz) or MIDI note numbers (when <m>scale</m> is on). Each entry corresponds to a stream position. The number of notes triggered per rising edge equals the length of the longest parameter list (minimum 1).
-				<br/><br/>
-				<i>default: 440.0 Hz</i>
-			</description>
-		</method>
-
-		<method name='vel'>
-			<arglist>
-				<arg name='velocities' optional='0' type='list' />
-			</arglist>
-			<digest>Set velocity list (0–1)</digest>
-			<description>
-				A list of velocities normalised to 0–1.
-				<br/><br/>
-				<i>default: 0.5</i>
-			</description>
-		</method>
-
-		<method name='mono'>
-			<arglist>
-				<arg name='flags' optional='0' type='list' />
-			</arglist>
-			<digest>Set per-stream mono/glide enable (0/1)</digest>
-			<description>
-				A list of 0/1 flags controlling per-stream monophonic glide behaviour. When mono is enabled for a stream, a retrigger glides the existing voice to the new pitch instead of allocating a fresh voice. When mono is off (default), every trigger allocates a new voice.
-				<br/><br/>
-				Example: <m>mono 1 0 0</m> — stream 1 glides, streams 2 and 3 always allocate new voices.
-				<br/><br/>
-				When <m>ext_busy_forces_glide</m> is enabled and inlet 4 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <m>mono_steals_release</m> setting.
-				<br/><br/>
-				<i>default: 0 (off) for all streams</i>
-			</description>
-		</method>
-
-		<method name='mono_steals_release'>
-			<arglist>
-				<arg name='flags' optional='0' type='list' />
-			</arglist>
-			<digest>Set per-stream mono steals release (0/1)</digest>
-			<description>
-				A list of 0/1 flags. When mono is on and a voice on the same stream is in its release phase, this flag determines whether the new note glides the releasing voice (1) or allocates a fresh voice (0).
-				<br/><br/>
-				Only relevant when <m>mono</m> is enabled for the stream.
-				<br/><br/>
-				<i>default: 0 (off) — releasing voices are not glided</i>
-			</description>
-		</method>
-
-		<method name='ext_busy_forces_glide'>
-			<arglist>
-				<arg name='state' optional='0' type='int' />
-			</arglist>
-			<digest>External busy forces mono glide (0/1, default 0)</digest>
-			<description>
-				When enabled (1), a non-zero signal on inlet 4 (external busy) forces a glide to the next note on the same mono stream, regardless of the <m>mono_steals_release</m> setting. When disabled (0), glide behaviour is determined solely by note length and ADSR status.
-				<br/><br/>
-				<i>default: 0 (off)</i>
-			</description>
-		</method>
 
 		<method name='active'>
 			<arglist>
@@ -204,192 +151,17 @@
 			</description>
 		</method>
 
-		<method name='attack'>
-			<arglist>
-				<arg name='times' optional='0' type='list' />
-			</arglist>
-			<digest>Set attack time list (ms)</digest>
-			<description>
-				Per-stream attack times in milliseconds.
-				<br/><br/>
-				<i>default: 10 ms</i>
-			</description>
-		</method>
-
-		<method name='decay'>
-			<arglist>
-				<arg name='times' optional='0' type='list' />
-			</arglist>
-			<digest>Set decay time list (ms)</digest>
-			<description>
-				Per-stream decay times in milliseconds.
-				<br/><br/>
-				<i>default: 100 ms</i>
-			</description>
-		</method>
-
-		<method name='sustain'>
-			<arglist>
-				<arg name='levels' optional='0' type='list' />
-			</arglist>
-			<digest>Set sustain level list (0–1)</digest>
-			<description>
-				Per-stream sustain levels as a fraction of peak (0–1). The actual sustain amplitude is sustain level x velocity.
-				<br/><br/>
-				<i>default: 0.8</i>
-			</description>
-		</method>
-
-		<method name='sustain_dur'>
-			<arglist>
-				<arg name='times' optional='0' type='list' />
-			</arglist>
-			<digest>Set sustain hold duration list (ms)</digest>
-			<description>
-				Per-stream sustain hold time in milliseconds. After the decay phase reaches the sustain level, the envelope holds for this duration before entering the release phase.
-				<br/><br/>
-				<i>default: 100 ms</i>
-			</description>
-		</method>
-
-		<method name='release'>
-			<arglist>
-				<arg name='times' optional='0' type='list' />
-			</arglist>
-			<digest>Set release time list (ms)</digest>
-			<description>
-				Per-stream release times in milliseconds.
-				<br/><br/>
-				<i>default: 300 ms</i>
-			</description>
-		</method>
-
-		<method name='attack_curve'>
-			<arglist>
-				<arg name='curves' optional='0' type='list' />
-			</arglist>
-			<digest>Set attack curve list (-1 to 1)</digest>
-			<description>
-				Per-stream attack curve shape. 0 is linear, positive values are convex (fast start), negative values are concave (slow start).
-				<br/><br/>
-				<i>default: 0</i>
-			</description>
-		</method>
-
-		<method name='decay_curve'>
-			<arglist>
-				<arg name='curves' optional='0' type='list' />
-			</arglist>
-			<digest>Set decay curve list (-1 to 1)</digest>
-			<description>
-				Per-stream decay curve shape. Same convention as <m>attack_curve</m>.
-				<br/><br/>
-				<i>default: 0</i>
-			</description>
-		</method>
-
-		<method name='release_curve'>
-			<arglist>
-				<arg name='curves' optional='0' type='list' />
-			</arglist>
-			<digest>Set release curve list (-1 to 1)</digest>
-			<description>
-				Per-stream release curve shape. Same convention as <m>attack_curve</m>.
-				<br/><br/>
-				<i>default: 0</i>
-			</description>
-		</method>
-
-		<!-- <method name='return_to_zero'>
-			<arglist>
-				<arg name='flags' optional='0' type='list' />
-			</arglist>
-			<digest>Set return-to-zero list (0/1)</digest>
-			<description>
-				Per-stream flag controlling whether the envelope returns to zero before a retrigger attack.
-				<br/><br/>
-				<i>default: 1 (on)</i>
-			</description>
-		</method> -->
-
-		<method name='glidetime'>
-			<arglist>
-				<arg name='times' optional='0' type='list' />
-			</arglist>
-			<digest>Set glide time list (ms)</digest>
-			<description>
-				Per-stream glide time in milliseconds.
-				<br/><br/>
-				<i>default: 30 ms</i>
-			</description>
-		</method>
-
-		<method name='glide_curve'>
-			<arglist>
-				<arg name='curves' optional='0' type='list' />
-			</arglist>
-			<digest>Set glide curve list (-1 to 1)</digest>
-			<description>
-				Per-stream glide curve shape. Same convention as <m>attack_curve</m>.
-				<br/><br/>
-				<i>default: 0</i>
-			</description>
-		</method>
-
-		<method name='glide_retrigger'>
-			<arglist>
-				<arg name='flags' optional='0' type='list' />
-			</arglist>
-			<digest>Set glide retrigger list (0/1)</digest>
-			<description>
-				Per-stream flag. 0 (legato): envelope runs uninterrupted through the glide. 1 (retrigger): envelope restarts from current level with new velocity.
-				<br/><br/>
-				<i>default: 0 (legato)</i>
-			</description>
-		</method>
-
-		<method name='glide_impulse'>
-			<arglist>
-				<arg name='flags' optional='0' type='list' />
-			</arglist>
-			<digest>Set glide impulse list (0/1)</digest>
-			<description>
-				Per-stream flag. When on, outlet 3 fires a 1-sample impulse on glide notes as well as fresh note-ons.
-				<br/><br/>
-				<i>default: 0 (off)</i>
-			</description>
-		</method>
-
-		<method name='debug'>
-			<arglist>
-				<arg name='state' optional='0' type='int' />
-			</arglist>
-			<digest>Debug on/off (0/1)</digest>
-			<description>
-				Prints trigger, voice allocation, and ADSR completion events to the Max console.
-				<br/><br/>
-				<i>default: 0 (off)</i>
-			</description>
-		</method>
-
 		<method name='scale_def'>
 			<digest>Define internal tuning</digest>
 			<description>
-				Identical to <o>voice-alligator</o>. Only relevant when <m>scale</m> is on.
+				Identical to <o>voice-alligator</o>. Only relevant when <at>scale</at> is on.
 				<br/><br/>
 				See the <o>voice-alligator</o> reference for full documentation.
 			</description>
 		</method>
 
-		<method name='reset'>
-			<digest>Reset all lists and defaults</digest>
-			<description>
-				Clears all parameter lists (pitch, vel, mono, attack, decay, sustain, sustain_dur, release, attack_curve, decay_curve, release_curve, glidetime, glide_curve, glide_retrigger, glide_impulse) and restores default values.
-			</description>
-		</method>
-
 		<method name='print'>
-			<digest>print parameter settings to console</digest>
+			<digest>Print parameter settings to console</digest>
 			<description>
 				Prints the current value(s) of every parameter to the Max console.
 			</description>
@@ -401,6 +173,158 @@
 	<!--ATTRIBUTES-->
 
 	<attributelist>
+
+		<attribute name='pitch' get='1' set='1' type='list' size='1'>
+			<digest>Frequency list in Hz or MIDI note numbers (default 440 Hz)</digest>
+			<description>
+				A list of frequencies (Hz) or MIDI note numbers (when <at>scale</at> is on). Each entry corresponds to a stream position. The number of notes triggered per rising edge equals the length of the longest attribute list (minimum 1). Shorter lists wrap with modulo indexing.
+				<br/><br/>
+				Overridden per-trigger by inlet 2 when non-zero.
+				<br/><br/>
+				<i>default: 440 Hz</i>
+			</description>
+		</attribute>
+
+		<attribute name='vel' get='1' set='1' type='list' size='1'>
+			<digest>Velocity list (0–1, default 0.5)</digest>
+			<description>
+				A list of velocities normalised to 0–1. Overridden per-trigger by inlet 3 when non-zero.
+				<br/><br/>
+				<i>default: 0.5</i>
+			</description>
+		</attribute>
+
+		<attribute name='mono' get='1' set='1' type='list' size='1'>
+			<digest>Per-stream mono/glide enable (0/1, default 0)</digest>
+			<description>
+				A list of 0/1 flags controlling per-stream monophonic glide behaviour. When mono is enabled for a stream, a retrigger glides the existing voice to the new pitch instead of allocating a fresh voice. When mono is off (default), every trigger allocates a new voice.
+				<br/><br/>
+				Example: <at>mono 1 0 0</at> — stream 1 glides, streams 2 and 3 always allocate new voices.
+				<br/><br/>
+				When <at>ext_busy_forces_glide</at> is enabled and inlet 5 (external busy) is non-zero for a voice, the next note on the same stream always glides, regardless of the <at>mono_steals_release</at> setting.
+				<br/><br/>
+				<i>default: 0 (off) for all streams</i>
+			</description>
+		</attribute>
+
+		<attribute name='mono_steals_release' get='1' set='1' type='list' size='1'>
+			<digest>Per-stream mono steals release (0/1, default 0)</digest>
+			<description>
+				A list of 0/1 flags. When mono is on and a voice on the same stream is in its release phase, this flag determines whether the new note glides the releasing voice (1) or allocates a fresh voice (0).
+				<br/><br/>
+				Only relevant when <at>mono</at> is enabled for the stream.
+				<br/><br/>
+				<i>default: 0 — releasing voices are not glided</i>
+			</description>
+		</attribute>
+
+		<attribute name='attack' get='1' set='1' type='list' size='1'>
+			<digest>Attack time list in ms (default 10)</digest>
+			<description>
+				Per-stream attack times in milliseconds.
+				<br/><br/>
+				<i>default: 10 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='decay' get='1' set='1' type='list' size='1'>
+			<digest>Decay time list in ms (default 100)</digest>
+			<description>
+				Per-stream decay times in milliseconds.
+				<br/><br/>
+				<i>default: 100 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='sustain' get='1' set='1' type='list' size='1'>
+			<digest>Sustain level list (0–1, default 1)</digest>
+			<description>
+				Per-stream sustain levels as a fraction of peak (0–1). The actual sustain amplitude is sustain level × velocity.
+				<br/><br/>
+				<i>default: 1</i>
+			</description>
+		</attribute>
+
+		<attribute name='sustain_dur' get='1' set='1' type='list' size='1'>
+			<digest>Sustain hold duration list in ms (default 100)</digest>
+			<description>
+				Per-stream sustain hold time in milliseconds. After the decay phase reaches the sustain level, the envelope holds for this duration before entering the release phase.
+				<br/><br/>
+				<i>default: 100 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='release' get='1' set='1' type='list' size='1'>
+			<digest>Release time list in ms (default 300)</digest>
+			<description>
+				Per-stream release times in milliseconds.
+				<br/><br/>
+				<i>default: 300 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='attack_curve' get='1' set='1' type='list' size='1'>
+			<digest>Attack curve list (-1 to 1, default 0)</digest>
+			<description>
+				Per-stream attack curve shape. 0 is linear, positive values are convex (fast start), negative values are concave (slow start).
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='decay_curve' get='1' set='1' type='list' size='1'>
+			<digest>Decay curve list (-1 to 1, default 0)</digest>
+			<description>
+				Per-stream decay curve shape. Same convention as <at>attack_curve</at>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='release_curve' get='1' set='1' type='list' size='1'>
+			<digest>Release curve list (-1 to 1, default 0)</digest>
+			<description>
+				Per-stream release curve shape. Same convention as <at>attack_curve</at>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='glidetime' get='1' set='1' type='list' size='1'>
+			<digest>Glide time list in ms (default 30)</digest>
+			<description>
+				Per-stream glide time in milliseconds.
+				<br/><br/>
+				<i>default: 30 ms</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_curve' get='1' set='1' type='list' size='1'>
+			<digest>Glide curve list (-1 to 1, default 0)</digest>
+			<description>
+				Per-stream glide curve shape. Same convention as <at>attack_curve</at>.
+				<br/><br/>
+				<i>default: 0</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_retrigger' get='1' set='1' type='list' size='1'>
+			<digest>Glide retrigger list (0/1, default 0)</digest>
+			<description>
+				Per-stream flag. 0 (legato): envelope runs uninterrupted through the glide. 1 (retrigger): envelope restarts from current level with new velocity.
+				<br/><br/>
+				<i>default: 0 (legato)</i>
+			</description>
+		</attribute>
+
+		<attribute name='glide_impulse' get='1' set='1' type='list' size='1'>
+			<digest>Glide impulse list (0/1, default 0)</digest>
+			<description>
+				Per-stream flag. When on, outlet 3 fires a 1-sample impulse on glide notes as well as fresh note-ons.
+				<br/><br/>
+				<i>default: 0 (off)</i>
+			</description>
+		</attribute>
 
 		<attribute name='steal' get='1' set='1' type='bool' size='1'>
 			<digest>Voice stealing on/off (default true)</digest>
@@ -414,11 +338,11 @@
 		<attribute name='steal_mode' get='1' set='1' type='int' size='1'>
 			<digest>Voice stealing mode: 0 oldest, 1 most advanced, 2 most silent (default oldest)</digest>
 			<description>
-				Steal mode determines which voice is stolen when a new trigger arrives and no free voice is available.
+				Determines which voice is stolen when a new trigger arrives and no free voice is available.
 				<br/><br/>
 				<m>0</m> (oldest): steal the voice that has been active the longest.<br/>
-				<m>1</m> (most_advanced): steal the voice that is furthest along in its ADSR envelope.<br/>
-				<m>2</m> (most_silent): steal the quietest eligible voice — lowest current ADSR output, or ext-busy signal level if inlet 4 is connected.
+				<m>1</m> (most_advanced): steal the voice furthest along in its ADSR envelope.<br/>
+				<m>2</m> (most_silent): steal the quietest eligible voice — lowest current ADSR output, or ext-busy signal level if inlet 5 is connected.
 				<br/><br/>
 				In all modes, releasing voices are preferred over sustaining ones.
 				<br/><br/>
@@ -426,10 +350,19 @@
 			</description>
 		</attribute>
 
+		<attribute name='ext_busy_forces_glide' get='1' set='1' type='bool' size='1'>
+			<digest>External busy forces mono glide (default false)</digest>
+			<description>
+				When enabled, a non-zero signal on inlet 5 (external busy) forces a glide to the next note on the same mono stream, regardless of the <at>mono_steals_release</at> setting. When disabled, glide behaviour is determined solely by note length and ADSR status.
+				<br/><br/>
+				<i>default: false</i>
+			</description>
+		</attribute>
+
 		<attribute name='scale' get='1' set='1' type='bool' size='1'>
 			<digest>Use scale array for pitch lookup (default false)</digest>
 			<description>
-				When off (default), <m>pitch</m> values and inlet 2 are treated as raw frequencies in Hz.<br/>
+				When off (default), <at>pitch</at> values and inlet 2 are treated as raw frequencies in Hz.<br/>
 				When on, values are rounded to the nearest integer and used as MIDI note numbers to look up a frequency in the internal scale array. Use <m>scale_def</m> (see <o>voice-alligator</o> reference) to define the tuning.
 				<br/><br/>
 				<i>default: false</i>
@@ -444,15 +377,6 @@
 				<i>default: 5 ms</i>
 			</description>
 		</attribute>
-
-		<!-- <attribute name='declick_only' get='1' set='1' type='int' size='1'>
-			<digest>Output declick ramp only on outlet 2</digest>
-			<description>
-				When enabled, outlet 2 outputs 1.0 while the voice is active. On a steal, it ramps from 1.0 to 0.0 over <at>declick_ms</at>, then snaps back to 1.0. This is useful for applying your own amplitude envelope externally while still getting click-free voice stealing.
-				<br/><br/>
-				<i>default: 0 (off)</i>
-			</description>
-		</attribute> -->
 
 		<attribute name='scale_def_mode' get='1' set='1' type='int' size='1'>
 			<digest>Scale definition mode: 0 MIDI, 1 frequency (default frequency)</digest>
@@ -474,6 +398,15 @@
 			<digest>Maximum scale array size (default 128)</digest>
 			<description>
 				<i>default: 128</i>
+			</description>
+		</attribute>
+
+		<attribute name='debug' get='1' set='1' type='bool' size='1'>
+			<digest>Debug on/off (default false)</digest>
+			<description>
+				Prints trigger, voice allocation, and ADSR completion events to the Max console.
+				<br/><br/>
+				<i>default: false</i>
 			</description>
 		</attribute>
 
